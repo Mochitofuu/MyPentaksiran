@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Papan Pemuka - MyPentaksiran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-12">
+
+  <!-- Bar Navigasi Atas -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-sm">
+          P
+        </div>
+        <span class="font-bold text-slate-900">MyPentaksiran</span>
+      </div>
+      <button id="btnLogout" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 font-medium px-3 py-1.5 rounded-md border border-rose-200">
+        Log Keluar
+      </button>
+    </div>
+  </header>
+
+  <!-- Kandungan Utama -->
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-6">
+
+    <!-- Kad Guru -->
+    <div class="bg-indigo-600 rounded-2xl p-5 text-white shadow-sm flex justify-between items-center">
+      <div>
+        <p class="text-xs text-indigo-200">Selamat bertugas,</p>
+        <h2 id="userEmail" class="text-base font-bold mt-0.5 truncate max-w-[200px] sm:max-w-none">Memuat...</h2>
+      </div>
+      <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm">Guru</span>
+    </div>
+
+    <!-- Bahagian Urus Kelas -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-slate-900 text-sm">Senarai Kelas Anda</h3>
+        <button id="btnOpenModal" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg">
+          + Tambah Kelas
+        </button>
+      </div>
+
+      <!-- Borang Tambah Kelas (Tersembunyi secara lalai) -->
+      <form id="formAddClass" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+        <p class="text-xs font-semibold text-slate-700">Daftar Kelas Baharu</p>
+        <div>
+          <input type="text" id="classNameInput" placeholder="Nama Kelas (cth: 3 Amanah, T1 Maju)" required
+            class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        </div>
+        <div>
+          <input type="text" id="classSessionInput" placeholder="Sesi / Tahun (cth: 2026/2027)"
+            class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button type="button" id="btnCancelClass" class="text-xs px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-lg">Batal</button>
+          <button type="submit" id="btnSaveClass" class="text-xs px-3 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Simpan</button>
+        </div>
+      </form>
+
+      <!-- Senarai Kelas -->
+      <div id="classList" class="space-y-2">
+        <p class="text-xs text-slate-400 py-4 text-center">Sedang memuat senarai kelas...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ub2phaGlicWJoeGhweXhrcWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDU5NjAsImV4cCI6MjEwNDQyMTk2MH0.UhKRSYCcAizVnKf9dSsIcF1bgOeD8-5KRRSngBvsocI";
+
+    const { createClient } = window.supabase;
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+
+    // Semak Auth Sesi
+    async function init() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) {
+        window.location.href = "index.html";
+        return;
+      }
+      currentUser = session.user;
+      document.getElementById("userEmail").textContent = currentUser.email;
+      loadClasses();
+    }
+
+    // Ambil senarai kelas
+    async function loadClasses() {
+      const classList = document.getElementById("classList");
+      try {
+        const { data: classes, error } = await client
+          .from("classes")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!classes || classes.length === 0) {
+          classList.innerHTML = `
+            <div class="text-center py-6 text-slate-400 text-xs">
+              Belum ada kelas dicipta. Tekan butang "+ Tambah Kelas" di atas.
+            </div>`;
+          return;
+        }
+
+        classList.innerHTML = classes.map(c => `
+          <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-indigo-50/50 transition">
+            <div>
+              <p class="font-bold text-slate-800 text-sm">${c.class_name}</p>
+              <p class="text-[11px] text-slate-500">${c.year_session || 'Tiada sesi'}</p>
+            </div>
+            <button class="text-xs text-indigo-600 font-semibold bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">
+              Buka Kelas
+            </button>
+          </div>
+        `).join("");
+      } catch (err) {
+        classList.innerHTML = `<p class="text-xs text-rose-600 text-center py-2">${err.message}</p>`;
+      }
+    }
+
+    // Toggle Borang Tambah Kelas
+    const formAddClass = document.getElementById("formAddClass");
+    document.getElementById("btnOpenModal").addEventListener("click", () => formAddClass.classList.toggle("hidden"));
+    document.getElementById("btnCancelClass").addEventListener("click", () => formAddClass.classList.add("hidden"));
+
+    // Simpan Kelas Baharu
+    formAddClass.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const className = document.getElementById("classNameInput").value.trim();
+      const session = document.getElementById("classSessionInput").value.trim();
+      const btnSave = document.getElementById("btnSaveClass");
+
+      btnSave.disabled = true;
+      btnSave.textContent = "Menyimpan...";
+
+      try {
+        const { error } = await client.from("classes").insert([
+          {
+            user_id: currentUser.id,
+            class_name: className,
+            year_session: session
+          }
+        ]);
+
+        if (error) throw error;
+
+        formAddClass.reset();
+        formAddClass.classList.add("hidden");
+        loadClasses();
+      } catch (err) {
+        alert("Ralat: " + err.message);
+      } finally {
+        btnSave.disabled = false;
+        btnSave.textContent = "Simpan";
+      }
+    });
+
+    // Log Keluar
+    document.getElementById("btnLogout").addEventListener("click", async () => {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    });
+
+    init();
+  </script>
+</body>
+</html>
