@@ -24,7 +24,6 @@
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
         <label class="block text-[11px] font-semibold text-slate-600 uppercase">1. Pilih Subjek DSKP</label>
-        <!-- Butang Eksport Excel/CSV -->
         <button id="btnExportCSV" disabled class="text-[11px] bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
           📥 Eksport Excel (CSV)
         </button>
@@ -41,7 +40,15 @@
         </select>
       </div>
 
-      <div id="spDescription" class="hidden p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-xs text-indigo-900 leading-relaxed">
+      <!-- Kotak Penerangan SP & Butang Rubrik TP -->
+      <div id="spContainer" class="hidden space-y-2">
+        <div id="spDescription" class="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-xs text-indigo-900 leading-relaxed">
+        </div>
+        <div class="flex justify-end">
+          <button id="btnViewRubrics" class="text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+            ℹ️ Rubrik & Penerangan TP
+          </button>
+        </div>
       </div>
     </div>
 
@@ -57,6 +64,28 @@
       </div>
     </div>
   </main>
+
+  <!-- MODAL PENERANGAN & EDIT RUBRIK TP -->
+  <div id="modalRubric" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl p-5 shadow-xl border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">Standard Prestasi (TP 1 - TP 6)</h3>
+          <p id="rubricSpTitle" class="text-[11px] text-slate-500">Penerangan Tahap Penguasaan</p>
+        </div>
+        <button id="btnCloseModal" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Paparan / Editor Rubrik -->
+      <div class="overflow-y-auto py-3 space-y-3 text-xs flex-1" id="rubricFormList">
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+        <button id="btnCancelRubric" class="text-xs px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg">Tutup</button>
+        <button id="btnSaveRubric" class="text-xs px-4 py-1.5 bg-indigo-600 text-white font-medium rounded-lg shadow-sm">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
@@ -74,6 +103,15 @@
     let spList = [];
     let currentSP = null;
     let currentScores = {};
+
+    const defaultRubrics = {
+      "1": "Tahu asas kemahiran.",
+      "2": "Tahu dan faham kemahiran.",
+      "3": "Boleh mengaplikasikan kemahiran.",
+      "4": "Mengaplikasikan kemahiran dengan beradab/tepat.",
+      "5": "Mengaplikasikan kemahiran pada situasi baharu dengan terpuji.",
+      "6": "Kreatif, inovatif dan menjadi teladan (mithali)."
+    };
 
     if (!classId) window.location.href = "dashboard.html";
     document.getElementById("backBtn").href = `class.html?id=${classId}`;
@@ -94,13 +132,12 @@
     }
 
     async function loadStudents() {
-      const { data, error } = await client
+      const { data } = await client
         .from("students")
         .select("*")
         .eq("class_id", classId)
         .order("full_name", { ascending: true });
 
-      if (error) return alert("Ralat: " + error.message);
       students = data || [];
     }
 
@@ -117,15 +154,15 @@
         data.map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join("");
     }
 
-    // Pemilihan Subjek
     const selectSubject = document.getElementById("selectSubject");
     const selectSP = document.getElementById("selectSP");
+    const spContainer = document.getElementById("spContainer");
     const spDesc = document.getElementById("spDescription");
     const btnExport = document.getElementById("btnExportCSV");
 
     selectSubject.addEventListener("change", async (e) => {
       const dskpId = e.target.value;
-      spDesc.classList.add("hidden");
+      spContainer.classList.add("hidden");
 
       if (!dskpId) {
         selectSP.disabled = true;
@@ -157,19 +194,18 @@
         data.map(item => `<option value="${item.id}">SP ${item.sp_code} - ${item.sp_desc.slice(0, 45)}...</option>`).join("");
     });
 
-    // Pemilihan SP
     selectSP.addEventListener("change", async (e) => {
       const spId = e.target.value;
 
       if (!spId) {
-        spDesc.classList.add("hidden");
+        spContainer.classList.add("hidden");
         renderEmptyPrompt();
         return;
       }
 
       currentSP = spList.find(i => i.id === spId);
       if (currentSP) {
-        spDesc.classList.remove("hidden");
+        spContainer.classList.remove("hidden");
         spDesc.innerHTML = `<strong>SP ${currentSP.sp_code}:</strong> ${currentSP.sp_desc}`;
       }
 
@@ -200,6 +236,8 @@
         return;
       }
 
+      const rubrics = currentSP?.tp_rubrics || defaultRubrics;
+
       container.innerHTML = students.map((s, idx) => {
         const activeTP = currentScores[s.id] || null;
 
@@ -209,19 +247,26 @@
             ? "bg-indigo-600 text-white font-bold shadow-sm" 
             : "bg-slate-100 text-slate-600 hover:bg-slate-200";
 
+          const rubricText = (rubrics[tp] || "").replace(/"/g, '&quot;');
+
           return `
             <button onclick="recordTP('${s.id}', ${tp})" 
+              title="TP ${tp}: ${rubricText}"
               class="w-7 h-7 text-xs rounded-lg transition ${bgClass}">
               ${tp}
             </button>
           `;
         }).join("");
 
+        const currentDesc = activeTP ? (rubrics[activeTP] || "") : "";
+
         return `
           <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <p class="text-xs font-semibold text-slate-800">${idx + 1}. ${s.full_name}</p>
-              <span class="text-[10px] text-slate-400">Tahap Penguasaan: ${activeTP ? 'TP ' + activeTP : 'Belum Ditaksir'}</span>
+              <p class="text-[10px] text-slate-500 mt-0.5">
+                ${activeTP ? `<span class="font-bold text-indigo-600">TP ${activeTP}:</span> ${currentDesc}` : '<span class="text-slate-400">Belum Ditaksir</span>'}
+              </p>
             </div>
             <div class="flex items-center gap-1.5 self-end sm:self-auto">
               ${tpButtons}
@@ -273,7 +318,66 @@
       }
     };
 
-    // LOGIK EKSPORT CSV / EXCEL REKOD TRANSIT LENGKAP
+    // LOGIK MODAL RUBRIK TP & EDIT
+    const modalRubric = document.getElementById("modalRubric");
+    const rubricFormList = document.getElementById("rubricFormList");
+    const btnViewRubrics = document.getElementById("btnViewRubrics");
+    const btnCloseModal = document.getElementById("btnCloseModal");
+    const btnCancelRubric = document.getElementById("btnCancelRubric");
+    const btnSaveRubric = document.getElementById("btnSaveRubric");
+
+    btnViewRubrics.addEventListener("click", () => {
+      if (!currentSP) return;
+      document.getElementById("rubricSpTitle").textContent = `SP ${currentSP.sp_code}: ${currentSP.sp_desc}`;
+      
+      const rubrics = currentSP.tp_rubrics || defaultRubrics;
+
+      rubricFormList.innerHTML = [1, 2, 3, 4, 5, 6].map(tp => `
+        <div class="space-y-1">
+          <label class="block font-bold text-slate-700 text-[11px]">Tahap Penguasaan ${tp} (TP ${tp})</label>
+          <textarea id="rubric_tp_${tp}" rows="2" 
+            class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">${rubrics[tp] || defaultRubrics[tp] || ''}</textarea>
+        </div>
+      `).join("");
+
+      modalRubric.classList.remove("hidden");
+    });
+
+    function closeModal() { modalRubric.classList.add("hidden"); }
+    btnCloseModal.addEventListener("click", closeModal);
+    btnCancelRubric.addEventListener("click", closeModal);
+
+    btnSaveRubric.addEventListener("click", async () => {
+      if (!currentSP) return;
+
+      btnSaveRubric.disabled = true;
+      btnSaveRubric.textContent = "Menyimpan...";
+
+      const updatedRubrics = {};
+      for (let i = 1; i <= 6; i++) {
+        updatedRubrics[i] = document.getElementById(`rubric_tp_${i}`).value.trim();
+      }
+
+      try {
+        const { error } = await client
+          .from("dskp_items")
+          .update({ tp_rubrics: updatedRubrics })
+          .eq("id", currentSP.id);
+
+        if (error) throw error;
+
+        currentSP.tp_rubrics = updatedRubrics;
+        renderAssessmentList();
+        closeModal();
+      } catch (err) {
+        alert("Gagal mengemaskini rubrik: " + err.message);
+      } finally {
+        btnSaveRubric.disabled = false;
+        btnSaveRubric.textContent = "Simpan Perubahan";
+      }
+    });
+
+    // Eksport CSV
     btnExport.addEventListener("click", async () => {
       const dskpId = selectSubject.value;
       if (!dskpId || spList.length === 0) return alert("Sila pastikan subjek mempunyai senarai SP.");
@@ -282,7 +386,6 @@
       btnExport.textContent = "Menjana CSV...";
 
       try {
-        // Ambil semua markah PBD bagi murid-murid kelas ini untuk subjek ini
         const studentIds = students.map(s => s.id);
         const spIds = spList.map(item => item.id);
 
@@ -294,34 +397,22 @@
 
         if (error) throw error;
 
-        // Susun skor ke dalam bentuk peta (studentId_spId -> tp_score)
         const scoreMap = {};
         (allRecords || []).forEach(r => {
           scoreMap[`${r.student_id}_${r.sp_id}`] = r.tp_score;
         });
 
-        // 1. Baris Tajuk Kolum (Header)
         const headers = ["No", "Nama Murid", "Jantina", ...spList.map(item => `SP ${item.sp_code}`)];
         const rows = [headers];
 
-        // 2. Baris Setiap Murid
         students.forEach((s, idx) => {
-          const row = [
-            idx + 1,
-            `"${s.full_name}"`,
-            s.gender || "L"
-          ];
-
-          // Masukkan skor TP bagi setiap SP
+          const row = [idx + 1, `"${s.full_name}"`, s.gender || "L"];
           spList.forEach(item => {
-            const val = scoreMap[`${s.id}_${item.id}`] || "";
-            row.push(val);
+            row.push(scoreMap[`${s.id}_${item.id}`] || "");
           });
-
           rows.push(row);
         });
 
-        // Hasilkan fail CSV dengan sokongan UTF-8 (BOM) supaya aksara bahasa Melayu kekal elok
         const csvContent = "\uFEFF" + rows.map(r => r.join(",")).join("\r\n");
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
