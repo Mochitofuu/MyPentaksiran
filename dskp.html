@@ -6,7 +6,6 @@
   <title>Bank DSKP - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
-  <!-- PDF.js untuk ekstrak teks PDF terus dari browser telefon -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -25,7 +24,6 @@
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-5 space-y-5">
-    <!-- Header -->
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
       <div>
         <h1 class="text-lg font-bold text-slate-900">Koleksi Sukatan DSKP</h1>
@@ -36,14 +34,13 @@
       </button>
     </div>
 
-    <!-- Bahagian Pendaftaran DSKP & Parser PDF -->
+    <!-- Parser PDF & Tambah DSKP -->
     <div id="addSubjectSection" class="hidden bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
         <h2 class="text-sm font-bold text-slate-800">Daftar & Ekstrak DSKP</h2>
         <span class="text-[10px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded">Smart Parser</span>
       </div>
 
-      <!-- Kotak Muat Naik PDF Pintar -->
       <div class="border-2 border-dashed border-indigo-200 rounded-xl p-4 text-center bg-indigo-50/40">
         <p class="text-xs font-semibold text-slate-700 mb-1">📄 Muat Naik Fail PDF DSKP</p>
         <p class="text-[10px] text-slate-500 mb-3">Sistem akan mengesan kod standard kandungan dan pembelajaran secara automatik.</p>
@@ -56,7 +53,6 @@
         <p id="parserStatus" class="text-[11px] text-indigo-600 font-medium mt-2 hidden">Sedang membaca teks dokumen...</p>
       </div>
 
-      <!-- Borang Maklumat Subjek & Senarai Semak SP -->
       <form id="formAddSubject" class="space-y-3 pt-2">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -89,7 +85,7 @@
       </form>
     </div>
 
-    <!-- Senarai Subjek DSKP Sedia Ada -->
+    <!-- Senarai Subjek DSKP -->
     <div class="space-y-3">
       <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Senarai Subjek DSKP Tersedia</h3>
       <div id="dskpList" class="space-y-3">
@@ -130,13 +126,15 @@
         if (!subjects || subjects.length === 0) {
           dskpList.innerHTML = `
             <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">
-              Belum ada DSKP didaftarkan. Tekan butang "+ Tambah DSKP" untuk memuat naik atau mendaftar.
+              Belum ada DSKP didaftarkan. Tekan butang "+ Tambah DSKP" untuk cipta baharu.
             </div>`;
           return;
         }
 
         dskpList.innerHTML = subjects.map(sub => {
           const itemCount = sub.dskp_items ? sub.dskp_items[0]?.count || 0 : 0;
+          const isOwner = sub.created_by === currentUser.id;
+
           return `
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
@@ -146,9 +144,16 @@
                 <h4 class="font-bold text-slate-900 text-sm mt-1">${sub.subject_name}</h4>
                 <p class="text-[11px] text-slate-500">${itemCount} Standard Pembelajaran (SP)</p>
               </div>
-              <span class="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                Sedia Digunakan
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                  Tersedia
+                </span>
+                ${isOwner ? `
+                  <button onclick="deleteDSKP('${sub.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1">
+                    🗑️
+                  </button>
+                ` : ''}
+              </div>
             </div>
           `;
         }).join("");
@@ -158,12 +163,22 @@
       }
     }
 
-    // Toggle Borang Tambah DSKP
+    // Padam DSKP
+    window.deleteDSKP = async function(id) {
+      if (!confirm("Adakah anda pasti mahu memadam DSKP ini berserta semua SP di dalamnya?")) return;
+      try {
+        const { error } = await client.from("dskp_subjects").delete().eq("id", id);
+        if (error) throw error;
+        loadDskpList();
+      } catch (err) {
+        alert("Gagal memadam DSKP: " + err.message);
+      }
+    };
+
     const addSection = document.getElementById("addSubjectSection");
     document.getElementById("btnOpenAddSubject").addEventListener("click", () => addSection.classList.toggle("hidden"));
     document.getElementById("btnCancelSubject").addEventListener("click", () => addSection.classList.add("hidden"));
 
-    // ENJIN PARSER DSKP PDF
     const pdfFileInput = document.getElementById("pdfFileInput");
     const parserStatus = document.getElementById("parserStatus");
     const spListRaw = document.getElementById("spListRaw");
@@ -174,7 +189,7 @@
       if (!file || file.type !== "application/pdf") return;
 
       parserStatus.classList.remove("hidden");
-      parserStatus.textContent = "Sedang memproses halaman dokumen PDF...";
+      parserStatus.textContent = "Sedang membaca teks dokumen PDF...";
 
       try {
         const arrayBuffer = await file.arrayBuffer();
@@ -193,7 +208,6 @@
           }
         }
 
-        // Corak Regex mengesan kod SP format X.X.X (Cth: 1.1.1, 2.3.4)
         const spRegex = /(\b\d+\.\d+\.\d+\b)\s*([^0-9\n]{6,120})/g;
         let match;
         const extracted = [];
@@ -203,7 +217,6 @@
           const code = match[1].trim();
           let desc = match[2].trim().replace(/\s+/g, ' ');
 
-          // Abaikan jika kod sudah dimasukkan atau deskripsi terlalu pendek
           if (!seenCodes.has(code) && desc.length > 5) {
             seenCodes.add(code);
             extracted.push(`${code} | ${desc}`);
@@ -226,7 +239,6 @@
       }
     });
 
-    // Simpan ke Pangkalan Data Supabase
     document.getElementById("formAddSubject").addEventListener("submit", async (e) => {
       e.preventDefault();
       const subject = document.getElementById("subjectName").value.trim();
