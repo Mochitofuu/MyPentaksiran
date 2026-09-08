@@ -20,7 +20,7 @@
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-5 space-y-4">
-    <!-- Maklumat Kelas & Butang Utama Pentaksiran -->
+    <!-- Maklumat Kelas & Butang Modul -->
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <div class="flex items-center gap-2">
@@ -32,9 +32,15 @@
         <p id="displayClassSession" class="text-xs text-slate-500 mt-0.5">...</p>
       </div>
 
-      <a id="btnStartPBD" href="#" class="inline-flex items-center justify-center text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
-        📝 Mula Pentaksiran PBD →
-      </a>
+      <!-- Dua Butang Utama: PBD & Sahsiah -->
+      <div class="flex gap-2">
+        <a id="btnStartPBD" href="#" class="flex-1 sm:flex-none inline-flex items-center justify-center text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition">
+          📝 PBD
+        </a>
+        <a id="btnActivity" href="#" class="flex-1 sm:flex-none inline-flex items-center justify-center text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition">
+          ⭐ Sahsiah & Tugasan
+        </a>
+      </div>
     </div>
 
     <!-- Senarai Murid -->
@@ -107,7 +113,9 @@
       window.location.href = "dashboard.html";
     }
 
+    // Pautkan ID kelas terus ke dua-dua butang modul
     document.getElementById("btnStartPBD").href = `transit.html?class_id=${classId}`;
+    document.getElementById("btnActivity").href = `activity.html?class_id=${classId}`;
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
