@@ -10,7 +10,6 @@
     if (localStorage.getItem("app_theme") === "dark") document.documentElement.classList.add("dark");
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
-  <!-- Pustaka PDF.js untuk baca fail PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -26,13 +25,12 @@
   </header>
 
   <main class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
-    <!-- Kad Panduan -->
     <div class="bg-indigo-600 dark:bg-indigo-700 p-5 rounded-2xl text-white shadow-sm space-y-2">
       <h1 class="text-sm font-bold flex items-center gap-1.5">
         <span>📄</span> Muat Naik Dokumen PDF DSKP KPM
       </h1>
       <p class="text-xs text-indigo-100 leading-relaxed">
-        Pilih fail PDF DSKP rasmi anda. Sistem akan membaca kandungan PDF tersebut dan mengekstrak semua kod Standard Kandungan (SK) serta Standard Pembelajaran (SP) secara automatik.
+        Pilih fail PDF DSKP rasmi. Sistem mengekstrak dan mengasingkan Standard Kandungan (SK) dan Standard Pembelajaran (SP) ke dalam kad yang mudah disemak dan diedit.
       </p>
     </div>
 
@@ -43,44 +41,62 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Mata Pelajaran</label>
-          <input type="text" id="inputSubjectName" placeholder="Cth: Bahasa Melayu Tahun 3" 
-            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+          <input type="text" id="inputSubjectName" placeholder="Cth: Bahasa Melayu Tahun 1" 
+            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
         </div>
         <div>
           <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Tahap / Tahun</label>
-          <input type="text" id="inputGradeLevel" placeholder="Cth: Tahun 3 / SK" 
-            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+          <input type="text" id="inputGradeLevel" placeholder="Cth: Tahun 1 / SK" 
+            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
         </div>
       </div>
 
       <div>
         <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Fail PDF DSKP</label>
-        <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-5 text-center cursor-pointer hover:border-indigo-500 transition bg-slate-50 dark:bg-slate-700/40" onclick="document.getElementById('pdfFileInput').click()">
-          <span class="text-2xl block mb-1">📁</span>
+        <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-500 transition bg-slate-50 dark:bg-slate-700/40" onclick="document.getElementById('pdfFileInput').click()">
+          <span class="text-3xl block mb-1">📁</span>
           <p id="fileNameDisplay" class="text-xs font-semibold text-slate-700 dark:text-slate-200">Tekan untuk pilih fail PDF DSKP</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">Fail PDF sukatan pelajaran rasmi</p>
+          <p id="parsingStatusText" class="text-[10px] text-slate-400 mt-0.5">Sokongan dokumen PDF DSKP rasmi KPM</p>
           <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden">
         </div>
       </div>
     </div>
 
-    <!-- Keputusan Analisis (Preview) -->
-    <div id="previewContainer" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Hasil Ekstrak SK & SP Dikesan</h3>
-        <span id="previewCountBadge" class="text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full">0 Item</span>
+    <!-- HASIL EKSTRAK DIASINGKAN: SK DAN SP -->
+    <div id="previewContainer" class="hidden space-y-4">
+      
+      <!-- Bahagian 1: Standard Kandungan (SK) -->
+      <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 shadow-sm space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Senarai Standard Kandungan (SK)</h3>
+          </div>
+          <span id="badgeCountSK" class="text-[10px] bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">0 SK</span>
+        </div>
+        <div id="listSK" class="max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
       </div>
 
-      <div id="parsedItemsList" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs"></div>
+      <!-- Bahagian 2: Standard Pembelajaran (SP) -->
+      <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 shadow-sm space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Senarai Standard Pembelajaran (SP)</h3>
+          </div>
+          <span id="badgeCountSP" class="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full">0 SP</span>
+        </div>
+        <div id="listSP" class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
+      </div>
 
-      <button type="button" id="btnSaveToDatabase" class="w-full text-xs py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition">
-        💾 Simpan ke Bank DSKP Sistem
+      <button type="button" id="btnSaveToDatabase" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2">
+        💾 Simpan Semua SK & SP ke Bank DSKP
       </button>
     </div>
 
     <!-- Senarai DSKP Tersedia -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
-      <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Bank DSKP Komuniti Tersedia</h3>
+      <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Bank DSKP Tersedia</h3>
       <div id="existingDskpList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
         <p class="text-slate-400 py-3 text-center">Memuatkan bank DSKP...</p>
       </div>
@@ -95,7 +111,8 @@
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
-    let extractedItems = [];
+    let extractedSK = [];
+    let extractedSP = [];
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
@@ -104,24 +121,23 @@
       loadExistingDskp();
     }
 
-    // Baca Fail PDF Menggunakan PDF.js
     document.getElementById("pdfFileInput").addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      document.getElementById("fileNameDisplay").textContent = `Fail dipilih: ${file.name}`;
+      document.getElementById("fileNameDisplay").textContent = `Fail: ${file.name}`;
+      const statusText = document.getElementById("parsingStatusText");
+      statusText.textContent = "Sedang membaca fail PDF, sila tunggu...";
       
-      // Auto isi nama subjek jika kosong
       const subjInput = document.getElementById("inputSubjectName");
       if (!subjInput.value) {
-        subjInput.value = file.name.replace(/\.[^/.]+$/, "").replace(/[_-_]/g, " ");
+        subjInput.value = file.name.replace(/\.[^/.]+$/, "").replace(/[_]/g, " ");
       }
 
       const reader = new FileReader();
       reader.onload = async function() {
-        const typedarray = new Uint8Array(this.result);
-        
         try {
+          const typedarray = new Uint8Array(this.result);
           const loadingTask = pdfjsLib.getDocument(typedarray);
           const pdf = await loadingTask.promise;
           let fullText = "";
@@ -134,67 +150,96 @@
           }
 
           parseDskpText(fullText);
+          statusText.textContent = "Analisis selesai ✓";
         } catch (err) {
           alert("Gagal membaca fail PDF: " + err.message);
+          statusText.textContent = "Ralat membaca fail.";
         }
       };
       reader.readAsArrayBuffer(file);
     });
 
+    // Penguraian Teks Mengasingkan SK & SP
     function parseDskpText(text) {
-      extractedItems = [];
-      const lines = text.split("\n");
+      extractedSK = [];
+      extractedSP = [];
 
-      const spRegex = /(\b\d+\.\d+\.\d+\b)(.*)/;
-      const skRegex = /(\b\d+\.\d+\b)(?!\.\d+)(.*)/;
+      // Regex SP: 3 nombor berasingan titik (contoh: 1.1.1, 5.2.3)
+      const spRegex = /(\b\d+\.\d+\.\d+\b)(.*?)(?=(\b\d+\.\d+\.\d+\b|\b\d+\.\d+\b|$))/gs;
+      // Regex SK: 2 nombor berasingan titik (contoh: 1.1, 5.2)
+      const skRegex = /(\b\d+\.\d+\b)(?!\.\d+)(.*?)(?=(\b\d+\.\d+\.\d+\b|\b\d+\.\d+\b|$))/gs;
+
+      const lines = text.split("\n");
+      const seenSP = new Set();
+      const seenSK = new Set();
 
       lines.forEach(line => {
-        const cleanLine = line.trim();
-        if (!cleanLine) return;
+        const clean = line.trim();
+        if (!clean) return;
 
-        const spMatch = cleanLine.match(spRegex);
-        if (spMatch) {
-          extractedItems.push({
-            type: 'SP',
-            code: spMatch[1],
-            desc: spMatch[2].replace(/^[:\-\s]+/, '').trim() || "Standard Pembelajaran"
-          });
+        // Padanan SP
+        const spMatches = clean.match(/(\b\d+\.\d+\.\d+\b)\s+(.+)/);
+        if (spMatches) {
+          const code = spMatches[1];
+          const desc = spMatches[2].replace(/^[:\-\s]+/, '').trim();
+          if (!seenSP.has(code) && desc.length > 3) {
+            seenSP.add(code);
+            extractedSP.push({ code: code, desc: desc });
+          }
           return;
         }
 
-        const skMatch = cleanLine.match(skRegex);
-        if (skMatch) {
-          extractedItems.push({
-            type: 'SK',
-            code: skMatch[1],
-            desc: skMatch[2].replace(/^[:\-\s]+/, '').trim() || "Standard Kandungan"
-          });
+        // Padanan SK
+        const skMatches = clean.match(/(\b\d+\.\d+\b)(?!\.\d+)\s+(.+)/);
+        if (skMatches) {
+          const code = skMatches[1];
+          const desc = skMatches[2].replace(/^[:\-\s]+/, '').trim();
+          if (!seenSK.has(code) && desc.length > 3) {
+            seenSK.add(code);
+            extractedSK.push({ code: code, desc: desc });
+          }
         }
       });
 
-      const previewContainer = document.getElementById("previewContainer");
-      const list = document.getElementById("parsedItemsList");
-      const badge = document.getElementById("previewCountBadge");
+      extractedSK.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+      extractedSP.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
 
-      if (extractedItems.length === 0) {
-        alert("Tiada kod SK atau SP dikesan dalam PDF ini.");
-        previewContainer.classList.add("hidden");
+      renderExtractedItems();
+    }
+
+    function renderExtractedItems() {
+      const preview = document.getElementById("previewContainer");
+      const listSK = document.getElementById("listSK");
+      const listSP = document.getElementById("listSP");
+
+      if (extractedSK.length === 0 && extractedSP.length === 0) {
+        alert("Tiada kod SK atau SP yang sah dapat dikesan dari PDF ini.");
+        preview.classList.add("hidden");
         return;
       }
 
-      badge.textContent = `${extractedItems.length} Item Dikesan`;
-      previewContainer.classList.remove("hidden");
+      document.getElementById("badgeCountSK").textContent = `${extractedSK.length} SK`;
+      document.getElementById("badgeCountSP").textContent = `${extractedSP.length} SP`;
 
-      list.innerHTML = extractedItems.map(item => `
-        <div class="py-2 flex items-center justify-between gap-2">
-          <div>
-            <span class="font-extrabold ${item.type === 'SK' ? 'text-indigo-600 dark:text-indigo-400' : 'text-emerald-600 dark:text-emerald-400'}">
-              [${item.type}] ${item.code}
-            </span>
-            <span class="text-slate-700 dark:text-slate-300 ml-2">${item.desc}</span>
-          </div>
+      // Render SK (Boleh Diedit)
+      listSK.innerHTML = extractedSK.map((item, idx) => `
+        <div class="py-2 flex items-start gap-2">
+          <span class="font-extrabold text-indigo-600 dark:text-indigo-400 shrink-0 w-12 text-xs pt-1">${item.code}</span>
+          <input type="text" value="${item.desc.replace(/"/g, '&quot;')}" onchange="extractedSK[${idx}].desc = this.value"
+            class="flex-1 text-xs px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 dark:bg-slate-700/60 focus:ring-1 focus:ring-indigo-500">
         </div>
       `).join("");
+
+      // Render SP (Boleh Diedit)
+      listSP.innerHTML = extractedSP.map((item, idx) => `
+        <div class="py-2 flex items-start gap-2">
+          <span class="font-extrabold text-emerald-600 dark:text-emerald-400 shrink-0 w-14 text-xs pt-1">${item.code}</span>
+          <input type="text" value="${item.desc.replace(/"/g, '&quot;')}" onchange="extractedSP[${idx}].desc = this.value"
+            class="flex-1 text-xs px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 dark:bg-slate-700/60 focus:ring-1 focus:ring-emerald-500">
+        </div>
+      `).join("");
+
+      preview.classList.remove("hidden");
     }
 
     // Simpan ke Supabase
@@ -202,14 +247,15 @@
       const subjectName = document.getElementById("inputSubjectName").value.trim();
       const gradeLevel = document.getElementById("inputGradeLevel").value.trim();
 
-      if (!subjectName || !gradeLevel) return alert("Sila isi Nama Mata Pelajaran dan Tahap terlebih dahulu.");
-      if (extractedItems.length === 0) return alert("Tiada item untuk disimpan.");
+      if (!subjectName || !gradeLevel) return alert("Sila lengkapkan Nama Mata Pelajaran dan Tahap/Tahun di atas.");
+      if (extractedSP.length === 0 && extractedSK.length === 0) return alert("Tiada data untuk disimpan.");
 
       const btn = document.getElementById("btnSaveToDatabase");
       btn.disabled = true;
-      btn.textContent = "Menyimpan ke Pangkalan Data...";
+      btn.textContent = "Menyimpan ke pangkalan data...";
 
       try {
+        // 1. Simpan Subjek
         const { data: subData, error: subErr } = await client
           .from("dskp_subjects")
           .insert([{ subject_name: subjectName, grade_level: gradeLevel, created_by: currentUser.id }])
@@ -219,16 +265,19 @@
         if (subErr) throw subErr;
         const dskpId = subData.id;
 
-        const itemsToInsert = extractedItems.map(item => ({
+        // 2. Simpan Item SP
+        const itemsToInsert = extractedSP.map(item => ({
           dskp_id: dskpId,
           sp_code: item.code,
-          sp_desc: `[${item.type}] ${item.desc}`
+          sp_desc: item.desc
         }));
 
-        const { error: itemErr } = await client.from("dskp_items").insert(itemsToInsert);
-        if (itemErr) throw itemErr;
+        if (itemsToInsert.length > 0) {
+          const { error: itemErr } = await client.from("dskp_items").insert(itemsToInsert);
+          if (itemErr) throw itemErr;
+        }
 
-        alert("Berjaya! Fail PDF DSKP telah dibaca dan semua SK serta SP disimpan.");
+        alert("Berjaya! Subjek dan semua senarai SP/SK telah disimpan ke dalam sistem.");
         document.getElementById("previewContainer").classList.add("hidden");
         document.getElementById("pdfFileInput").value = "";
         document.getElementById("fileNameDisplay").textContent = "Tekan untuk pilih fail PDF DSKP";
@@ -237,7 +286,7 @@
         alert("Ralat semasa menyimpan: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "💾 Simpan ke Bank DSKP Sistem";
+        btn.textContent = "💾 Simpan Semua SK & SP ke Bank DSKP";
       }
     });
 
