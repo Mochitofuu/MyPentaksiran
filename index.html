@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Log Masuk - Sistem Pentaksiran</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen p-4 text-slate-800">
 
@@ -14,11 +16,12 @@
       <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 mb-2 font-bold text-xl">
         P
       </div>
-      <h1 class="text-xl font-bold text-slate-900">Selamat Datang</h1>
+      <h1 class="text-xl font-bold text-slate-900" id="headerTitle">Selamat Datang</h1>
       <p class="text-xs text-slate-500 mt-1">Sistem Pengurusan PBD & Sahsiah Murid</p>
     </div>
 
-    <div id="authAlert" class="hidden mb-4 p-3 rounded-lg text-xs"></div>
+    <!-- Kotak Notifikasi / Mesej Ralat -->
+    <div id="authAlert" class="hidden mb-4 p-3 rounded-lg text-xs leading-relaxed"></div>
 
     <form id="authForm" class="space-y-4">
       <div>
@@ -28,8 +31,8 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Kata Laluan</label>
-        <input type="password" id="password" required placeholder="••••••••" 
+        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Kata Laluan (Min. 6 aksara)</label>
+        <input type="password" id="password" required placeholder="••••••••" minlength="6"
           class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
       </div>
 
@@ -41,10 +44,101 @@
 
     <div class="mt-5 text-center text-xs text-slate-500">
       <span id="toggleText">Belum ada akaun?</span>
-      <button id="toggleAuthMode" class="text-indigo-600 font-semibold hover:underline ml-1">Daftar Akaun</button>
+      <button type="button" id="toggleAuthMode" class="text-indigo-600 font-semibold hover:underline ml-1">Daftar Akaun</button>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    // Konfigurasi Supabase
+    const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ub2phaGlicWJoeGhweXhrcWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDU5NjAsImV4cCI6MjEwNDQyMTk2MH0.UhKRSYCcAizVnKf9dSsIcF1bgOeD8-5KRRSngBvsocI";
+
+    const { createClient } = window.supabase;
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const authForm = document.getElementById("authForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const btnAuth = document.getElementById("btnAuth");
+    const toggleAuthMode = document.getElementById("toggleAuthMode");
+    const toggleText = document.getElementById("toggleText");
+    const authAlert = document.getElementById("authAlert");
+    const headerTitle = document.getElementById("headerTitle");
+
+    let isSignUp = false;
+
+    function showAlert(message, isError = true) {
+      authAlert.className = "mb-4 p-3 rounded-lg text-xs leading-relaxed block";
+      if (isError) {
+        authAlert.classList.add("bg-red-50", "text-red-700", "border", "border-red-200");
+      } else {
+        authAlert.classList.add("bg-emerald-50", "text-emerald-700", "border", "border-emerald-200");
+      }
+      authAlert.innerHTML = message;
+    }
+
+    toggleAuthMode.addEventListener("click", () => {
+      isSignUp = !isSignUp;
+      if (isSignUp) {
+        btnAuth.textContent = "Daftar Akaun Baharu";
+        headerTitle.textContent = "Daftar Guru";
+        toggleText.textContent = "Sudah mempunyai akaun?";
+        toggleAuthMode.textContent = "Log Masuk Sini";
+      } else {
+        btnAuth.textContent = "Log Masuk";
+        headerTitle.textContent = "Selamat Datang";
+        toggleText.textContent = "Belum ada akaun?";
+        toggleAuthMode.textContent = "Daftar Akaun";
+      }
+      authAlert.classList.add("hidden");
+    });
+
+    authForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      btnAuth.disabled = true;
+      btnAuth.textContent = "Sila tunggu sebentar...";
+      authAlert.classList.add("hidden");
+
+      try {
+        if (isSignUp) {
+          const { data, error } = await client.auth.signUp({ 
+            email: email, 
+            password: password 
+          });
+          
+          if (error) throw error;
+
+          showAlert("<strong>Pendaftaran Berjaya!</strong> Sila tekan 'Log Masuk Sini' di bawah untuk masuk ke dashboard.", false);
+          // Tukar balik ke mod login secara automatik
+          isSignUp = false;
+          btnAuth.textContent = "Log Masuk";
+          headerTitle.textContent = "Selamat Datang";
+          toggleText.textContent = "Belum ada akaun?";
+          toggleAuthMode.textContent = "Daftar Akaun";
+        } else {
+          const { data, error } = await client.auth.signInWithPassword({ 
+            email: email, 
+            password: password 
+          });
+
+          if (error) throw error;
+          
+          showAlert("Log masuk berjaya! Sedang memuat...", false);
+          // Pergi ke dashboard (atau kekal jika belum buat)
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 800);
+        }
+      } catch (err) {
+        showAlert("<strong>Ralat:</strong> " + (err.message || "Gagal berhubung dengan pangkalan data."));
+      } finally {
+        btnAuth.disabled = false;
+        if (!isSignUp) btnAuth.textContent = "Log Masuk";
+      }
+    });
+  </script>
 </body>
 </html>
