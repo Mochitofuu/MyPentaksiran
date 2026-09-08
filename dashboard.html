@@ -24,9 +24,17 @@
         </div>
       </button>
 
-      <button id="btnQuickTheme" class="w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs">
-        🌙
-      </button>
+      <!-- Butang Kanan: Notifikasi Loceng & Tema -->
+      <div class="flex items-center gap-2">
+        <button id="btnBellNotification" class="relative w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+          🔔
+          <span id="notifBadgeDot" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-800"></span>
+        </button>
+
+        <button id="btnQuickTheme" class="w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs">
+          🌙
+        </button>
+      </div>
     </div>
   </header>
 
@@ -52,7 +60,7 @@
           <span id="txtMenuDSKP">Bank DSKP Komuniti</span>
         </a>
 
-        <!-- BUTANG LANGGANAN / NAIK TARAF PREMIUM -->
+        <!-- Langganan -->
         <button id="btnOpenSubModal" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 to-indigo-500/10 hover:from-amber-500/20 hover:to-indigo-500/20 text-slate-800 dark:text-slate-100 border border-amber-300 dark:border-amber-700/60 transition text-left">
           <div class="flex items-center gap-2.5">
             <span class="text-base">⭐</span>
@@ -61,7 +69,7 @@
           <span class="text-[9px] bg-amber-500 text-slate-950 font-extrabold px-1.5 py-0.5 rounded shadow-xs">PRO</span>
         </button>
 
-        <!-- PAUTAN KHAS MASTER ADMIN -->
+        <!-- Admin VIP -->
         <a id="adminMenuLink" href="admin.html" class="hidden flex items-center justify-between p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 dark:text-rose-300 border border-rose-200 dark:border-rose-900 transition">
           <div class="flex items-center gap-2.5">
             <span class="text-base">⚡</span>
@@ -97,7 +105,6 @@
 
   <!-- Kandungan Utama -->
   <main class="max-w-4xl mx-auto px-4 pt-6 space-y-5">
-    <!-- Kad Pengguna -->
     <div class="bg-indigo-600 dark:bg-indigo-700 rounded-2xl p-5 text-white shadow-sm flex justify-between items-center">
       <div class="flex-1 mr-3">
         <div class="flex items-center gap-2">
@@ -113,9 +120,6 @@
         Profil →
       </a>
     </div>
-
-    <!-- KAWASAN PENGUMUMAN / BROADCAST ANNOUNCEMENTS -->
-    <div id="announcementContainer" class="hidden space-y-3"></div>
 
     <!-- Senarai Kelas -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
@@ -148,10 +152,35 @@
     </div>
   </main>
 
-  <!-- MODAL LANGGANAN (FREE VS PREMIUM) -->
+  <!-- ======================================================= -->
+  <!-- MODAL NOTIFIKASI LOCENG (PETI SIARAN PENGUMUMAN)        -->
+  <!-- ======================================================= -->
+  <div id="modalNotifications" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[85vh] flex flex-col space-y-4">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🔔</span>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pemberitahuan Sistem</h3>
+        </div>
+        <button id="btnCloseNotifModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg p-1">✕</button>
+      </div>
+
+      <div id="notifModalList" class="overflow-y-auto space-y-2.5 text-xs flex-1 pr-1">
+        <p class="text-slate-400 py-6 text-center">Memuatkan pemberitahuan...</p>
+      </div>
+
+      <div class="pt-2 border-t border-slate-100 dark:border-slate-700 text-right">
+        <button id="btnDismissAllNotif" class="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-slate-600 dark:text-slate-200 font-medium">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LANGGANAN -->
   <div id="modalSubscription" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto space-y-4">
-      
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
         <div>
           <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -221,7 +250,6 @@
           Akaun anda akan dinaik taraf ke Premium dengan serta-merta selepas bayaran disahkan.
         </p>
       </div>
-
     </div>
   </div>
 
@@ -233,6 +261,7 @@
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
+    let isUserAdmin = false;
     const currentLang = window.getLang();
 
     const texts = {
@@ -295,6 +324,7 @@
     document.getElementById("btnCloseDrawer").addEventListener("click", closeDrawer);
     drawerBackdrop.addEventListener("click", closeDrawer);
 
+    // Modal Langganan
     const modalSubscription = document.getElementById("modalSubscription");
     const btnOpenSubModal = document.getElementById("btnOpenSubModal");
     const btnCloseSubModal = document.getElementById("btnCloseSubModal");
@@ -307,55 +337,34 @@
       modalSubscription.classList.add("hidden");
     });
 
+    // Modal Notifikasi Loceng
+    const modalNotif = document.getElementById("modalNotifications");
+    const btnBell = document.getElementById("btnBellNotification");
+    const btnCloseNotif = document.getElementById("btnCloseNotifModal");
+    const btnDismissAll = document.getElementById("btnDismissAllNotif");
+
+    btnBell.addEventListener("click", () => {
+      modalNotif.classList.remove("hidden");
+      document.getElementById("notifBadgeDot").classList.add("hidden");
+    });
+    btnCloseNotif.addEventListener("click", () => modalNotif.classList.add("hidden"));
+    btnDismissAll.addEventListener("click", () => modalNotif.classList.add("hidden"));
+
     async function init() {
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
 
       await loadProfile();
-      loadAnnouncements();
+      await loadNotifications();
       loadClasses();
-    }
-
-    // Paparkan Notifikasi Broadcast
-    async function loadAnnouncements() {
-      const container = document.getElementById("announcementContainer");
-      try {
-        const { data } = await client
-          .from("announcements")
-          .select("*")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(3);
-
-        if (!data || data.length === 0) return;
-
-        container.classList.remove("hidden");
-        container.innerHTML = data.map(item => `
-          <div id="anno_${item.id}" class="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-200 dark:border-indigo-800 flex items-start justify-between gap-3 shadow-sm">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[9px] uppercase font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded-md tracking-wider">
-                  ${item.tag || 'Info'}
-                </span>
-                <h4 class="text-xs font-bold text-slate-900 dark:text-white">${item.title}</h4>
-              </div>
-              <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">${item.message}</p>
-            </div>
-            <button onclick="document.getElementById('anno_${item.id}').remove()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1" title="Tutup">
-              ✕
-            </button>
-          </div>
-        `).join("");
-      } catch (e) {
-        console.error(e);
-      }
     }
 
     async function loadProfile() {
       const { data } = await client.from("profiles").select("full_name, school_name, is_admin, plan").eq("id", currentUser.id).maybeSingle();
       
       if (data) {
+        isUserAdmin = data.is_admin === true;
         document.getElementById("userDisplayName").textContent = data.full_name || currentUser.email.split("@")[0];
         document.getElementById("userSchoolSub").textContent = data.school_name || currentUser.email;
 
@@ -370,7 +379,7 @@
           `;
         }
         
-        if (data.is_admin === true) {
+        if (isUserAdmin) {
           document.getElementById("adminMenuLink").classList.remove("hidden");
         }
       } else {
@@ -378,6 +387,65 @@
         document.getElementById("userSchoolSub").textContent = currentUser.email;
       }
     }
+
+    // Panggil & Paparkan Notifikasi
+    async function loadNotifications() {
+      const listContainer = document.getElementById("notifModalList");
+      const badgeDot = document.getElementById("notifBadgeDot");
+
+      try {
+        const { data, error } = await client
+          .from("announcements")
+          .select("*")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false });
+
+        if (error || !data || data.length === 0) {
+          listContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Tiada notifikasi baru buat masa ini.</div>`;
+          badgeDot.classList.add("hidden");
+          return;
+        }
+
+        badgeDot.classList.remove("hidden");
+
+        listContainer.innerHTML = data.map(item => `
+          <div id="notif_card_${item.id}" class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 space-y-1">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[8px] bg-indigo-600 text-white font-extrabold px-1.5 py-0.5 rounded uppercase">
+                  ${item.tag || 'Info'}
+                </span>
+                <h4 class="font-bold text-slate-900 dark:text-white text-xs">${item.title}</h4>
+              </div>
+              
+              <!-- Butang Padam Pengumuman (Hanya Muncul untuk Admin) -->
+              ${isUserAdmin ? `
+                <button onclick="deleteBroadcastDirect('${item.id}')" title="Padam Broadcast ini" class="text-xs text-rose-500 hover:text-rose-700 p-1">
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">${item.message}</p>
+          </div>
+        `).join("");
+
+      } catch (err) {
+        listContainer.innerHTML = `<p class="text-xs text-rose-500 py-3 text-center">Ralat: ${err.message}</p>`;
+      }
+    }
+
+    // Fungsi Padam Broadcast Terus
+    window.deleteBroadcastDirect = async function(id) {
+      if (!confirm("Padam siaran pengumuman ini daripada sistem? Semua pengguna tidak akan melihatnya lagi.")) return;
+      try {
+        const { error } = await client.from("announcements").delete().eq("id", id);
+        if (error) throw error;
+        document.getElementById(`notif_card_${id}`)?.remove();
+        loadNotifications();
+      } catch (err) {
+        alert("Gagal memadam: " + err.message);
+      }
+    };
 
     async function loadClasses() {
       const classList = document.getElementById("classList");
