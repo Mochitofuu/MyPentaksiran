@@ -12,11 +12,27 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
+
+  <style>
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      body { background: #fff !important; color: #000 !important; font-size: 8pt !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .print-table { width: 100% !important; border-collapse: collapse !important; margin-top: 5px; }
+      .print-table th, .print-table td { border: 1px solid #94a3b8 !important; padding: 4px 6px !important; text-align: center; }
+      .print-table th { background-color: #f1f5f9 !important; font-weight: bold; }
+      .print-table td:nth-child(2) { text-align: left !important; }
+    }
+    @media screen {
+      .print-only { display: none !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
 
   <!-- Navigasi Atas -->
-  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 no-print transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
       <a href="dashboard.html" id="linkBack" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 gap-1">
         ← Dashboard
@@ -25,7 +41,29 @@
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-4">
+  <!-- CETAKAN KHAS PDF TRANSIT KELAS -->
+  <div class="print-only p-4">
+    <div class="text-center border-b-2 border-slate-800 pb-2 mb-3">
+      <h2 class="text-sm font-extrabold uppercase">REKOD KESELURUHAN PENCAPAIAN KELAS</h2>
+      <p id="printClassTitle" class="text-[9pt] font-bold text-slate-700">KELAS</p>
+    </div>
+    <div class="mb-2 text-[8pt] flex justify-between">
+      <p><strong>Tarikh Cetak:</strong> <span id="printDate">-</span></p>
+    </div>
+    <table class="print-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th style="width:200px;">Nama Murid</th>
+          <th>Jantina</th>
+          <th>Jumlah Rekod PBD</th>
+        </tr>
+      </thead>
+      <tbody id="printTableBody"></tbody>
+    </table>
+  </div>
+
+  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-4 no-print">
     <!-- Kad Kelas & Butang Modul -->
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
@@ -105,6 +143,18 @@
       <div id="studentsList" class="divide-y divide-slate-100 dark:divide-slate-700">
         <p class="text-xs text-slate-400 py-4 text-center">Loading...</p>
       </div>
+
+      <!-- ======================================================= -->
+      <!-- BUTANG CSV & PDF KELAS DI BAWAH SENARAI MURID             -->
+      <!-- ======================================================= -->
+      <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-2 justify-end">
+        <button id="btnExportCSV" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+          📥 Eksport Excel (CSV)
+        </button>
+        <button id="btnExportPDFClass" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+          ⭐ 🖨️ Muat Turun Ringkasan Kelas (PDF)
+        </button>
+      </div>
     </div>
   </main>
 
@@ -134,7 +184,7 @@
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
         <button type="button" onclick="closeEditModal()" class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300" id="btnCancelEdit">Cancel</button>
-        <button type="button" id="btnSaveEditStudent" class="text-xs px-4 py-1.5 bg-indigo-600 text-white font-medium rounded-lg" id="btnSubmitEdit">Save Changes</button>
+        <button type="button" id="btnSaveEditStudent" class="text-xs px-4 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Save Changes</button>
       </div>
     </div>
   </div>
@@ -146,23 +196,22 @@
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Sokong kedua-dua parameter URL (?id= atau ?class_id=)
     const urlParams = new URLSearchParams(window.location.search);
     const classId = urlParams.get("id") || urlParams.get("class_id");
 
     let currentUser = null;
+    let currentClass = null;
+    let students = [];
     const currentLang = localStorage.getItem("app_lang") || "ms";
 
-    if (!classId) {
-      window.location.href = "dashboard.html";
-    }
+    if (!classId) window.location.href = "dashboard.html";
 
     document.getElementById("btnStartPBD").href = `transit.html?class_id=${classId}`;
     document.getElementById("btnActivity").href = `activity.html?class_id=${classId}`;
 
     const i18n = {
       ms: {
-        linkBack: "← Papan Pemuka",
+        linkBack: "← Dashboard",
         btnActivity: "⭐ Sahsiah & Tugasan",
         txtStudentListHead: "Senarai Murid",
         btnAddStudent: "+ Tambah Murid",
@@ -228,57 +277,41 @@
 
     async function init() {
       applyLanguage();
-
       const { data: { session } } = await client.auth.getSession();
-      if (!session) {
-        window.location.href = "index.html";
-        return;
-      }
+      if (!session) return window.location.href = "index.html";
       currentUser = session.user;
-      
-      // Jalankan kedua-duanya
-      fetchClassDetails();
-      fetchStudents();
+
+      await fetchClassDetails();
+      await fetchStudents();
     }
 
     async function fetchClassDetails() {
-      try {
-        const { data, error } = await client
-          .from("classes")
-          .select("*")
-          .eq("id", classId)
-          .maybeSingle();
-
-        if (error || !data) {
-          document.getElementById("displayClassName").textContent = "Kelas";
-          document.getElementById("navClassName").textContent = "Kelas";
-          return;
-        }
-
-        document.getElementById("navClassName").textContent = data.class_name;
-        document.getElementById("displayClassName").textContent = data.class_name;
-        document.getElementById("displayClassSession").textContent = data.year_session || "2026";
-      } catch (e) {
-        console.error(e);
-      }
+      const { data, error } = await client.from("classes").select("*").eq("id", classId).maybeSingle();
+      if (error || !data) return;
+      currentClass = data;
+      document.getElementById("navClassName").textContent = data.class_name;
+      document.getElementById("displayClassName").textContent = data.class_name;
+      document.getElementById("displayClassSession").textContent = data.year_session || "2026";
+      document.getElementById("printClassTitle").textContent = `${data.class_name} (${data.year_session || '2026'})`;
     }
 
     async function fetchStudents() {
       const studentsList = document.getElementById("studentsList");
       const t = i18n[currentLang];
       try {
-        const { data: students, error } = await client
+        const { data, error } = await client
           .from("students")
           .select("*")
           .eq("class_id", classId)
           .order("full_name", { ascending: true });
 
         if (error) throw error;
+        students = data || [];
 
-        document.getElementById("studentCountBadge").textContent = `${students ? students.length : 0} ${t.studentsSuffix}`;
+        document.getElementById("studentCountBadge").textContent = `${students.length} ${t.studentsSuffix}`;
 
-        if (!students || students.length === 0) {
-          studentsList.innerHTML = `<div class="text-center py-6 text-slate-400 dark:text-slate-500 text-xs">${t.noStudents}</div>`;
+        if (students.length === 0) {
+          studentsList.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">${t.noStudents}</div>`;
           return;
         }
 
@@ -288,7 +321,7 @@
               <span class="text-[11px] font-semibold text-slate-400 w-5">${idx + 1}.</span>
               <div>
                 <p class="text-xs font-semibold text-slate-800 dark:text-white">${s.full_name}</p>
-                <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? (currentLang === 'en' ? 'FEMALE' : 'PEREMPUAN') : (currentLang === 'en' ? 'MALE' : 'LELAKI')}</span>
+                <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? 'PEREMPUAN' : 'LELAKI'}</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
@@ -311,7 +344,6 @@
       }
     }
 
-    // Modal Edit
     window.openEditModal = function(id, name, gender) {
       document.getElementById("editStudentId").value = id;
       document.getElementById("editStudentName").value = name;
@@ -327,141 +359,141 @@
       const id = document.getElementById("editStudentId").value;
       const newName = document.getElementById("editStudentName").value.trim();
       const newGender = document.getElementById("editStudentGender").value;
-      const btn = document.getElementById("btnSaveEditStudent");
-
       if (!newName) return alert("Sila masukkan nama murid.");
 
-      btn.disabled = true;
       try {
-        const { error } = await client.from("students").update({
-          full_name: newName,
-          gender: newGender
-        }).eq("id", id);
-
-        if (error) throw error;
+        await client.from("students").update({ full_name: newName, gender: newGender }).eq("id", id);
         closeEditModal();
         fetchStudents();
       } catch (err) {
         alert("Ralat: " + err.message);
-      } finally {
-        btn.disabled = false;
       }
     });
 
     const addSection = document.getElementById("addStudentSection");
-    const tabSingle = document.getElementById("tabSingle");
-    const tabBulk = document.getElementById("tabBulk");
-    const formSingle = document.getElementById("formSingleStudent");
-    const formBulk = document.getElementById("formBulkStudent");
-
     document.getElementById("btnToggleAdd").addEventListener("click", () => addSection.classList.toggle("hidden"));
-    document.querySelectorAll(".btnCancelAdd").forEach(btn => {
-      btn.addEventListener("click", () => addSection.classList.add("hidden"));
+    document.querySelectorAll(".btnCancelAdd").forEach(btn => btn.addEventListener("click", () => addSection.classList.add("hidden")));
+
+    document.getElementById("tabSingle").addEventListener("click", () => {
+      document.getElementById("tabSingle").className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
+      document.getElementById("tabBulk").className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white";
+      document.getElementById("formSingleStudent").classList.remove("hidden");
+      document.getElementById("formBulkStudent").classList.add("hidden");
     });
 
-    tabSingle.addEventListener("click", () => {
-      tabSingle.className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
-      tabBulk.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white";
-      formSingle.classList.remove("hidden");
-      formBulk.classList.add("hidden");
+    document.getElementById("tabBulk").addEventListener("click", () => {
+      document.getElementById("tabBulk").className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
+      document.getElementById("tabSingle").className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white";
+      document.getElementById("formBulkStudent").classList.remove("hidden");
+      document.getElementById("formSingleStudent").classList.add("hidden");
     });
 
-    tabBulk.addEventListener("click", () => {
-      tabBulk.className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
-      tabSingle.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white";
-      formBulk.classList.remove("hidden");
-      formSingle.classList.add("hidden");
-    });
-
-    // Simpan Single
-    formSingle.addEventListener("submit", async (e) => {
+    document.getElementById("formSingleStudent").addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("studentName").value.trim();
       const gender = document.getElementById("studentGender").value;
-      const btn = document.getElementById("btnSaveSingle");
-
-      btn.disabled = true;
       try {
-        const { error } = await client.from("students").insert([
-          { class_id: classId, user_id: currentUser.id, full_name: name, gender: gender }
-        ]);
-        if (error) throw error;
-
-        formSingle.reset();
+        await client.from("students").insert([{ class_id: classId, user_id: currentUser.id, full_name: name, gender: gender }]);
+        document.getElementById("formSingleStudent").reset();
         addSection.classList.add("hidden");
         fetchStudents();
       } catch (err) {
         alert("Ralat: " + err.message);
-      } finally {
-        btn.disabled = false;
       }
     });
 
-    // Simpan Bulk Paste
-    formBulk.addEventListener("submit", async (e) => {
+    document.getElementById("formBulkStudent").addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawText = document.getElementById("bulkNames").value;
       const lines = rawText.split("\n").map(n => n.trim()).filter(n => n.length > 0);
-      const btn = document.getElementById("btnSaveBulk");
-
-      if (lines.length === 0) return alert("Sila masukkan sekurang-kurangnya satu nama.");
-
-      btn.disabled = true;
-      btn.textContent = "Processing...";
+      if (lines.length === 0) return alert("Sila masukkan senarai nama.");
 
       const records = lines.map(line => {
         let name = line;
         let gender = "L";
-
-        let delimiter = null;
-        if (line.includes("|")) delimiter = "|";
-        else if (line.includes(",")) delimiter = ",";
-        else if (line.includes("\t")) delimiter = "\t";
-
+        let delimiter = line.includes("|") ? "|" : (line.includes(",") ? "," : (line.includes("\t") ? "\t" : null));
         if (delimiter) {
           const parts = line.split(delimiter).map(p => p.trim());
           name = parts[0];
-          const gCandidate = (parts[1] || "").toUpperCase();
-          if (gCandidate.startsWith("P") || gCandidate.startsWith("F")) {
-            gender = "P";
-          } else {
-            gender = "L";
-          }
+          if ((parts[1] || "").toUpperCase().startsWith("P")) gender = "P";
         }
-
-        return {
-          class_id: classId,
-          user_id: currentUser.id,
-          full_name: name,
-          gender: gender
-        };
+        return { class_id: classId, user_id: currentUser.id, full_name: name, gender: gender };
       });
 
       try {
-        const { error } = await client.from("students").insert(records);
-        if (error) throw error;
-
-        formBulk.reset();
+        await client.from("students").insert(records);
+        document.getElementById("formBulkStudent").reset();
         addSection.classList.add("hidden");
         fetchStudents();
       } catch (err) {
         alert("Ralat: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = i18n[currentLang].btnSaveBulk;
       }
     });
 
     window.deleteStudent = async function(id) {
       if (!confirm(i18n[currentLang].confirmDelete)) return;
-      try {
-        const { error } = await client.from("students").delete().eq("id", id);
-        if (error) throw error;
-        fetchStudents();
-      } catch (err) {
-        alert("Gagal memadam: " + err.message);
-      }
+      await client.from("students").delete().eq("id", id);
+      fetchStudents();
     };
+
+    // EKSPORT CSV SENARAI KELAS
+    document.getElementById("btnExportCSV").addEventListener("click", () => {
+      if (students.length === 0) return alert("Tiada murid dalam kelas.");
+      const rows = [["No", "Nama Murid", "Jantina"]];
+      students.forEach((s, idx) => {
+        rows.push([idx + 1, `"${s.full_name}"`, s.gender || "L"]);
+      });
+      const csvContent = "\uFEFF" + rows.map(r => r.join(",")).join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Senarai_Murid_${currentClass?.class_name || 'Kelas'}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // KUNCI PREMIUM: MUAT TURUN PDF RINGKASAN KELAS
+    document.getElementById("btnExportPDFClass").addEventListener("click", async () => {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) return;
+
+      const { data: profile } = await client.from("profiles").select("plan, is_admin").eq("id", session.user.id).maybeSingle();
+      const isPremium = profile && (profile.plan === 'premium' || profile.is_admin === true);
+
+      if (!isPremium) {
+        alert("⭐ Muat turun ringkasan kelas PDF adalah ciri Premium.\n\nSila hubungi pentadbir untuk menaik taraf akaun anda.");
+        return;
+      }
+
+      if (students.length === 0) return alert("Tiada murid dalam kelas.");
+
+      try {
+        const studentIds = students.map(s => s.id);
+        const { data: allRecords } = await client.from("pbd_records").select("student_id, tp_score").in("student_id", studentIds);
+
+        const countMap = {};
+        (allRecords || []).forEach(r => {
+          countMap[r.student_id] = (countMap[r.student_id] || 0) + 1;
+        });
+
+        document.getElementById("printDate").textContent = formatDate(new Date());
+        const tbody = document.getElementById("printTableBody");
+        tbody.innerHTML = students.map((s, idx) => `
+          <tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td><strong>${s.full_name}</strong></td>
+            <td style="text-align:center;">${s.gender === 'P' ? 'Perempuan' : 'Lelaki'}</td>
+            <td style="text-align:center; font-weight:bold;">${countMap[s.id] || 0} Rekod SP</td>
+          </tr>
+        `).join("");
+
+        window.print();
+      } catch (err) {
+        alert("Gagal menjana PDF: " + err.message);
+      }
+    });
 
     init();
   </script>
