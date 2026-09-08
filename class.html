@@ -113,7 +113,6 @@
       window.location.href = "dashboard.html";
     }
 
-    // Pautkan ID kelas terus ke dua-dua butang modul
     document.getElementById("btnStartPBD").href = `transit.html?class_id=${classId}`;
     document.getElementById("btnActivity").href = `activity.html?class_id=${classId}`;
 
@@ -167,17 +166,23 @@
         }
 
         studentsList.innerHTML = students.map((s, idx) => `
-          <div class="py-2.5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
+          <div class="py-2.5 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
               <span class="text-[11px] font-semibold text-slate-400 w-5">${idx + 1}.</span>
               <div>
                 <p class="text-xs font-semibold text-slate-800">${s.full_name}</p>
                 <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? 'Perempuan' : 'Lelaki'}</span>
               </div>
             </div>
-            <button onclick="deleteStudent('${s.id}')" class="text-[11px] text-rose-500 hover:text-rose-700 p-1">
-              Padam
-            </button>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <a href="report.html?student_id=${s.id}&class_id=${classId}" 
+                class="text-[11px] bg-slate-100 hover:bg-indigo-50 text-indigo-600 font-semibold px-2.5 py-1 rounded-md border border-slate-200">
+                Laporan
+              </a>
+              <button onclick="deleteStudent('${s.id}')" class="text-[11px] text-rose-500 hover:text-rose-700 p-1">
+                Padam
+              </button>
+            </div>
           </div>
         `).join("");
       } catch (err) {
