@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <!-- Bahagian 1: Rekod PBD & Tarikh -->
+    <!-- Bahagian 1: Rekod PBD & Butang Padam -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Pencapaian Pentaksiran Bilik Darjah (PBD)</h3>
       <div id="pbdRecordsList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <!-- Bahagian 2: Sahsiah & Tarikh -->
+    <!-- Bahagian 2: Sahsiah -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Catatan Sahsiah & Keperibadian</h3>
       <div id="behaviorList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -83,7 +83,7 @@
       </div>
     </div>
 
-    <!-- Bahagian 3: Tugasan & Tarikh -->
+    <!-- Bahagian 3: Tugasan -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Rekod Penghantaran Kerja Rumah</h3>
       <div id="hwList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -140,7 +140,6 @@
     async function loadPBD() {
       const container = document.getElementById("pbdRecordsList");
       try {
-        // Ambil rekod murid (select * supaya fleksibel walau apa jua lajur wujud)
         const { data: records, error } = await client
           .from("pbd_records")
           .select("*")
@@ -154,7 +153,6 @@
           return;
         }
 
-        // Kira Purata TP
         const scored = records.filter(r => r.tp_score > 0);
         if (scored.length > 0) {
           let totalTP = 0;
@@ -164,7 +162,6 @@
           document.getElementById("avgTP").textContent = "TH";
         }
 
-        // Dapatkan maklumat SP
         const spIds = records.map(r => r.sp_id).filter(id => !!id);
         let spMap = {};
 
@@ -215,9 +212,14 @@
                 </div>
                 <p class="text-slate-700 dark:text-slate-200 mt-0.5">${spInfo.sp_desc}</p>
               </div>
-              <span class="text-xs font-bold px-2.5 py-1 ${isTH ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 'bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300'} rounded-lg shrink-0">
-                ${isTH ? 'TH' : 'TP ' + r.tp_score}
-              </span>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-xs font-bold px-2.5 py-1 ${isTH ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 'bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300'} rounded-lg">
+                  ${isTH ? 'TH' : 'TP ' + r.tp_score}
+                </span>
+                <button onclick="deleteSinglePBD('${r.id}')" title="Padam rekod ini" class="no-print text-xs text-rose-400 hover:text-rose-600 p-1">
+                  🗑️
+                </button>
+              </div>
             </div>
           `;
         }).join("");
@@ -226,6 +228,18 @@
         container.innerHTML = `<p class="text-xs text-rose-500 py-3 text-center">Ralat: ${err.message}</p>`;
       }
     }
+
+    // Padam rekod PBD dari laporan
+    window.deleteSinglePBD = async function(recordId) {
+      if (!confirm("Padam rekod pentaksiran ini?")) return;
+      try {
+        const { error } = await client.from("pbd_records").delete().eq("id", recordId);
+        if (error) throw error;
+        loadPBD();
+      } catch (err) {
+        alert("Gagal memadam: " + err.message);
+      }
+    };
 
     async function loadBehavior() {
       const container = document.getElementById("behaviorList");
@@ -292,4 +306,3 @@
   </script>
 </body>
 </html>
-
