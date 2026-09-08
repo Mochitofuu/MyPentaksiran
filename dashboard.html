@@ -60,6 +60,12 @@
           <span id="txtMenuDSKP">Bank DSKP Komuniti</span>
         </a>
 
+        <!-- Menu Bantuan & Aduan (Customer Service) -->
+        <a href="support.html" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <span class="text-base">🎧</span>
+          <span>Bantuan & Maklum Balas</span>
+        </a>
+
         <!-- Langganan -->
         <button id="btnOpenSubModal" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 to-indigo-500/10 hover:from-amber-500/20 hover:to-indigo-500/20 text-slate-800 dark:text-slate-100 border border-amber-300 dark:border-amber-700/60 transition text-left">
           <div class="flex items-center gap-2.5">
@@ -152,12 +158,9 @@
     </div>
   </main>
 
-  <!-- ======================================================= -->
-  <!-- MODAL NOTIFIKASI LOCENG (PETI SIARAN PENGUMUMAN)        -->
-  <!-- ======================================================= -->
+  <!-- MODAL NOTIFIKASI LOCENG -->
   <div id="modalNotifications" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[85vh] flex flex-col space-y-4">
-      
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
         <div class="flex items-center gap-2">
           <span class="text-base">🔔</span>
@@ -388,7 +391,6 @@
       }
     }
 
-    // Panggil & Paparkan Notifikasi
     async function loadNotifications() {
       const listContainer = document.getElementById("notifModalList");
       const badgeDot = document.getElementById("notifBadgeDot");
@@ -418,7 +420,6 @@
                 <h4 class="font-bold text-slate-900 dark:text-white text-xs">${item.title}</h4>
               </div>
               
-              <!-- Butang Padam Pengumuman (Hanya Muncul untuk Admin) -->
               ${isUserAdmin ? `
                 <button onclick="deleteBroadcastDirect('${item.id}')" title="Padam Broadcast ini" class="text-xs text-rose-500 hover:text-rose-700 p-1">
                   🗑️
@@ -434,9 +435,8 @@
       }
     }
 
-    // Fungsi Padam Broadcast Terus
     window.deleteBroadcastDirect = async function(id) {
-      if (!confirm("Padam siaran pengumuman ini daripada sistem? Semua pengguna tidak akan melihatnya lagi.")) return;
+      if (!confirm("Padam siaran pengumuman ini daripada sistem?")) return;
       try {
         const { error } = await client.from("announcements").delete().eq("id", id);
         if (error) throw error;
