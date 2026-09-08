@@ -110,6 +110,7 @@
         empty: "Sila pilih subjek dan SP di atas terlebih dahulu.",
         noStudents: "Tiada murid dalam kelas.",
         notAssessed: "Belum Ditaksir",
+        absent: "Tidak Hadir (TH)",
         rubricTitle: "Standard Prestasi (TP 1 - TP 6)",
         close: "Tutup",
         saveChange: "Simpan Perubahan"
@@ -130,6 +131,7 @@
         empty: "Please select subject and SP above first.",
         noStudents: "No students in this class.",
         notAssessed: "Not Assessed",
+        absent: "Absent (TH)",
         rubricTitle: "Performance Standards (TP 1 - TP 6)",
         close: "Close",
         saveChange: "Save Changes"
@@ -278,7 +280,7 @@
       const rubrics = currentSP?.tp_rubrics || defaultRubrics;
 
       container.innerHTML = students.map((s, idx) => {
-        const activeTP = currentScores[s.id] || null;
+        const activeTP = currentScores[s.id] !== undefined ? currentScores[s.id] : null;
 
         const tpButtons = [1, 2, 3, 4, 5, 6].map(tp => {
           const isSelected = activeTP === tp;
@@ -293,18 +295,30 @@
           `;
         }).join("");
 
-        const currentDesc = activeTP ? (rubrics[activeTP] || "") : "";
+        const isAbsent = activeTP === 0;
+        const absentBtn = `
+          <button onclick="recordTP('${s.id}', 0)" 
+            class="px-2 h-7 text-xs rounded-lg transition font-semibold ${isAbsent ? 'bg-rose-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-500'}">
+            TH
+          </button>
+        `;
+
+        let statusText = `<span class="text-slate-400">${t.notAssessed}</span>`;
+        if (activeTP === 0) {
+          statusText = `<span class="font-bold text-rose-500">${t.absent}</span>`;
+        } else if (activeTP > 0) {
+          statusText = `<span class="font-bold text-indigo-600 dark:text-indigo-400">TP ${activeTP}:</span> ${rubrics[activeTP] || ''}`;
+        }
 
         return `
           <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <p class="text-xs font-semibold text-slate-800 dark:text-white">${idx + 1}. ${s.full_name}</p>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                ${activeTP ? `<span class="font-bold text-indigo-600 dark:text-indigo-400">TP ${activeTP}:</span> ${currentDesc}` : `<span class="text-slate-400">${t.notAssessed}</span>`}
-              </p>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">${statusText}</p>
             </div>
             <div class="flex items-center gap-1.5 self-end sm:self-auto">
               ${tpButtons}
+              ${absentBtn}
             </div>
           </div>
         `;
@@ -382,7 +396,7 @@
       document.getElementById("modalRubric").classList.add("hidden");
     });
 
-    // Eksport CSV
+    // Eksport CSV (Sokongan Nilai TH)
     btnExport.addEventListener("click", async () => {
       const dskpId = selectSubject.value;
       if (!dskpId || spList.length === 0) return alert("Pilih subjek.");
@@ -399,7 +413,9 @@
           .in("sp_id", spIds);
 
         const scoreMap = {};
-        (allRecords || []).forEach(r => { scoreMap[`${r.student_id}_${r.sp_id}`] = r.tp_score; });
+        (allRecords || []).forEach(r => {
+          scoreMap[`${r.student_id}_${r.sp_id}`] = r.tp_score === 0 ? "TH" : r.tp_score;
+        });
 
         const headers = ["No", currentLang === 'en' ? "Student Name" : "Nama Murid", currentLang === 'en' ? "Gender" : "Jantina", ...spList.map(item => `SP ${item.sp_code}`)];
         const rows = [headers];
