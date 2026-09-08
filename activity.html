@@ -59,7 +59,6 @@
             <div>
               <label id="lblCategory" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Domain Sahsiah</label>
               <select id="behaviorCategory" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
-                <!-- Dimuat secara dinamik berdasarkan jenis tindakan -->
               </select>
             </div>
           </div>
@@ -122,41 +121,14 @@
 
     const currentLang = localStorage.getItem("app_lang") || "ms";
 
-    // Domain Sahsiah Universal
     const universalCategories = {
       ms: {
-        positive: [
-          "Budi Pekerti",
-          "Kerjasama",
-          "Kepimpinan",
-          "Kerajinan & Inisiatif",
-          "Disiplin & Ketepatan Masa",
-          "Keberanian & Keyakinan"
-        ],
-        warning: [
-          "Disiplin Diri",
-          "Tanggungjawab Tugasan",
-          "Fokus & Sikap Belajar",
-          "Interaksi Sosial / Rakan",
-          "Kebersihan & Kekemasan"
-        ]
+        positive: ["Budi Pekerti", "Kerjasama", "Kepimpinan", "Kerajinan & Inisiatif", "Disiplin & Ketepatan Masa", "Keberanian & Keyakinan"],
+        warning: ["Disiplin Diri", "Tanggungjawab Tugasan", "Fokus & Sikap Belajar", "Interaksi Sosial / Rakan", "Kebersihan & Kekemasan"]
       },
       en: {
-        positive: [
-          "Moral Character & Manners",
-          "Teamwork & Collaboration",
-          "Leadership",
-          "Diligence & Initiative",
-          "Discipline & Punctuality",
-          "Confidence & Courage"
-        ],
-        warning: [
-          "Self-Discipline",
-          "Task Responsibility",
-          "Focus & Learning Attitude",
-          "Social Interaction",
-          "Cleanliness & Organization"
-        ]
+        positive: ["Moral Character & Manners", "Teamwork & Collaboration", "Leadership", "Diligence & Initiative", "Discipline & Punctuality", "Confidence & Courage"],
+        warning: ["Self-Discipline", "Task Responsibility", "Focus & Learning Attitude", "Social Interaction", "Cleanliness & Organization"]
       }
     };
 
@@ -238,6 +210,21 @@
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
+
+      // KUNCI LANGGANAN: Semak sama ada guru berstatus Premium atau Admin
+      const { data: profile } = await client
+        .from("profiles")
+        .select("plan, is_admin")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      const isPremium = profile && (profile.plan === 'premium' || profile.is_admin === true);
+      if (!isPremium) {
+        alert("⭐ Modul Sahsiah & Kerja Rumah adalah ciri Premium.\n\nSila hubungi pentadbir untuk menaik taraf akaun anda.");
+        window.location.href = `class.html?id=${classId}`;
+        return;
+      }
+
       await loadStudents();
       updateCategoryDropdown();
       await loadBehaviorLogs();
@@ -255,7 +242,6 @@
       const type = document.getElementById("behaviorType").value;
       const catSelect = document.getElementById("behaviorCategory");
       const list = universalCategories[currentLang][type] || universalCategories.ms[type];
-
       catSelect.innerHTML = list.map(item => `<option value="${item}">${item}</option>`).join("");
     }
 
