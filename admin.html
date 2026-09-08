@@ -91,30 +91,37 @@
     </div>
 
     <!-- BAHAGIAN 3: PENGURUSAN LANGGANAN PENGGUNA -->
-    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <h1 class="text-sm font-bold text-slate-900 dark:text-white">Pengurusan Pengguna & Langganan</h1>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400">Urus akses guru ke modul Premium atau percuma.</p>
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm font-bold text-slate-900 dark:text-white">Pengurusan Pengguna & Langganan</h1>
+            <button onclick="loadUsers()" title="Segar Semula Senarai" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-1">
+              🔄 Muat Semula
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Urus akses guru ke modul Premium atau percuma.</p>
+        </div>
+        <input type="text" id="searchUser" placeholder="Cari nama atau emel..." 
+          class="text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
       </div>
-      <input type="text" id="searchUser" placeholder="Cari nama atau emel..." 
-        class="text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
-    </div>
 
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 uppercase text-[10px] font-bold">
-            <tr>
-              <th class="py-3 px-4">Nama Guru</th>
-              <th class="py-3 px-4">Sekolah</th>
-              <th class="py-3 px-4 text-center">Pelan Semasa</th>
-              <th class="py-3 px-4 text-right">Tindakan</th>
-            </tr>
-          </thead>
-          <tbody id="userTableBody" class="divide-y divide-slate-100 dark:divide-slate-700">
-            <tr><td colspan="4" class="py-6 text-center text-slate-400">Memuatkan senarai pengguna...</td></tr>
-          </tbody>
-        </table>
+      <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 uppercase text-[10px] font-bold">
+              <tr>
+                <th class="py-3 px-4">Nama Guru</th>
+                <th class="py-3 px-4">Sekolah</th>
+                <th class="py-3 px-4 text-center">Pelan Semasa</th>
+                <th class="py-3 px-4 text-right">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody" class="divide-y divide-slate-100 dark:divide-slate-700">
+              <tr><td colspan="4" class="py-6 text-center text-slate-400">Memuatkan senarai pengguna...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>
@@ -143,7 +150,7 @@
       await loadBroadcasts();
     }
 
-    // 1. PENGENDALIAN TIKET MAKLUM BALAS (Kueri Bebas Ralat Relasi)
+    // 1. PENGENDALIAN TIKET MAKLUM BALAS
     async function loadFeedbackTickets() {
       const container = document.getElementById("ticketsList");
       const badge = document.getElementById("ticketCountBadge");
@@ -163,7 +170,6 @@
           return;
         }
 
-        // Peta profil pengguna secara tempatan tanpa join SQL rumit
         const userMap = {};
         allUsers.forEach(u => { userMap[u.id] = u; });
 
@@ -203,7 +209,6 @@
       }
     }
 
-    // Padam Isu Yang Telah Selesai
     window.resolveTicket = async function(ticketId) {
       if (!confirm("Tandakan isu ini sebagai telah selesai dan padam dari peti masuk?")) return;
       try {
@@ -286,18 +291,25 @@
       }
     };
 
-    // 3. PENGURUSAN PENGGUNA
+    // 3. PENGURUSAN PENGGUNA (Auto Sort Mengikut Pendaftaran Terbaru)
     async function loadUsers() {
       const tbody = document.getElementById("userTableBody");
-      const { data, error } = await client.from("profiles").select("*").order("created_at", { ascending: false });
+      try {
+        const { data, error } = await client
+          .from("profiles")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error || !data) {
-        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-rose-500">Ralat: ${error?.message}</td></tr>`;
-        return;
+        if (error || !data) {
+          tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-rose-500">Ralat: ${error?.message}</td></tr>`;
+          return;
+        }
+
+        allUsers = data;
+        renderTable(data);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-rose-500">${err.message}</td></tr>`;
       }
-
-      allUsers = data;
-      renderTable(data);
     }
 
     function renderTable(users) {
