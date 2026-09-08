@@ -144,7 +144,6 @@
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
-            // Gabungkan teks setiap mukasurat dengan ruang pemisah
             const pageText = textContent.items.map(item => item.str).join(" ");
             fullText += pageText + " ";
           }
@@ -253,7 +252,7 @@
       renderExtractedItems();
     }
 
-    // Simpan ke Supabase (DIPERBAIKI)
+    // SIMPAN KE SUPABASE (PENAMBAHBAIKAN SK_DESC)
     document.getElementById("btnSaveToDatabase").addEventListener("click", async () => {
       const subjectName = document.getElementById("inputSubjectName").value.trim();
       const gradeLevel = document.getElementById("inputGradeLevel").value.trim();
@@ -275,21 +274,29 @@
         if (subErr) throw subErr;
         const dskpId = subData.id;
 
-        // Kod Diperbaiki: Masukkan nilai sk_code dengan tepat untuk mengelak ralat "null value violates not-null constraint"
+        // Pemetaan: Simpan huraian SK untuk digunakan semula oleh SP
+        const skDescMap = {};
+        extractedSK.forEach(sk => {
+          skDescMap[sk.code] = sk.desc;
+        });
+
+        // Susun data dengan tepat: hantar sk_code dan sk_desc untuk kesemuanya
         const allItems = [
           ...extractedSK.map(i => ({
             dskp_id: dskpId,
-            sk_code: i.code, // Untuk SK, sk_code ialah kodnya sendiri
+            sk_code: i.code,
+            sk_desc: i.desc, // SK desc dimasukkan
             sp_code: i.code,
             sp_desc: `[SK] ${i.desc}`
           })),
           ...extractedSP.map(i => {
-            // Untuk SP (cth 1.1.1), ekstrak "1.1" sebagai sk_code
             const parts = i.code.split('.');
             const skCode = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : i.code;
+            const skDesc = skDescMap[skCode] || "Standard Kandungan"; // Ikat SK desc yang sepadan
             return {
               dskp_id: dskpId,
               sk_code: skCode,
+              sk_desc: skDesc, // SK desc dimasukkan untuk jadual SP
               sp_code: i.code,
               sp_desc: i.desc
             };
