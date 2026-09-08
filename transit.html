@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekod Transit PBD - MyPentaksiran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-20">
+
+  <!-- Bar Navigasi Atas -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600">
+        ← Kembali ke Kelas
+      </a>
+      <span class="text-xs font-bold text-slate-700">Pentaksiran PBD</span>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
+    <!-- Pemilihan Subjek & SP -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">1. Pilih Subjek DSKP</label>
+        <select id="selectSubject" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-white">
+          <option value="">-- Sila Pilih Subjek --</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
+        <select id="selectSP" disabled class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 bg-slate-50">
+          <option value="">-- Pilih Subjek Dahulu --</option>
+        </select>
+      </div>
+
+      <div id="spDescription" class="hidden p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-xs text-indigo-900 leading-relaxed">
+      </div>
+    </div>
+
+    <!-- Senarai Murid & Pilihan TP (1-Klik) -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Senarai Pentaksiran Murid</h2>
+        <span id="saveStatus" class="text-[11px] text-emerald-600 font-semibold hidden">Tersimpan ✓</span>
+      </div>
+
+      <div id="studentAssessmentList" class="divide-y divide-slate-100">
+        <p class="text-xs text-slate-400 py-6 text-center">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ub2phaGlicWJoeGhweXhrcWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDU5NjAsImV4cCI6MjEwNDQyMTk2MH0.UhKRSYCcAizVnKf9dSsIcF1bgOeD8-5KRRSngBvsocI";
+
+    const { createClient } = window.supabase;
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const classId = urlParams.get("class_id");
+
+    let currentUser = null;
+    let students = [];
+    let spList = [];
+    let currentSP = null;
+    let currentScores = {}; // student_id -> tp_score
+
+    if (!classId) {
+      window.location.href = "dashboard.html";
+    }
+
+    document.getElementById("backBtn").href = `class.html?id=${classId}`;
+
+    async function init() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) {
+        window.location.href = "index.html";
+        return;
+      }
+      currentUser = session.user;
+      await loadStudents();
+      await loadSubjects();
+    }
+
+    async function loadStudents() {
+      const { data, error } = await client
+        .from("students")
+        .select("*")
+        .eq("class_id", classId)
+        .order("full_name", { ascending: true });
+
+      if (error) return alert("Ralat memuat murid: " + error.message);
+      students = data || [];
+    }
+
+    async function loadSubjects() {
+      const selectSubject = document.getElementById("selectSubject");
+      const { data, error } = await client
+        .from("dskp_subjects")
+        .select("*")
+        .order("subject_name", { ascending: true });
+
+      if (error) return;
+
+      selectSubject.innerHTML = '<option value="">-- Sila Pilih Subjek --</option>' + 
+        data.map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join("");
+    }
+
+    // Bila subjek dipilih -> muat senarai SP
+    document.getElementById("selectSubject").addEventListener("change", async (e) => {
+      const dskpId = e.target.value;
+      const selectSP = document.getElementById("selectSP");
+      const spDesc = document.getElementById("spDescription");
+      spDesc.classList.add("hidden");
+
+      if (!dskpId) {
+        selectSP.disabled = true;
+        selectSP.classList.add("bg-slate-50");
+        selectSP.innerHTML = '<option value="">-- Pilih Subjek Dahulu --</option>';
+        renderEmptyPrompt();
+        return;
+      }
+
+      const { data, error } = await client
+        .from("dskp_items")
+        .select("*")
+        .eq("dskp_id", dskpId)
+        .order("sp_code", { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        selectSP.disabled = true;
+        selectSP.innerHTML = '<option value="">Tiada SP didaftarkan bagi subjek ini</option>';
+        return;
+      }
+
+      spList = data;
+      selectSP.disabled = false;
+      selectSP.classList.remove("bg-slate-50");
+      selectSP.innerHTML = '<option value="">-- Pilih Kod SP --</option>' +
+        data.map(item => `<option value="${item.id}">SP ${item.sp_code} - ${item.sp_desc.slice(0, 45)}...</option>`).join("");
+    });
+
+    // Bila SP dipilih -> ambil markah sedia ada & paparkan murid
+    document.getElementById("selectSP").addEventListener("change", async (e) => {
+      const spId = e.target.value;
+      const spDesc = document.getElementById("spDescription");
+
+      if (!spId) {
+        spDesc.classList.add("hidden");
+        renderEmptyPrompt();
+        return;
+      }
+
+      currentSP = spList.find(i => i.id === spId);
+      if (currentSP) {
+        spDesc.classList.remove("hidden");
+        spDesc.innerHTML = `<strong>SP ${currentSP.sp_code}:</strong> ${currentSP.sp_desc}`;
+      }
+
+      // Ambil skor PBD yang pernah direkod untuk SP ini
+      const { data: records, error } = await client
+        .from("pbd_records")
+        .select("student_id, tp_score")
+        .eq("sp_id", spId)
+        .eq("user_id", currentUser.id);
+
+      currentScores = {};
+      if (records) {
+        records.forEach(r => { currentScores[r.student_id] = r.tp_score; });
+      }
+
+      renderAssessmentList();
+    });
+
+    function renderEmptyPrompt() {
+      document.getElementById("studentAssessmentList").innerHTML = `
+        <p class="text-xs text-slate-400 py-6 text-center">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
+      `;
+    }
+
+    function renderAssessmentList() {
+      const container = document.getElementById("studentAssessmentList");
+
+      if (students.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tiada murid dalam kelas ini.</p>`;
+        return;
+      }
+
+      container.innerHTML = students.map((s, idx) => {
+        const activeTP = currentScores[s.id] || null;
+
+        const tpButtons = [1, 2, 3, 4, 5, 6].map(tp => {
+          const isSelected = activeTP === tp;
+          const bgClass = isSelected 
+            ? "bg-indigo-600 text-white font-bold shadow-sm" 
+            : "bg-slate-100 text-slate-600 hover:bg-slate-200";
+
+          return `
+            <button onclick="recordTP('${s.id}', ${tp})" 
+              class="w-7 h-7 text-xs rounded-lg transition ${bgClass}">
+              ${tp}
+            </button>
+          `;
+        }).join("");
+
+        return `
+          <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <p class="text-xs font-semibold text-slate-800">${idx + 1}. ${s.full_name}</p>
+              <span class="text-[10px] text-slate-400">Tahap Penguasaan: ${activeTP ? 'TP ' + activeTP : 'Belum Ditaksir'}</span>
+            </div>
+            <div class="flex items-center gap-1.5 self-end sm:self-auto">
+              ${tpButtons}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Fungsi simpan markah TP
+    window.recordTP = async function(studentId, score) {
+      if (!currentSP) return;
+
+      currentScores[studentId] = score;
+      renderAssessmentList(); // Kemas kini UI serta-merta
+
+      const status = document.getElementById("saveStatus");
+      status.textContent = "Menyimpan...";
+      status.classList.remove("hidden", "text-rose-600");
+      status.classList.add("text-slate-400");
+
+      try {
+        // Semak rekod sedia ada
+        const { data: existing } = await client
+          .from("pbd_records")
+          .select("id")
+          .eq("student_id", studentId)
+          .eq("sp_id", currentSP.id)
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+
+        if (existing) {
+          await client.from("pbd_records").update({ tp_score: score }).eq("id", existing.id);
+        } else {
+          await client.from("pbd_records").insert([{
+            student_id: studentId,
+            sp_id: currentSP.id,
+            tp_score: score,
+            user_id: currentUser.id
+          }]);
+        }
+
+        status.textContent = "Tersimpan ✓";
+        status.classList.remove("text-slate-400");
+        status.classList.add("text-emerald-600");
+        setTimeout(() => status.classList.add("hidden"), 1500);
+
+      } catch (err) {
+        status.textContent = "Ralat simpan!";
+        status.classList.add("text-rose-600");
+      }
+    };
+
+    init();
+  </script>
+</body>
+</html>
