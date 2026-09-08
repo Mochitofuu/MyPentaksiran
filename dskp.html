@@ -10,7 +10,6 @@
     if (localStorage.getItem("app_theme") === "dark") document.documentElement.classList.add("dark");
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
-  <!-- Pustaka PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -26,17 +25,15 @@
   </header>
 
   <main class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
-    <!-- Kad Panduan Ekstrak -->
     <div class="bg-indigo-600 dark:bg-indigo-700 p-5 rounded-2xl text-white shadow-sm space-y-2">
       <h1 class="text-sm font-bold flex items-center gap-1.5">
         <span>📄</span> Pengurusan Bank DSKP KPM
       </h1>
       <p class="text-xs text-indigo-100 leading-relaxed">
-        Sistem pengimbas baharu kini membaca keseluruhan perenggan PDF dan mengekstrak semua Standard Kandungan (SK) & Standard Pembelajaran (SP) tanpa tercicir!
+        Sistem pengimbas baharu kini membaca keseluruhan perenggan PDF, menyisih teks pengenalan awal, dan mengekstrak semua Standard Kandungan (SK) & Standard Pembelajaran (SP) dengan bersih dan tepat!
       </p>
     </div>
 
-    <!-- Borang Muat Naik PDF -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
       <h2 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Muat Naik Fail Baharu</h2>
 
@@ -64,7 +61,7 @@
       </div>
     </div>
 
-    <!-- HASIL EKSTRAK DIASINGKAN: SK DAN SP -->
+    <!-- HASIL EKSTRAK DIASINGKAN -->
     <div id="previewContainer" class="hidden space-y-4">
       
       <!-- Kad SK -->
@@ -76,7 +73,7 @@
           </div>
           <span id="badgeCountSK" class="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">0 SK</span>
         </div>
-        <div id="listSK" class="max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
+        <div id="listSK" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
       </div>
 
       <!-- Kad SP -->
@@ -88,7 +85,7 @@
           </div>
           <span id="badgeCountSP" class="text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full">0 SP</span>
         </div>
-        <div id="listSP" class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
+        <div id="listSP" class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
       </div>
 
       <button type="button" id="btnSaveToDatabase" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2">
@@ -96,7 +93,7 @@
       </button>
     </div>
 
-    <!-- Senarai DSKP Tersedia (Boleh Padam) -->
+    <!-- Senarai DSKP Tersedia -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Bank DSKP Tersedia (Sedia Dipadam)</h3>
       <div id="existingDskpList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -147,7 +144,6 @@
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
-            // Gabungkan teks setiap mukasurat dengan ruang pemisah
             const pageText = textContent.items.map(item => item.str).join(" ");
             fullText += pageText + " ";
           }
@@ -162,7 +158,7 @@
       reader.readAsArrayBuffer(file);
     });
 
-    // ENJIN PARSER BAHARU: Imbasan Blok Berterusan (Continuous Block Scanning)
+    // ENJIN PARSER MUKTAMAD (OVERWRITE & CLEANUP)
     function parseDskpText(text) {
       extractedSK = [];
       extractedSP = [];
@@ -171,7 +167,7 @@
       let cleanText = text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ');
 
       // Cari kedudukan semua nombor kod seperti 1.1, 2.3, 1.1.1, 5.2.3
-      const codeRegex = /\b(\d{1,2}\.\d{1,2}(?:\.\d{1,2})?)\b/g;
+      const codeRegex = /\b([1-9]\.[1-9](?:\.\d{1,2})?)\b/g;
       let match;
       const matches = [];
       
@@ -183,41 +179,47 @@
         });
       }
 
-      const seenCodes = new Set();
+      // Map untuk OVERWRITE kod yang berulang. 
+      // Memastikan jadual sebenar (yang sentiasa berada di belakang PDF) menimpa teks pengenalan awal.
+      const latestCodes = new Map();
 
-      // Loop setiap kedudukan kod untuk ekstrak huraian di antara kod
+      // Senarai perkataan gangguan yang perlu dipotong
+      const stopWords = /(Tahap Penguasaan|Catatan|Standard Prestasi|KSSR|Tahun \d|Murid boleh|STANDARD PEMBELAJARAN|STANDARD KANDUNGAN)/i;
+
       for (let i = 0; i < matches.length; i++) {
         const current = matches[i];
         const next = matches[i + 1];
         
         let desc = "";
         if (next) {
-          // Potong teks dari hujung kod semasa ke pangkal kod seterusnya
           desc = cleanText.substring(current.end, next.index);
         } else {
-          // Jika kod terakhir, potong sedikit teks selepasnya
           desc = cleanText.substring(current.end, current.end + 400); 
         }
         
         // Bersihkan tanda sempang, noktah bertindih di pangkal teks
         desc = desc.replace(/^[-\s:;]+/, '').trim();
-        // Potong perenggan jika terbaca nota tambahan PDF atau Tahap Penguasaan
-        desc = desc.split(/(Tahap Penguasaan|Catatan|Standard Prestasi|KSSR|Tahun \d)/i)[0].trim();
+        
+        // Potong perenggan supaya huraian tidak melarat membaca header jadual lain
+        desc = desc.split(stopWords)[0].trim();
 
-        // Tapis hanya yang sah (Ada huraian > 2 huruf, dan elak duplikasi)
-        if (desc.length > 2 && !seenCodes.has(current.code)) {
-          seenCodes.add(current.code);
-          
-          const parts = current.code.split('.');
-          if (parts.length === 2) {
-             extractedSK.push({ code: current.code, desc: desc });
-          } else if (parts.length === 3) {
-             extractedSP.push({ code: current.code, desc: desc });
-          }
+        // Hanya simpan jika huraian logik dan bermakna (> 3 huruf)
+        if (desc.length > 3) {
+          latestCodes.set(current.code, desc);
         }
       }
 
-      // Susun mengikut urutan nombor cantik
+      // Asingkan ke dalam array SK dan SP
+      latestCodes.forEach((desc, code) => {
+        const parts = code.split('.');
+        if (parts.length === 2) {
+          extractedSK.push({ code: code, desc: desc });
+        } else if (parts.length === 3) {
+          extractedSP.push({ code: code, desc: desc });
+        }
+      });
+
+      // Susun mengikut urutan nombor
       extractedSK.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
       extractedSP.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
 
@@ -238,7 +240,7 @@
       document.getElementById("badgeCountSK").textContent = `${extractedSK.length} SK`;
       document.getElementById("badgeCountSP").textContent = `${extractedSP.length} SP`;
 
-      // Render SK (Boleh Diedit & Padam)
+      // Render SK
       listSK.innerHTML = extractedSK.map((item, idx) => `
         <div class="py-2 flex items-start gap-2" id="sk_item_${idx}">
           <span class="font-extrabold text-indigo-600 dark:text-indigo-400 shrink-0 w-12 text-xs pt-1">${item.code}</span>
@@ -247,7 +249,7 @@
         </div>
       `).join("");
 
-      // Render SP (Boleh Diedit & Padam)
+      // Render SP
       listSP.innerHTML = extractedSP.map((item, idx) => `
         <div class="py-2 flex items-start gap-2" id="sp_item_${idx}">
           <span class="font-extrabold text-emerald-600 dark:text-emerald-400 shrink-0 w-14 text-xs pt-1">${item.code}</span>
@@ -263,10 +265,10 @@
     window.removeExtractedItem = function(type, idx) {
       if (type === 'SK') extractedSK.splice(idx, 1);
       else extractedSP.splice(idx, 1);
-      renderExtractedItems(); // Kemas kini UI
-    };
+      renderExtractedItems();
+    }
 
-    // Simpan ke Supabase (Serentak SK & SP)
+    // Simpan ke Supabase
     document.getElementById("btnSaveToDatabase").addEventListener("click", async () => {
       const subjectName = document.getElementById("inputSubjectName").value.trim();
       const gradeLevel = document.getElementById("inputGradeLevel").value.trim();
@@ -309,7 +311,7 @@
       }
     });
 
-    // Senarai DSKP Sedia Ada (Padam 🗑️ Berfungsi Penuh)
+    // Senarai DSKP Sedia Ada
     async function loadExistingDskp() {
       const container = document.getElementById("existingDskpList");
       const { data, error } = await client.from("dskp_subjects").select("*").order("created_at", { ascending: false });
@@ -346,7 +348,6 @@
         if (error) throw error;
 
         document.getElementById(`dskp_row_${id}`)?.remove();
-        alert("DSKP berjaya dipadam.");
       } catch (err) {
         alert("Gagal memadam DSKP: " + err.message);
       }
