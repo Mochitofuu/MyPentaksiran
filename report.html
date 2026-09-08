@@ -73,7 +73,7 @@
     </div>
   </header>
 
-  <!-- 1. KEPALA SURAT RASMI BERSAMA LOGO SEKOLAH (CETAKAN PDF) -->
+  <!-- KEPALA SURAT RASMI (CETAKAN PDF) -->
   <div class="print-only mb-2">
     <div class="border-b-2 border-slate-800 pb-2 flex items-center gap-4">
       <div id="printLogoWrapper" class="hidden shrink-0">
@@ -90,13 +90,12 @@
         <p><strong>Nama Murid:</strong> <span id="printStudentName">-</span></p>
         <p><strong>Kelas / Sesi:</strong> <span id="printClassMeta">-</span></p>
       </div>
-      <div class="space-y-0.5 text-right">
+      <div class="grid-cols-2 text-right">
         <p><strong>Jantina:</strong> <span id="printGender">-</span></p>
         <p><strong>Tarikh Laporan:</strong> <span id="printDate">-</span></p>
       </div>
     </div>
 
-    <!-- Statistik Ringkas Kompak -->
     <div class="grid grid-cols-3 gap-2 mt-2 text-center">
       <div class="border border-slate-300 rounded p-1 bg-slate-50">
         <span class="text-[7pt] uppercase font-bold text-slate-500 block">Purata TP</span>
@@ -113,7 +112,7 @@
     </div>
   </div>
 
-  <!-- 2. PAPARAN SKRIN TELEFON -->
+  <!-- PAPARAN SKRIN TELEFON -->
   <main class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
     <div class="screen-only bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
       <div>
@@ -148,10 +147,20 @@
       </div>
     </div>
 
-    <!-- SEKSYEN PBD -->
+    <!-- SEKSYEN BARU: RUMUSAN STANDARD KANDUNGAN (SK) -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 print:p-0 print:border-none print:shadow-none print:space-y-1">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider print:text-[8pt] print:font-black print:text-slate-900 print:mb-1">
-        Pencapaian Pentaksiran Bilik Darjah (PBD)
+        Rumusan Standard Kandungan (SK)
+      </h3>
+      <div id="skSummaryContainer" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
+        <p class="text-slate-400 py-3 text-center">Mengira purata SK...</p>
+      </div>
+    </div>
+
+    <!-- SEKSYEN PBD (STANDARD PEMBELAJARAN) -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 print:p-0 print:border-none print:shadow-none print:space-y-1">
+      <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider print:text-[8pt] print:font-black print:text-slate-900 print:mb-1">
+        Pencapaian Standard Pembelajaran (SP)
       </h3>
 
       <div id="pbdRecordsListScreen" class="screen-only divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -170,9 +179,7 @@
             </tr>
           </thead>
           <tbody id="pbdRecordsListPrint">
-            <tr>
-              <td colspan="5" style="text-align: center; color: #94a3b8;">Tiada rekod pentaksiran.</td>
-            </tr>
+            <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Tiada rekod pentaksiran.</td></tr>
           </tbody>
         </table>
       </div>
@@ -233,7 +240,7 @@
       </div>
     </div>
 
-    <!-- TANDATANGAN PENGESAHAN (PDF) -->
+    <!-- TANDATANGAN (PDF) -->
     <div class="print-only mt-4 pt-3 border-t border-slate-300 page-break-inside-avoid">
       <div class="grid grid-cols-2 gap-8 text-[8pt] text-slate-700 text-center">
         <div>
@@ -308,13 +315,8 @@
     async function loadTeacherProfile(userId) {
       const { data } = await client.from("profiles").select("full_name, school_name, school_logo").eq("id", userId).maybeSingle();
       if (data) {
-        if (data.school_name) {
-          document.getElementById("printSchoolSub").textContent = data.school_name.toUpperCase();
-        }
-        if (data.full_name) {
-          document.getElementById("printTeacherSignName").textContent = data.full_name;
-        }
-        // Paparkan logo sekolah jika dimuat naik
+        if (data.school_name) document.getElementById("printSchoolSub").textContent = data.school_name.toUpperCase();
+        if (data.full_name) document.getElementById("printTeacherSignName").textContent = data.full_name;
         if (data.school_logo) {
           document.getElementById("printSchoolLogo").src = data.school_logo;
           document.getElementById("printLogoWrapper").classList.remove("hidden");
@@ -336,7 +338,6 @@
       document.getElementById("studentName").textContent = data.full_name;
       document.getElementById("studentMeta").textContent = classText;
       document.getElementById("studentGender").textContent = genderText;
-
       document.getElementById("printStudentName").textContent = data.full_name;
       document.getElementById("printClassMeta").textContent = classText;
       document.getElementById("printGender").textContent = genderText;
@@ -345,6 +346,7 @@
     async function loadPBD() {
       const screenContainer = document.getElementById("pbdRecordsListScreen");
       const printContainer = document.getElementById("pbdRecordsListPrint");
+      const skContainer = document.getElementById("skSummaryContainer");
 
       try {
         const { data: records, error } = await client
@@ -357,6 +359,7 @@
         if (!records || records.length === 0) {
           screenContainer.innerHTML = `<p class="text-slate-400 py-3 text-center">Tiada rekod pentaksiran lagi.</p>`;
           printContainer.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 6px;">Tiada rekod pentaksiran.</td></tr>`;
+          skContainer.innerHTML = `<p class="text-slate-400 py-3 text-center">Tiada data untuk rumusan SK.</p>`;
           document.getElementById("avgTP").textContent = "-";
           document.getElementById("printAvgTP").textContent = "-";
           return;
@@ -402,12 +405,56 @@
               spMap[item.id] = {
                 sp_code: item.sp_code,
                 sp_desc: item.sp_desc,
-                subject_name: subjectMap[item.dskp_id] || "Mata Pelajaran"
+                subject_name: subjectMap[item.dskp_id] || "Mata Pelajaran",
+                dskp_id: item.dskp_id
               };
             });
           }
         }
 
+        // --- RUMUSAN STANDARD KANDUNGAN (SK) ---
+        // Kumpul markah mengikut SK (ekstrak 2 digit awal kod SP, cth: "1.1.1" -> "1.1")
+        let skGroups = {};
+        records.forEach(r => {
+          const sp = spMap[r.sp_id];
+          if (!sp) return;
+          const parts = sp.sp_code.split('.');
+          const skCode = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : sp.sp_code;
+          const key = `${sp.subject_name}_${skCode}`;
+
+          if (!skGroups[key]) {
+            skGroups[key] = { subject: sp.subject_name, skCode: skCode, scores: [] };
+          }
+          if (r.tp_score > 0) skGroups[key].scores.push(r.tp_score);
+        });
+
+        const skKeys = Object.keys(skGroups);
+        if (skKeys.length > 0) {
+          skContainer.innerHTML = skKeys.map(key => {
+            const grp = skGroups[key];
+            const scores = grp.scores;
+            let avgTP = "-";
+            if (scores.length > 0) {
+              const sum = scores.reduce((a, b) => a + b, 0);
+              avgTP = "TP " + Math.round(sum / scores.length); // Dibundarkan kepada TP terdekat
+            }
+            return `
+              <div class="py-2.5 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-slate-800 dark:text-white">${grp.subject} • SK ${grp.skCode}</p>
+                  <p class="text-[10px] text-slate-400">Berdasarkan ${scores.length} Standard Pembelajaran ditaksir</p>
+                </div>
+                <span class="text-xs font-bold px-2.5 py-1 bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 rounded-lg">
+                  ${avgTP}
+                </span>
+              </div>
+            `;
+          }).join("");
+        } else {
+          skContainer.innerHTML = `<p class="text-slate-400 py-3 text-center">Tiada rumusan SK tersedia.</p>`;
+        }
+
+        // --- RENDER REKOD SP ---
         screenContainer.innerHTML = records.map(r => {
           const spInfo = spMap[r.sp_id] || { sp_code: "1.1.1", sp_desc: "Standard Pembelajaran", subject_name: "Subjek" };
           const isTH = r.tp_score === 0;
