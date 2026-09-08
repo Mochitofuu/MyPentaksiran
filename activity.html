@@ -5,55 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sahsiah & Tugasan - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <script>
+    if (localStorage.getItem("app_theme") === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 pb-20">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20 transition-colors duration-200">
 
   <!-- Navigasi Atas -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600">
+      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
         ← Kembali ke Kelas
       </a>
-      <span class="text-xs font-bold text-slate-700">Sahsiah & Tugasan</span>
+      <span id="txtHeaderTitle" class="text-xs font-bold text-slate-700 dark:text-white">Sahsiah & Tugasan</span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
-    <!-- Pilihan Tab Modul -->
-    <div class="flex bg-slate-200 p-1 rounded-xl text-xs font-bold">
-      <button id="btnTabBehavior" class="flex-1 py-2 rounded-lg bg-white text-indigo-700 shadow-sm transition">
+    <!-- Tab Navigasi -->
+    <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold">
+      <button id="btnTabBehavior" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm transition">
         ⭐ Sahsiah & Merit
       </button>
-      <button id="btnTabHomework" class="flex-1 py-2 rounded-lg text-slate-600 transition">
+      <button id="btnTabHomework" class="flex-1 py-2 rounded-lg text-slate-600 dark:text-slate-400 transition">
         📚 Rekod Kerja Rumah
       </button>
     </div>
 
-    <!-- SEKSYEN 1: SAHSIAH & DISIPLIN -->
+    <!-- SEKSYEN 1: SAHSIAH -->
     <div id="sectionBehavior" class="space-y-4">
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Catat Sahsiah Murid</h3>
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <h3 id="txtLogBehaviorHead" class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Catat Sahsiah Murid</h3>
         
         <form id="formBehavior" class="space-y-3">
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Murid</label>
-            <select id="behaviorStudent" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white">
+            <label id="lblSelectStudent" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Murid</label>
+            <select id="behaviorStudent" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
               <option value="">-- Pilih Murid --</option>
             </select>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jenis Tindakan</label>
-              <select id="behaviorType" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white">
-                <option value="positive">Amalan Baik (+)</option>
-                <option value="warning">Teguran / Isu (-)</option>
+              <label id="lblActionType" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Jenis Tindakan</label>
+              <select id="behaviorType" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
+                <option value="positive">+ Amalan Baik (+)</option>
+                <option value="warning">- Teguran / Isu (-)</option>
               </select>
             </div>
             <div>
-              <label class="block text-[11px] font-semibold text-slate-600 mb-1">Kategori</label>
-              <select id="behaviorCategory" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white">
+              <label id="lblCategory" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Kategori</label>
+              <select id="behaviorCategory" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
                 <option value="Fokus / Aktif">Fokus / Aktif</option>
                 <option value="Tolong Rakan / Guru">Tolong Rakan / Guru</option>
                 <option value="Budi Pekerti Baik">Budi Pekerti Baik</option>
@@ -65,21 +71,20 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Catatan Tambahan (Pilihan)</label>
+            <label id="lblNotes" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Catatan Tambahan (Pilihan)</label>
             <input type="text" id="behaviorNotes" placeholder="Cth: Sangat rajin bantu lap papan hitam"
-              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300">
+              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
           </div>
 
-          <button type="submit" id="btnSaveBehavior" class="w-full text-xs py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-sm">
+          <button type="submit" id="btnSaveBehavior" class="w-full text-xs py-2.5 bg-indigo-600 text-white font-medium rounded-lg shadow-sm">
             Simpan Catatan Sahsiah
           </button>
         </form>
       </div>
 
-      <!-- Log Sahsiah Terkini -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Log Sahsiah Terkini</h4>
-        <div id="behaviorLogList" class="divide-y divide-slate-100 text-xs">
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <h4 id="txtRecentLogs" class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Log Sahsiah Terkini</h4>
+        <div id="behaviorLogList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
           <p class="text-slate-400 py-3 text-center">Memuatkan log...</p>
         </div>
       </div>
@@ -87,29 +92,28 @@
 
     <!-- SEKSYEN 2: KERJA RUMAH -->
     <div id="sectionHomework" class="hidden space-y-4">
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Bina Tugasan Baharu</h3>
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <h3 id="txtCreateHw" class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Bina Tugasan Baharu</h3>
         <div class="flex gap-2">
           <input type="text" id="homeworkTitle" placeholder="Tajuk Tugasan (Cth: Buku Aktiviti ms 12)" 
-            class="flex-1 text-xs px-3 py-2 rounded-lg border border-slate-300">
+            class="flex-1 text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
           <button id="btnSetHomework" class="text-xs px-3 py-2 bg-indigo-600 text-white font-medium rounded-lg">
             Tetapkan
           </button>
         </div>
       </div>
 
-      <!-- Senarai Semakan Murid -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
           <div>
-            <h4 id="currentHwTitle" class="text-xs font-bold text-slate-800">Pilih / Tetapkan Tugasan</h4>
-            <p class="text-[10px] text-slate-400">Tanda status penghantaran murid</p>
+            <h4 id="currentHwTitle" class="text-xs font-bold text-slate-800 dark:text-white">Pilih / Tetapkan Tugasan</h4>
+            <p id="txtHwSubtitle" class="text-[10px] text-slate-400">Tanda status penghantaran murid</p>
           </div>
-          <span id="hwSaveStatus" class="text-[10px] text-emerald-600 font-semibold hidden">Tersimpan ✓</span>
+          <span id="hwSaveStatus" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold hidden">Tersimpan ✓</span>
         </div>
 
-        <div id="hwStudentList" class="divide-y divide-slate-100">
-          <p class="text-xs text-slate-400 py-4 text-center">Masukkan tajuk tugasan di atas untuk mula menanda.</p>
+        <div id="hwStudentList" class="divide-y divide-slate-100 dark:divide-slate-700">
+          <p class="text-xs text-slate-400 py-4 text-center" id="txtHwEmpty">Masukkan tajuk tugasan di atas untuk mula menanda.</p>
         </div>
       </div>
     </div>
@@ -122,6 +126,72 @@
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    const currentLang = localStorage.getItem("app_lang") || "ms";
+
+    const i18n = {
+      ms: {
+        back: "← Kembali ke Kelas",
+        header: "Sahsiah & Tugasan",
+        tabBehavior: "⭐ Sahsiah & Merit",
+        tabHomework: "📚 Rekod Kerja Rumah",
+        logHead: "Catat Sahsiah Murid",
+        selectStudent: "Pilih Murid",
+        actionType: "Jenis Tindakan",
+        category: "Kategori",
+        notes: "Catatan Tambahan (Pilihan)",
+        saveBehavior: "Simpan Catatan Sahsiah",
+        recentLogs: "Log Sahsiah Terkini",
+        createHw: "Bina Tugasan Baharu",
+        setBtn: "Tetapkan",
+        hwSubtitle: "Tanda status penghantaran murid",
+        hwEmpty: "Masukkan tajuk tugasan di atas untuk mula menanda.",
+        done: "Siap",
+        late: "Lewat",
+        unsubmitted: "X",
+        positive: "+ Amalan Baik",
+        warning: "- Teguran"
+      },
+      en: {
+        back: "← Back to Class",
+        header: "Behavior & Homework",
+        tabBehavior: "⭐ Behavior & Merit",
+        tabHomework: "📚 Homework Tracker",
+        logHead: "Record Student Behavior",
+        selectStudent: "Select Student",
+        actionType: "Action Type",
+        category: "Category",
+        notes: "Additional Notes (Optional)",
+        saveBehavior: "Save Behavior Log",
+        recentLogs: "Recent Behavior Logs",
+        createHw: "Create New Homework",
+        setBtn: "Set Assignment",
+        hwSubtitle: "Track submission status",
+        hwEmpty: "Set a homework title above to start tracking.",
+        done: "Done",
+        late: "Late",
+        unsubmitted: "X",
+        positive: "+ Positive",
+        warning: "- Warning"
+      }
+    };
+
+    const t = i18n[currentLang];
+    document.getElementById("backBtn").textContent = t.back;
+    document.getElementById("txtHeaderTitle").textContent = t.header;
+    document.getElementById("btnTabBehavior").textContent = t.tabBehavior;
+    document.getElementById("btnTabHomework").textContent = t.tabHomework;
+    document.getElementById("txtLogBehaviorHead").textContent = t.logHead;
+    document.getElementById("lblSelectStudent").textContent = t.selectStudent;
+    document.getElementById("lblActionType").textContent = t.actionType;
+    document.getElementById("lblCategory").textContent = t.category;
+    document.getElementById("lblNotes").textContent = t.notes;
+    document.getElementById("btnSaveBehavior").textContent = t.saveBehavior;
+    document.getElementById("txtRecentLogs").textContent = t.recentLogs;
+    document.getElementById("txtCreateHw").textContent = t.createHw;
+    document.getElementById("btnSetHomework").textContent = t.setBtn;
+    document.getElementById("txtHwSubtitle").textContent = t.hwSubtitle;
+    document.getElementById("txtHwEmpty").textContent = t.hwEmpty;
+
     const urlParams = new URLSearchParams(window.location.search);
     const classId = urlParams.get("class_id");
 
@@ -129,57 +199,44 @@
     let students = [];
     let hwStatuses = {};
 
-    if (!classId) {
-      window.location.href = "dashboard.html";
-    }
-
+    if (!classId) window.location.href = "dashboard.html";
     document.getElementById("backBtn").href = `class.html?id=${classId}`;
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
-      if (!session) {
-        window.location.href = "index.html";
-        return;
-      }
+      if (!session) return window.location.href = "index.html";
       currentUser = session.user;
       await loadStudents();
       await loadBehaviorLogs();
     }
 
     async function loadStudents() {
-      const { data } = await client
-        .from("students")
-        .select("*")
-        .eq("class_id", classId)
-        .order("full_name", { ascending: true });
-
+      const { data } = await client.from("students").select("*").eq("class_id", classId).order("full_name", { ascending: true });
       students = data || [];
       const select = document.getElementById("behaviorStudent");
-      select.innerHTML = '<option value="">-- Pilih Murid --</option>' + 
+      select.innerHTML = `<option value="">-- ${t.selectStudent} --</option>` + 
         students.map(s => `<option value="${s.id}">${s.full_name}</option>`).join("");
     }
 
-    // Tukar Tab Sahsiah vs Kerja Rumah
     const tabBehavior = document.getElementById("btnTabBehavior");
     const tabHomework = document.getElementById("btnTabHomework");
     const secBehavior = document.getElementById("sectionBehavior");
     const secHomework = document.getElementById("sectionHomework");
 
     tabBehavior.addEventListener("click", () => {
-      tabBehavior.className = "flex-1 py-2 rounded-lg bg-white text-indigo-700 shadow-sm transition";
-      tabHomework.className = "flex-1 py-2 rounded-lg text-slate-600 transition";
+      tabBehavior.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm transition";
+      tabHomework.className = "flex-1 py-2 rounded-lg text-slate-600 dark:text-slate-400 transition";
       secBehavior.classList.remove("hidden");
       secHomework.classList.add("hidden");
     });
 
     tabHomework.addEventListener("click", () => {
-      tabHomework.className = "flex-1 py-2 rounded-lg bg-white text-indigo-700 shadow-sm transition";
-      tabBehavior.className = "flex-1 py-2 rounded-lg text-slate-600 transition";
+      tabHomework.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm transition";
+      tabBehavior.className = "flex-1 py-2 rounded-lg text-slate-600 dark:text-slate-400 transition";
       secHomework.classList.remove("hidden");
       secBehavior.classList.add("hidden");
     });
 
-    // Simpan Rekod Sahsiah
     document.getElementById("formBehavior").addEventListener("submit", async (e) => {
       e.preventDefault();
       const studentId = document.getElementById("behaviorStudent").value;
@@ -189,7 +246,6 @@
       const btn = document.getElementById("btnSaveBehavior");
 
       btn.disabled = true;
-      btn.textContent = "Menyimpan...";
 
       try {
         const { error } = await client.from("behavior_records").insert([{
@@ -207,65 +263,59 @@
         alert("Ralat: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "Simpan Catatan Sahsiah";
       }
     });
 
     async function loadBehaviorLogs() {
       const container = document.getElementById("behaviorLogList");
-      const { data, error } = await client
+      const { data } = await client
         .from("behavior_records")
         .select("*, students(full_name)")
         .eq("user_id", currentUser.id)
         .order("created_at", { ascending: false })
         .limit(10);
 
-      if (error || !data || data.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 py-3 text-center">Belum ada rekod sahsiah.</p>`;
+      if (!data || data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 py-3 text-center">Belum ada rekod.</p>`;
         return;
       }
 
       container.innerHTML = data.map(log => `
         <div class="py-2.5 flex items-start justify-between gap-2">
           <div>
-            <p class="font-semibold text-slate-800">${log.students?.full_name || 'Murid'}</p>
-            <p class="text-[11px] text-slate-500">${log.category} ${log.notes ? '— ' + log.notes : ''}</p>
+            <p class="font-semibold text-slate-800 dark:text-white">${log.students?.full_name || 'Murid'}</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">${log.category} ${log.notes ? '— ' + log.notes : ''}</p>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${log.type === 'positive' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-rose-50 text-rose-600 border border-rose-200'}">
-            ${log.type === 'positive' ? '+ Amalan Baik' : '- Teguran'}
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${log.type === 'positive' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 border border-emerald-200' : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 border border-rose-200'}">
+            ${log.type === 'positive' ? t.positive : t.warning}
           </span>
         </div>
       `).join("");
     }
 
-    // Tugasan Kerja Rumah
     let activeHomeworkTitle = "";
-
     document.getElementById("btnSetHomework").addEventListener("click", () => {
       const title = document.getElementById("homeworkTitle").value.trim();
       if (!title) return alert("Sila masukkan tajuk tugasan.");
       activeHomeworkTitle = title;
-      document.getElementById("currentHwTitle").textContent = "Tugasan: " + title;
+      document.getElementById("currentHwTitle").textContent = (currentLang === 'en' ? 'Assignment: ' : 'Tugasan: ') + title;
       hwStatuses = {};
       renderHomeworkList();
     });
 
     function renderHomeworkList() {
       const container = document.getElementById("hwStudentList");
-      if (students.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tiada murid dalam kelas.</p>`;
-        return;
-      }
+      if (students.length === 0) return;
 
       container.innerHTML = students.map((s, idx) => {
         const st = hwStatuses[s.id] || "belum";
         return `
           <div class="py-2.5 flex items-center justify-between">
-            <p class="text-xs font-semibold text-slate-800">${idx + 1}. ${s.full_name}</p>
+            <p class="text-xs font-semibold text-slate-800 dark:text-white">${idx + 1}. ${s.full_name}</p>
             <div class="flex gap-1">
-              <button onclick="setHwStatus('${s.id}', 'selesai')" class="text-[10px] px-2.5 py-1 rounded font-medium ${st === 'selesai' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-100 text-slate-600'}">Siap</button>
-              <button onclick="setHwStatus('${s.id}', 'lewat')" class="text-[10px] px-2.5 py-1 rounded font-medium ${st === 'lewat' ? 'bg-amber-500 text-white font-bold' : 'bg-slate-100 text-slate-600'}">Lewat</button>
-              <button onclick="setHwStatus('${s.id}', 'tidak_hantar')" class="text-[10px] px-2.5 py-1 rounded font-medium ${st === 'tidak_hantar' ? 'bg-rose-600 text-white font-bold' : 'bg-slate-100 text-slate-600'}">X</button>
+              <button onclick="setHwStatus('${s.id}', 'selesai')" class="text-[10px] px-2.5 py-1 rounded font-medium ${st === 'selesai' ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">${t.done}</button>
+              <button onclick="setHwStatus('${s.id}', 'lewat')" class="text-[10px] px-2.5 py-1 rounded font-medium ${st === 'lewat' ? 'bg-amber-500 text-white font-bold' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">${t.late}</button>
+              <button onclick="setHwStatus('${s.id}', 'tidak_hantar')" class="text-[10px] px-2.5 py-1 rounded font-medium ${st === 'tidak_hantar' ? 'bg-rose-600 text-white font-bold' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">${t.unsubmitted}</button>
             </div>
           </div>
         `;
