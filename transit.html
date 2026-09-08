@@ -20,26 +20,25 @@
       <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
         ← Kembali ke Kelas
       </a>
-      <span class="text-xs font-bold text-slate-700 dark:text-white">Pentaksiran PBD</span>
+      <span id="txtHeaderTitle" class="text-xs font-bold text-slate-700 dark:text-white">Pentaksiran PBD</span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
-        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase">1. Pilih Subjek DSKP</label>
+        <label id="lblSelectSub" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase">1. Pilih Subjek DSKP</label>
         <button id="btnExportCSV" disabled class="text-[11px] bg-emerald-600 disabled:bg-slate-200 dark:disabled:bg-slate-700 disabled:text-slate-400 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
           📥 Eksport Excel (CSV)
         </button>
       </div>
 
-      <!-- Dropdown Subjek -->
       <select id="selectSubject" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-white">
         <option value="">-- Sila Pilih Subjek --</option>
       </select>
 
       <div>
-        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
+        <label id="lblSelectSP" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
         <select id="selectSP" disabled class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800">
           <option value="">-- Pilih Subjek Dahulu --</option>
         </select>
@@ -92,15 +91,16 @@
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    const currentLang = localStorage.getItem("app_lang") || "ms";
     const urlParams = new URLSearchParams(window.location.search);
-    const classId = urlParams.get("class_id");
+    const classId = urlParams.get("class_id") || urlParams.get("id");
 
     let currentUser = null;
     let currentClass = null;
     let students = [];
     let spList = [];
     let currentSP = null;
-    let currentScores = {};
+    let currentScores = {}; // student_id -> { score, date }
 
     const defaultRubrics = {
       "1": "Tahu asas kemahiran.",
@@ -114,12 +114,21 @@
     if (!classId) window.location.href = "dashboard.html";
     document.getElementById("backBtn").href = `class.html?id=${classId}`;
 
+    function formatDate(dateString) {
+      if (!dateString) return "";
+      const d = new Date(dateString);
+      return d.toLocaleDateString(currentLang === "en" ? "en-GB" : "ms-MY", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
     async function init() {
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
 
-      // Jalankan fungsi secara teratur
       await loadClassInfo();
       await loadStudents();
       await loadSubjects();
@@ -135,31 +144,22 @@
       students = data || [];
     }
 
-    // Fungsi muat subjek
     async function loadSubjects() {
       const selectSubject = document.getElementById("selectSubject");
       try {
-        const { data, error } = await client
-          .from("dskp_subjects")
-          .select("id, subject_name, grade_level");
-
-        if (error) {
-          selectSubject.innerHTML = `<option value="">Ralat: ${error.message}</option>`;
-          return;
-        }
+        const { data, error } = await client.from("dskp_subjects").select("id, subject_name, grade_level");
+        if (error) throw error;
 
         if (!data || data.length === 0) {
           selectSubject.innerHTML = `<option value="">-- Tiada DSKP Ditemui --</option>`;
           return;
         }
 
-        // Paparkan senarai subjek
         let html = '<option value="">-- Sila Pilih Subjek --</option>';
         data.forEach(s => {
           html += `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`;
         });
         selectSubject.innerHTML = html;
-
       } catch (err) {
         selectSubject.innerHTML = `<option value="">Ralat: ${err.message}</option>`;
       }
@@ -188,12 +188,8 @@
       selectSP.disabled = true;
       selectSP.innerHTML = `<option value="">Memuatkan senarai SP...</option>`;
 
-      const { data, error } = await client
-        .from("dskp_items")
-        .select("*")
-        .eq("dskp_id", dskpId);
-
-      if (error || !data || data.length === 0) {
+      const { data } = await client.from("dskp_items").select("*").eq("dskp_id", dskpId);
+      if (!data || data.length === 0) {
         selectSP.disabled = true;
         selectSP.innerHTML = `<option value="">Tiada SP bagi subjek ini</option>`;
         return;
@@ -227,13 +223,15 @@
 
       const { data: records } = await client
         .from("pbd_records")
-        .select("student_id, tp_score")
+        .select("student_id, tp_score, created_at")
         .eq("sp_id", spId)
         .eq("user_id", currentUser.id);
 
       currentScores = {};
       if (records) {
-        records.forEach(r => { currentScores[r.student_id] = r.tp_score; });
+        records.forEach(r => {
+          currentScores[r.student_id] = { score: r.tp_score, date: r.created_at };
+        });
       }
 
       renderAssessmentList();
@@ -255,7 +253,9 @@
       const rubrics = currentSP?.tp_rubrics || defaultRubrics;
 
       container.innerHTML = students.map((s, idx) => {
-        const activeTP = currentScores[s.id] !== undefined ? currentScores[s.id] : null;
+        const item = currentScores[s.id] || {};
+        const activeTP = item.score !== undefined ? item.score : null;
+        const recordDate = item.date ? formatDate(item.date) : "";
 
         const tpButtons = [1, 2, 3, 4, 5, 6].map(tp => {
           const isSelected = activeTP === tp;
@@ -289,7 +289,10 @@
           <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <p class="text-xs font-semibold text-slate-800 dark:text-white">${idx + 1}. ${s.full_name}</p>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">${statusText}</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">${statusText}</p>
+                ${recordDate ? `<span class="text-[9px] bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-400">📅 ${recordDate}</span>` : ''}
+              </div>
             </div>
             <div class="flex items-center gap-1.5 self-end sm:self-auto">
               ${tpButtons}
@@ -303,7 +306,8 @@
     window.recordTP = async function(studentId, score) {
       if (!currentSP) return;
 
-      currentScores[studentId] = score;
+      const nowISO = new Date().toISOString();
+      currentScores[studentId] = { score: score, date: nowISO };
       renderAssessmentList();
 
       const status = document.getElementById("saveStatus");
@@ -321,13 +325,14 @@
           .maybeSingle();
 
         if (existing) {
-          await client.from("pbd_records").update({ tp_score: score }).eq("id", existing.id);
+          await client.from("pbd_records").update({ tp_score: score, created_at: nowISO }).eq("id", existing.id);
         } else {
           await client.from("pbd_records").insert([{
             student_id: studentId,
             sp_id: currentSP.id,
             tp_score: score,
-            user_id: currentUser.id
+            user_id: currentUser.id,
+            created_at: nowISO
           }]);
         }
 
