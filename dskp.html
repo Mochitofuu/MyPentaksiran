@@ -5,91 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bank DSKP - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <script>
+    if (localStorage.getItem("app_theme") === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  </script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 pb-16">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
 
-  <!-- Navigasi Atas -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 gap-1">
+      <a href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 gap-1" id="linkBack">
         ← Papan Pemuka
       </a>
-      <span class="text-xs font-bold text-slate-700">Bank DSKP Komuniti</span>
+      <span class="text-xs font-bold text-slate-700 dark:text-white" id="txtHeader">Bank DSKP Komuniti</span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-5 space-y-5">
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold text-slate-900">Koleksi Sukatan DSKP</h1>
-        <p class="text-xs text-slate-500">Pilih sukatan sedia ada atau ekstrak dari fail PDF</p>
+        <h1 class="text-lg font-bold text-slate-900 dark:text-white" id="txtMainTitle">Koleksi Sukatan DSKP</h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400" id="txtMainSubtitle">Pilih sukatan sedia ada atau ekstrak fail PDF</p>
       </div>
       <button id="btnOpenAddSubject" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-sm">
         + Tambah DSKP
       </button>
     </div>
 
-    <!-- Parser PDF & Tambah DSKP -->
-    <div id="addSubjectSection" class="hidden bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h2 class="text-sm font-bold text-slate-800">Daftar & Ekstrak DSKP</h2>
-        <span class="text-[10px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded">Smart Parser</span>
+    <!-- Parser PDF & Form -->
+    <div id="addSubjectSection" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <h2 class="text-sm font-bold text-slate-800 dark:text-white" id="txtParserTitle">Daftar & Ekstrak DSKP</h2>
+        <span class="text-[10px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-semibold px-2 py-0.5 rounded">Smart Parser</span>
       </div>
 
-      <div class="border-2 border-dashed border-indigo-200 rounded-xl p-4 text-center bg-indigo-50/40">
-        <p class="text-xs font-semibold text-slate-700 mb-1">📄 Muat Naik Fail PDF DSKP</p>
-        <p class="text-[10px] text-slate-500 mb-3">Sistem akan mengesan kod standard kandungan dan pembelajaran secara automatik.</p>
+      <div class="border-2 border-dashed border-indigo-200 dark:border-slate-700 rounded-xl p-4 text-center bg-indigo-50/40 dark:bg-slate-700/40">
+        <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1" id="txtUploadPdf">📄 Muat Naik Fail PDF DSKP</p>
+        <p class="text-[10px] text-slate-500 dark:text-slate-400 mb-3" id="txtUploadSub">Sistem akan mengesan kod standard secara automatik.</p>
         
         <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden">
         <button type="button" onclick="document.getElementById('pdfFileInput').click()" 
-          id="btnUploadTrigger" class="text-xs bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 font-semibold px-4 py-2 rounded-lg shadow-sm transition">
+          id="btnUploadTrigger" class="text-xs bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-slate-600 font-semibold px-4 py-2 rounded-lg shadow-sm">
           Pilih Fail PDF
         </button>
-        <p id="parserStatus" class="text-[11px] text-indigo-600 font-medium mt-2 hidden">Sedang membaca teks dokumen...</p>
+        <p id="parserStatus" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium mt-2 hidden">Sedang membaca fail...</p>
       </div>
 
       <form id="formAddSubject" class="space-y-3 pt-2">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Mata Pelajaran</label>
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1" id="lblSubName">Nama Mata Pelajaran</label>
             <input type="text" id="subjectName" required placeholder="Contoh: Bahasa Melayu"
-              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
           </div>
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tingkatan / Tahun</label>
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1" id="lblGrade">Tingkatan / Tahun</label>
             <input type="text" id="gradeLevel" required placeholder="Contoh: Tahun 3"
-              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
           </div>
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="block text-[11px] font-semibold text-slate-600">
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300" id="lblSPList">
               Senarai SP (Format: Kod SP | Huraian)
             </label>
             <span id="extractedCountBadge" class="text-[10px] text-slate-400">0 dikesan</span>
           </div>
-          <textarea id="spListRaw" rows="7" placeholder="Teks hasil ekstrak PDF atau tampal manual:&#10;1.1.1 | Mendengar dan menyebut perkataan...&#10;1.1.2 | Mendengar, memahami dan menyebut ayat..."
-            class="w-full text-xs p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono leading-relaxed"></textarea>
+          <textarea id="spListRaw" rows="7" placeholder="1.1.1 | Mendengar..."
+            class="w-full text-xs p-3 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 font-mono leading-relaxed"></textarea>
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-          <button type="button" id="btnCancelSubject" class="text-xs px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-lg">Batal</button>
-          <button type="submit" id="btnSaveSubject" class="text-xs px-3.5 py-1.5 bg-indigo-600 text-white font-medium rounded-lg shadow-sm">Simpan ke Bank</button>
+          <button type="button" id="btnCancelSubject" class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300">Batal</button>
+          <button type="submit" id="btnSaveSubject" class="text-xs px-3.5 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Simpan ke Bank</button>
         </div>
       </form>
     </div>
 
-    <!-- Senarai Subjek DSKP -->
     <div class="space-y-3">
-      <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Senarai Subjek DSKP Tersedia</h3>
+      <h3 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider" id="lblAvailableDSKP">Senarai Subjek DSKP Tersedia</h3>
       <div id="dskpList" class="space-y-3">
-        <p class="text-xs text-slate-400 py-6 text-center">Sedang memuat senarai DSKP...</p>
+        <p class="text-xs text-slate-400 py-6 text-center">Sedang memuat...</p>
       </div>
     </div>
   </main>
@@ -101,14 +103,69 @@
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    const currentLang = localStorage.getItem("app_lang") || "ms";
+
+    const i18n = {
+      ms: {
+        back: "← Papan Pemuka",
+        header: "Bank DSKP Komuniti",
+        mainTitle: "Koleksi Sukatan DSKP",
+        mainSub: "Pilih sukatan sedia ada atau ekstrak fail PDF",
+        addBtn: "+ Tambah DSKP",
+        parserTitle: "Daftar & Ekstrak DSKP",
+        uploadPdf: "📄 Muat Naik Fail PDF DSKP",
+        uploadSub: "Sistem akan mengesan kod standard secara automatik.",
+        pickFile: "Pilih Fail PDF",
+        subName: "Nama Mata Pelajaran",
+        grade: "Tingkatan / Tahun",
+        spList: "Senarai SP (Format: Kod SP | Huraian)",
+        cancel: "Batal",
+        save: "Simpan ke Bank",
+        available: "Senarai Subjek DSKP Tersedia",
+        ready: "Tersedia"
+      },
+      en: {
+        back: "← Dashboard",
+        header: "DSKP Community Bank",
+        mainTitle: "DSKP Syllabus Collection",
+        mainSub: "Use existing curriculum or extract from PDF file",
+        addBtn: "+ Add DSKP",
+        parserTitle: "Register & Extract DSKP",
+        uploadPdf: "📄 Upload DSKP PDF File",
+        uploadSub: "The system automatically parses standard codes.",
+        pickFile: "Choose PDF File",
+        subName: "Subject Name",
+        grade: "Grade / Year Level",
+        spList: "Learning Standards (Format: Code | Description)",
+        cancel: "Cancel",
+        save: "Save to Bank",
+        available: "Available DSKP Subjects",
+        ready: "Ready"
+      }
+    };
+
+    const t = i18n[currentLang];
+    document.getElementById("linkBack").textContent = t.back;
+    document.getElementById("txtHeader").textContent = t.header;
+    document.getElementById("txtMainTitle").textContent = t.mainTitle;
+    document.getElementById("txtMainSubtitle").textContent = t.mainSub;
+    document.getElementById("btnOpenAddSubject").textContent = t.addBtn;
+    document.getElementById("txtParserTitle").textContent = t.parserTitle;
+    document.getElementById("txtUploadPdf").textContent = t.uploadPdf;
+    document.getElementById("txtUploadSub").textContent = t.uploadSub;
+    document.getElementById("btnUploadTrigger").textContent = t.pickFile;
+    document.getElementById("lblSubName").textContent = t.subName;
+    document.getElementById("lblGrade").textContent = t.grade;
+    document.getElementById("lblSPList").textContent = t.spList;
+    document.getElementById("btnCancelSubject").textContent = t.cancel;
+    document.getElementById("btnSaveSubject").textContent = t.save;
+    document.getElementById("lblAvailableDSKP").textContent = t.available;
+
     let currentUser = null;
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
-      if (!session) {
-        window.location.href = "index.html";
-        return;
-      }
+      if (!session) return window.location.href = "index.html";
       currentUser = session.user;
       loadDskpList();
     }
@@ -124,10 +181,7 @@
         if (error) throw error;
 
         if (!subjects || subjects.length === 0) {
-          dskpList.innerHTML = `
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">
-              Belum ada DSKP didaftarkan. Tekan butang "+ Tambah DSKP" untuk cipta baharu.
-            </div>`;
+          dskpList.innerHTML = `<div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-center text-slate-400 text-xs">Belum ada DSKP.</div>`;
           return;
         }
 
@@ -136,42 +190,37 @@
           const isOwner = sub.created_by === currentUser.id;
 
           return `
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
               <div>
-                <span class="text-[10px] uppercase font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <span class="text-[10px] uppercase font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded">
                   ${sub.grade_level}
                 </span>
-                <h4 class="font-bold text-slate-900 text-sm mt-1">${sub.subject_name}</h4>
-                <p class="text-[11px] text-slate-500">${itemCount} Standard Pembelajaran (SP)</p>
+                <h4 class="font-bold text-slate-900 dark:text-white text-sm mt-1">${sub.subject_name}</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">${itemCount} Standard Pembelajaran (SP)</p>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                  Tersedia
+                <span class="text-[11px] font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
+                  ${t.ready}
                 </span>
                 ${isOwner ? `
-                  <button onclick="deleteDSKP('${sub.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1">
-                    🗑️
-                  </button>
+                  <button onclick="deleteDSKP('${sub.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1">🗑️</button>
                 ` : ''}
               </div>
             </div>
           `;
         }).join("");
-
       } catch (err) {
         dskpList.innerHTML = `<p class="text-xs text-rose-600 text-center py-2">${err.message}</p>`;
       }
     }
 
-    // Padam DSKP
     window.deleteDSKP = async function(id) {
-      if (!confirm("Adakah anda pasti mahu memadam DSKP ini berserta semua SP di dalamnya?")) return;
+      if (!confirm("Padam DSKP ini?")) return;
       try {
-        const { error } = await client.from("dskp_subjects").delete().eq("id", id);
-        if (error) throw error;
+        await client.from("dskp_subjects").delete().eq("id", id);
         loadDskpList();
       } catch (err) {
-        alert("Gagal memadam DSKP: " + err.message);
+        alert("Ralat: " + err.message);
       }
     };
 
@@ -189,36 +238,29 @@
       if (!file || file.type !== "application/pdf") return;
 
       parserStatus.classList.remove("hidden");
-      parserStatus.textContent = "Sedang membaca teks dokumen PDF...";
+      parserStatus.textContent = "Sedang membaca fail PDF...";
 
       try {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
         let fullText = "";
-        const maxPages = pdf.numPages;
 
-        for (let i = 1; i <= maxPages; i++) {
+        for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items.map(item => item.str).join(" ");
-          fullText += "\n" + pageText;
-          if (i % 5 === 0) {
-            parserStatus.textContent = `Sedang mengekstrak muka surat ${i} / ${maxPages}...`;
-          }
+          fullText += "\n" + textContent.items.map(item => item.str).join(" ");
         }
 
         const spRegex = /(\b\d+\.\d+\.\d+\b)\s*([^0-9\n]{6,120})/g;
         let match;
         const extracted = [];
-        const seenCodes = new Set();
+        const seen = new Set();
 
         while ((match = spRegex.exec(fullText)) !== null) {
           const code = match[1].trim();
           let desc = match[2].trim().replace(/\s+/g, ' ');
-
-          if (!seenCodes.has(code) && desc.length > 5) {
-            seenCodes.add(code);
+          if (!seen.has(code) && desc.length > 5) {
+            seen.add(code);
             extracted.push(`${code} | ${desc}`);
           }
         }
@@ -226,16 +268,12 @@
         if (extracted.length > 0) {
           spListRaw.value = extracted.join("\n");
           extractedBadge.textContent = `${extracted.length} SP dikesan ✓`;
-          parserStatus.textContent = `Selesai! ${extracted.length} SP berjaya diekstrak secara automatik.`;
-          parserStatus.classList.replace("text-indigo-600", "text-emerald-600");
+          parserStatus.textContent = `Selesai! ${extracted.length} SP diekstrak.`;
         } else {
-          parserStatus.textContent = "Teks dikesan tetapi tiada corak SP ditemui. Sila semak format dokumen.";
-          parserStatus.classList.replace("text-indigo-600", "text-amber-600");
+          parserStatus.textContent = "Tiada corak SP ditemui dalam dokumen.";
         }
-
       } catch (err) {
-        parserStatus.textContent = "Gagal membaca PDF: " + err.message;
-        parserStatus.classList.replace("text-indigo-600", "text-rose-600");
+        parserStatus.textContent = "Ralat membaca PDF: " + err.message;
       }
     });
 
@@ -247,14 +285,12 @@
       const btn = document.getElementById("btnSaveSubject");
 
       btn.disabled = true;
-      btn.textContent = "Menyimpan...";
 
       try {
         const { data: subData, error: subError } = await client
           .from("dskp_subjects")
           .insert([{ subject_name: subject, grade_level: grade, created_by: currentUser.id }])
-          .select()
-          .single();
+          .select().single();
 
         if (subError) throw subError;
 
@@ -275,8 +311,7 @@
             };
           });
 
-          const { error: itemError } = await client.from("dskp_items").insert(items);
-          if (itemError) throw itemError;
+          await client.from("dskp_items").insert(items);
         }
 
         document.getElementById("formAddSubject").reset();
@@ -287,7 +322,6 @@
         alert("Ralat: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "Simpan ke Bank";
       }
     });
 
