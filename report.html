@@ -3,83 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Perkembangan Murid - MyPentaksiran</title>
+  <title>Laporan Murid - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <script>
+    if (localStorage.getItem("app_theme") === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
   <style>
     @media print {
       .no-print { display: none !important; }
-      body { background-color: #ffffff; }
+      body { background-color: #ffffff; color: #000000; }
     }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 pb-16">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
 
-  <!-- Navigasi & Butang Cetak -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-10 no-print">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 no-print transition-colors">
     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600">
-        ← Kembali ke Senarai Murid
+      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+        ← Kembali
       </a>
-      <button onclick="window.print()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-sm">
+      <button onclick="window.print()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3.5 py-1.5 rounded-lg shadow-sm">
         🖨️ Cetak / Simpan PDF
       </button>
     </div>
   </header>
 
   <main class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
-    <!-- Kad Profil Utama -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
       <div>
-        <span class="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
-          Profil Perkembangan Murid
-        </span>
-        <h1 id="studentName" class="text-lg font-bold text-slate-900 mt-1">Memuat nama...</h1>
-        <p id="studentMeta" class="text-xs text-slate-500">...</p>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded">
+            Profil Perkembangan Murid
+          </span>
+          <span id="reportGenDate" class="text-[10px] text-slate-400"></span>
+        </div>
+        <h1 id="studentName" class="text-lg font-bold text-slate-900 dark:text-white mt-1">Memuat nama...</h1>
+        <p id="studentMeta" class="text-xs text-slate-500 dark:text-slate-400">...</p>
       </div>
       <div class="text-right">
-        <span id="studentGender" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 uppercase">
+        <span id="studentGender" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 uppercase">
           -
         </span>
       </div>
     </div>
 
-    <!-- Ringkasan Tiga Kotak (PBD, Sahsiah, Kerja Rumah) -->
+    <!-- Ringkasan Tiga Kotak -->
     <div class="grid grid-cols-3 gap-3 text-center">
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <p class="text-[11px] text-slate-400">Purata TP</p>
-        <p id="avgTP" class="text-lg font-bold text-indigo-600 mt-1">-</p>
+        <p id="avgTP" class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-1">-</p>
       </div>
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
-        <p class="text-[11px] text-slate-400">Budi Pekerti</p>
-        <p id="behaviorStat" class="text-lg font-bold text-emerald-600 mt-1">0</p>
+      <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <p class="text-[11px] text-slate-400">Sahsiah Terkumpul</p>
+        <p id="behaviorStat" class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">0</p>
       </div>
-      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <p class="text-[11px] text-slate-400">Kerja Rumah</p>
         <p id="hwRate" class="text-lg font-bold text-amber-500 mt-1">-%</p>
       </div>
     </div>
 
-    <!-- Bahagian 1: Rekod PBD Murid -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pencapaian Pentaksiran Bilik Darjah (PBD)</h3>
-      <div id="pbdRecordsList" class="divide-y divide-slate-100 text-xs">
+    <!-- Bahagian 1: Rekod PBD & Tarikh -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+      <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Pencapaian Pentaksiran Bilik Darjah (PBD)</h3>
+      <div id="pbdRecordsList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
         <p class="text-slate-400 py-3 text-center">Tiada rekod pentaksiran lagi.</p>
       </div>
     </div>
 
-    <!-- Bahagian 2: Rekod Sahsiah & Disiplin -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Catatan Sahsiah & Keperibadian</h3>
-      <div id="behaviorList" class="divide-y divide-slate-100 text-xs">
-        <p class="text-slate-400 py-3 text-center">Tiada catatan tingkah laku direkodkan.</p>
+    <!-- Bahagian 2: Sahsiah & Tarikh -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+      <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Catatan Sahsiah & Keperibadian</h3>
+      <div id="behaviorList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
+        <p class="text-slate-400 py-3 text-center">Tiada catatan tingkah laku.</p>
       </div>
     </div>
 
-    <!-- Bahagian 3: Status Kerja Rumah -->
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Rekod Penghantaran Kerja Rumah</h3>
-      <div id="hwList" class="divide-y divide-slate-100 text-xs">
+    <!-- Bahagian 3: Tugasan & Tarikh -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+      <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Rekod Penghantaran Kerja Rumah</h3>
+      <div id="hwList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
         <p class="text-slate-400 py-3 text-center">Tiada tugasan direkodkan.</p>
       </div>
     </div>
@@ -98,6 +105,15 @@
 
     if (!studentId) window.location.href = "dashboard.html";
     if (classId) document.getElementById("backBtn").href = `class.html?id=${classId}`;
+
+    function formatDate(dateString) {
+      if (!dateString) return "";
+      const d = new Date(dateString);
+      return d.toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    // Tarikh jana laporan hari ini
+    document.getElementById("reportGenDate").textContent = "Dijana: " + formatDate(new Date());
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
@@ -126,23 +142,33 @@
       const container = document.getElementById("pbdRecordsList");
       const { data } = await client
         .from("pbd_records")
-        .select("tp_score, dskp_items(sp_code, sp_desc, dskp_subjects(subject_name))")
+        .select("tp_score, created_at, dskp_items(sp_code, sp_desc, dskp_subjects(subject_name))")
         .eq("student_id", studentId);
 
       if (!data || data.length === 0) return;
 
-      let totalTP = 0;
-      data.forEach(r => totalTP += r.tp_score);
-      document.getElementById("avgTP").textContent = "TP " + (totalTP / data.length).toFixed(1);
+      const scored = data.filter(r => r.tp_score > 0);
+      if (scored.length > 0) {
+        let totalTP = 0;
+        scored.forEach(r => totalTP += r.tp_score);
+        document.getElementById("avgTP").textContent = "TP " + (totalTP / scored.length).toFixed(1);
+      } else {
+        document.getElementById("avgTP").textContent = "TH";
+      }
 
       container.innerHTML = data.map(r => `
-        <div class="py-2.5 flex items-start justify-between gap-3">
+        <div class="py-3 flex items-start justify-between gap-3">
           <div>
-            <span class="text-[10px] font-bold text-indigo-600">${r.dskp_items?.dskp_subjects?.subject_name || 'Subjek'} • SP ${r.dskp_items?.sp_code}</span>
-            <p class="text-slate-700 mt-0.5">${r.dskp_items?.sp_desc || 'Penerangan SP'}</p>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                ${r.dskp_items?.dskp_subjects?.subject_name || 'Subjek'} • SP ${r.dskp_items?.sp_code}
+              </span>
+              <span class="text-[10px] text-slate-400">📅 ${formatDate(r.created_at)}</span>
+            </div>
+            <p class="text-slate-700 dark:text-slate-200 mt-0.5">${r.dskp_items?.sp_desc || ''}</p>
           </div>
-          <span class="text-xs font-bold px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg shrink-0">
-            TP ${r.tp_score}
+          <span class="text-xs font-bold px-2.5 py-1 ${r.tp_score === 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 'bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300'} rounded-lg shrink-0">
+            ${r.tp_score === 0 ? 'TH' : 'TP ' + r.tp_score}
           </span>
         </div>
       `).join("");
@@ -158,18 +184,21 @@
 
       if (!data || data.length === 0) return;
 
-      const positiveCount = data.filter(d => d.type === 'positive').length;
-      const warningCount = data.filter(d => d.type === 'warning').length;
-      document.getElementById("behaviorStat").textContent = `+${positiveCount} / -${warningCount}`;
+      const pos = data.filter(d => d.type === 'positive').length;
+      const warn = data.filter(d => d.type === 'warning').length;
+      document.getElementById("behaviorStat").textContent = `+${pos} / -${warn}`;
 
       container.innerHTML = data.map(b => `
-        <div class="py-2 flex items-center justify-between">
+        <div class="py-2.5 flex items-center justify-between">
           <div>
-            <p class="font-semibold text-slate-800">${b.category}</p>
-            ${b.notes ? `<p class="text-[11px] text-slate-500">${b.notes}</p>` : ''}
+            <div class="flex items-center gap-2">
+              <p class="font-semibold text-slate-800 dark:text-white">${b.category}</p>
+              <span class="text-[10px] text-slate-400">📅 ${formatDate(b.created_at)}</span>
+            </div>
+            ${b.notes ? `<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${b.notes}</p>` : ''}
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${b.type === 'positive' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
-            ${b.type === 'positive' ? '+ Baik' : '- Teguran'}
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${b.type === 'positive' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600' : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600'}">
+            ${b.type === 'positive' ? '+ Amalan Baik' : '- Teguran'}
           </span>
         </div>
       `).join("");
@@ -190,14 +219,17 @@
       document.getElementById("hwRate").textContent = `${rate}%`;
 
       const statusMap = {
-        selesai: '<span class="text-emerald-600 font-bold">Siap</span>',
-        lewat: '<span class="text-amber-500 font-bold">Lewat</span>',
-        tidak_hantar: '<span class="text-rose-600 font-bold">Tidak Siap</span>'
+        selesai: `<span class="text-emerald-600 dark:text-emerald-400 font-bold">Siap</span>`,
+        lewat: `<span class="text-amber-500 font-bold">Lewat</span>`,
+        tidak_hantar: `<span class="text-rose-600 font-bold">X</span>`
       };
 
       container.innerHTML = data.map(h => `
         <div class="py-2 flex items-center justify-between">
-          <p class="font-semibold text-slate-800">${h.title}</p>
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-white">${h.title}</p>
+            <span class="text-[10px] text-slate-400">📅 ${formatDate(h.assigned_date)}</span>
+          </div>
           <span class="text-[11px]">${statusMap[h.status] || h.status}</span>
         </div>
       `).join("");
@@ -207,4 +239,3 @@
   </script>
 </body>
 </html>
-
