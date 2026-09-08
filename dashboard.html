@@ -6,11 +6,12 @@
   <title>Papan Pemuka - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
+  <script src="app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
 
-  <!-- Bar Navigasi Atas -->
+  <!-- Navigasi Atas -->
   <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-20 transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
       <button id="btnOpenDrawer" class="flex items-center gap-2.5 focus:outline-none group">
@@ -35,9 +36,7 @@
     <div class="space-y-6">
       <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">
-            P
-          </div>
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">P</div>
           <span id="txtDrawerHeader" class="font-bold text-slate-900 dark:text-white text-sm">Menu Utama</span>
         </div>
         <button id="btnCloseDrawer" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg p-1">✕</button>
@@ -129,169 +128,97 @@
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
+    const currentLang = window.getLang();
 
-    const i18n = {
+    const texts = {
       ms: {
-        txtMenuSub: "Tekan untuk menu ☰",
-        txtDrawerHeader: "Menu Utama",
-        txtGreeting: "Selamat bertugas,",
-        txtMenuProfile: "Profil Guru & Akaun",
-        txtMenuDSKP: "Bank DSKP Komuniti",
-        txtMenuLogout: "Log Keluar",
-        txtSettingsHead: "Pilihan Sistem",
-        txtLanguageLabel: "Bahasa / Language",
-        txtThemeLabel: "Mod Gelap (Dark Mode)",
-        btnProfileBadge: "Profil →",
-        txtClassTitle: "Senarai Kelas Anda",
-        btnAddClass: "+ Tambah Kelas",
-        txtAddClassHead: "Daftar Kelas Baharu",
-        btnSave: "Simpan",
-        btnCancel: "Batal",
-        btnOpenClass: "Buka Kelas →",
-        noClass: "Belum ada kelas dicipta. Tekan butang '+ Tambah Kelas' di atas.",
-        deletePrompt: "Padam kelas ini? Semua rekod murid di dalamnya akan turut dipadam."
+        greeting: "Selamat bertugas,",
+        openClass: "Buka Kelas →",
+        noClass: "Belum ada kelas dicipta. Tekan butang '+ Tambah Kelas' di atas."
       },
       en: {
-        txtMenuSub: "Tap for menu ☰",
-        txtDrawerHeader: "Main Menu",
-        txtGreeting: "Welcome back,",
-        txtMenuProfile: "Teacher Profile & Account",
-        txtMenuDSKP: "DSKP Community Bank",
-        txtMenuLogout: "Sign Out",
-        txtSettingsHead: "System Settings",
-        txtLanguageLabel: "Language",
-        txtThemeLabel: "Dark Mode",
-        btnProfileBadge: "Profile →",
-        txtClassTitle: "Your Class List",
-        btnAddClass: "+ Add Class",
-        txtAddClassHead: "Register New Class",
-        btnSave: "Save",
-        btnCancel: "Cancel",
-        btnOpenClass: "Open Class →",
-        noClass: "No classes created yet. Click '+ Add Class' above.",
-        deletePrompt: "Delete this class? All student records inside will also be removed."
+        greeting: "Welcome back,",
+        openClass: "Open Class →",
+        noClass: "No classes created yet. Click '+ Add Class' above."
       }
-    };
+    }[currentLang];
 
-    let currentLang = localStorage.getItem("app_lang") || "ms";
+    const globalT = window.AppI18n[currentLang];
 
-    function applyLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem("app_lang", lang);
-      document.getElementById("btnLang").textContent = lang === "ms" ? "BM" : "EN";
+    // Kemas kini label UI
+    document.getElementById("txtMenuSub").textContent = globalT.tapMenu;
+    document.getElementById("txtDrawerHeader").textContent = globalT.menuMain;
+    document.getElementById("txtGreeting").textContent = texts.greeting;
+    document.getElementById("txtMenuProfile").textContent = globalT.profileTitle;
+    document.getElementById("txtMenuDSKP").textContent = globalT.dskpBank;
+    document.getElementById("txtMenuLogout").textContent = globalT.signOut;
+    document.getElementById("txtSettingsHead").textContent = globalT.systemOptions;
+    document.getElementById("txtLanguageLabel").textContent = globalT.langLabel;
+    document.getElementById("txtThemeLabel").textContent = globalT.darkLabel;
+    document.getElementById("btnProfileBadge").textContent = (currentLang === 'en' ? 'Profile →' : 'Profil →');
+    document.getElementById("btnOpenModal").textContent = globalT.addClass;
+    document.getElementById("btnCancelClass").textContent = globalT.cancel;
+    document.getElementById("btnSaveClass").textContent = globalT.save;
+    document.getElementById("btnLang").textContent = currentLang === 'ms' ? 'BM' : 'EN';
 
-      const t = i18n[lang];
-      document.getElementById("txtMenuSub").textContent = t.txtMenuSub;
-      document.getElementById("txtDrawerHeader").textContent = t.txtDrawerHeader;
-      document.getElementById("txtGreeting").textContent = t.txtGreeting;
-      document.getElementById("txtMenuProfile").textContent = t.txtMenuProfile;
-      document.getElementById("txtMenuDSKP").textContent = t.txtMenuDSKP;
-      document.getElementById("txtMenuLogout").textContent = t.txtMenuLogout;
-      document.getElementById("txtSettingsHead").textContent = t.txtSettingsHead;
-      document.getElementById("txtLanguageLabel").textContent = t.txtLanguageLabel;
-      document.getElementById("txtThemeLabel").textContent = t.txtThemeLabel;
-      document.getElementById("btnProfileBadge").textContent = t.btnProfileBadge;
-      document.getElementById("txtClassTitle").textContent = t.txtClassTitle;
-      document.getElementById("btnOpenModal").textContent = t.btnAddClass;
-      document.getElementById("txtAddClassHead").textContent = t.txtAddClassHead;
-      document.getElementById("btnCancelClass").textContent = t.btnCancel;
-      document.getElementById("btnSaveClass").textContent = t.btnSave;
+    // Tema
+    function updateThemeIcons() {
+      const isDark = document.documentElement.classList.contains("dark");
+      document.getElementById("btnQuickTheme").textContent = isDark ? "☀️" : "🌙";
+      document.getElementById("btnThemeToggle").textContent = isDark ? "☀️" : "🌙";
     }
+    updateThemeIcons();
 
-    document.getElementById("btnLang").addEventListener("click", () => {
-      applyLanguage(currentLang === "ms" ? "en" : "ms");
-      loadClasses();
+    document.getElementById("btnQuickTheme").addEventListener("click", () => {
+      window.toggleTheme();
+      updateThemeIcons();
     });
+    document.getElementById("btnThemeToggle").addEventListener("click", () => {
+      window.toggleTheme();
+      updateThemeIcons();
+    });
+    document.getElementById("btnLang").addEventListener("click", window.toggleLanguage);
 
-    let isDark = localStorage.getItem("app_theme") === "dark";
-
-    function applyTheme(dark) {
-      isDark = dark;
-      if (dark) {
-        document.documentElement.classList.add("dark");
-        document.getElementById("btnQuickTheme").textContent = "☀️";
-        document.getElementById("btnThemeToggle").textContent = "☀️";
-        localStorage.setItem("app_theme", "dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.getElementById("btnQuickTheme").textContent = "🌙";
-        document.getElementById("btnThemeToggle").textContent = "🌙";
-        localStorage.setItem("app_theme", "light");
-      }
-    }
-
-    document.getElementById("btnQuickTheme").addEventListener("click", () => applyTheme(!isDark));
-    document.getElementById("btnThemeToggle").addEventListener("click", () => applyTheme(!isDark));
-
+    // Laci Drawer
     const sideDrawer = document.getElementById("sideDrawer");
     const drawerBackdrop = document.getElementById("drawerBackdrop");
-    const btnOpenDrawer = document.getElementById("btnOpenDrawer");
-    const btnCloseDrawer = document.getElementById("btnCloseDrawer");
-
-    function openDrawer() {
+    document.getElementById("btnOpenDrawer").addEventListener("click", () => {
       drawerBackdrop.classList.remove("hidden");
       sideDrawer.classList.remove("-translate-x-full");
-    }
-
-    function closeDrawer() {
+    });
+    const closeDrawer = () => {
       drawerBackdrop.classList.add("hidden");
       sideDrawer.classList.add("-translate-x-full");
-    }
-
-    btnOpenDrawer.addEventListener("click", openDrawer);
-    btnCloseDrawer.addEventListener("click", closeDrawer);
+    };
+    document.getElementById("btnCloseDrawer").addEventListener("click", closeDrawer);
     drawerBackdrop.addEventListener("click", closeDrawer);
 
     async function init() {
-      applyTheme(isDark);
-      applyLanguage(currentLang);
-
       const { data: { session } } = await client.auth.getSession();
-      if (!session) {
-        window.location.href = "index.html";
-        return;
-      }
+      if (!session) return window.location.href = "index.html";
       currentUser = session.user;
-
-      await loadUserProfile();
+      await loadProfile();
       loadClasses();
     }
 
-    async function loadUserProfile() {
-      const nameElem = document.getElementById("userDisplayName");
-      const schoolElem = document.getElementById("userSchoolSub");
-
-      const { data } = await client
-        .from("profiles")
-        .select("full_name, school_name")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
+    async function loadProfile() {
+      const { data } = await client.from("profiles").select("full_name, school_name").eq("id", currentUser.id).maybeSingle();
       if (data && data.full_name) {
-        nameElem.textContent = data.full_name;
-        schoolElem.textContent = data.school_name || currentUser.email;
+        document.getElementById("userDisplayName").textContent = data.full_name;
+        document.getElementById("userSchoolSub").textContent = data.school_name || currentUser.email;
       } else {
-        nameElem.textContent = currentUser.email.split("@")[0];
-        schoolElem.textContent = currentUser.email;
+        document.getElementById("userDisplayName").textContent = currentUser.email.split("@")[0];
+        document.getElementById("userSchoolSub").textContent = currentUser.email;
       }
     }
 
     async function loadClasses() {
       const classList = document.getElementById("classList");
-      const t = i18n[currentLang];
       try {
-        const { data: classes, error } = await client
-          .from("classes")
-          .select("*")
-          .order("created_at", { ascending: false });
-
+        const { data: classes, error } = await client.from("classes").select("*").order("created_at", { ascending: false });
         if (error) throw error;
-
         if (!classes || classes.length === 0) {
-          classList.innerHTML = `
-            <div class="text-center py-6 text-slate-400 dark:text-slate-500 text-xs">
-              ${t.noClass}
-            </div>`;
+          classList.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">${texts.noClass}</div>`;
           return;
         }
 
@@ -303,11 +230,9 @@
             </div>
             <div class="flex items-center gap-2">
               <a href="class.html?id=${c.id}" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 shadow-sm inline-block">
-                ${t.btnOpenClass}
+                ${texts.openClass}
               </a>
-              <button onclick="deleteClass('${c.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1.5">
-                🗑️
-              </button>
+              <button onclick="deleteClass('${c.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1.5">🗑️</button>
             </div>
           </div>
         `).join("");
@@ -317,14 +242,9 @@
     }
 
     window.deleteClass = async function(id) {
-      if (!confirm(i18n[currentLang].deletePrompt)) return;
-      try {
-        const { error } = await client.from("classes").delete().eq("id", id);
-        if (error) throw error;
-        loadClasses();
-      } catch (err) {
-        alert("Gagal memadam: " + err.message);
-      }
+      if (!confirm(globalT.confirmDelete)) return;
+      await client.from("classes").delete().eq("id", id);
+      loadClasses();
     };
 
     const formAddClass = document.getElementById("formAddClass");
@@ -335,24 +255,16 @@
       e.preventDefault();
       const className = document.getElementById("classNameInput").value.trim();
       const session = document.getElementById("classSessionInput").value.trim();
-      const btnSave = document.getElementById("btnSaveClass");
-
-      btnSave.disabled = true;
+      const btn = document.getElementById("btnSaveClass");
+      btn.disabled = true;
 
       try {
-        const { error } = await client.from("classes").insert([
-          { user_id: currentUser.id, class_name: className, year_session: session }
-        ]);
-
-        if (error) throw error;
-
+        await client.from("classes").insert([{ user_id: currentUser.id, class_name: className, year_session: session }]);
         formAddClass.reset();
         formAddClass.classList.add("hidden");
         loadClasses();
-      } catch (err) {
-        alert("Ralat: " + err.message);
       } finally {
-        btnSave.disabled = false;
+        btn.disabled = false;
       }
     });
 
@@ -365,4 +277,3 @@
   </script>
 </body>
 </html>
-1
