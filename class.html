@@ -102,7 +102,6 @@
           <button id="tabBulk" type="button" class="text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white">Bulk Paste</button>
         </div>
 
-        <!-- Single Student Form -->
         <form id="formSingleStudent" class="space-y-3">
           <div>
             <label id="lblStudentName" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Student Full Name</label>
@@ -122,7 +121,6 @@
           </div>
         </form>
 
-        <!-- Bulk Paste Form -->
         <form id="formBulkStudent" class="hidden space-y-3">
           <div>
             <label id="lblBulkDesc" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
@@ -144,9 +142,7 @@
         <p class="text-xs text-slate-400 py-4 text-center">Loading...</p>
       </div>
 
-      <!-- ======================================================= -->
-      <!-- BUTANG CSV & PDF KELAS DI BAWAH SENARAI MURID             -->
-      <!-- ======================================================= -->
+      <!-- BUTANG CSV & PDF KELAS -->
       <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-2 justify-end">
         <button id="btnExportCSV" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
           📥 Eksport Excel (CSV)
@@ -158,7 +154,7 @@
     </div>
   </main>
 
-  <!-- MODAL EDIT NAMA & JANTINA MURID -->
+  <!-- MODAL EDIT NAMA & JANTINA -->
   <div id="modalEditStudent" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
@@ -208,6 +204,12 @@
 
     document.getElementById("btnStartPBD").href = `transit.html?class_id=${classId}`;
     document.getElementById("btnActivity").href = `activity.html?class_id=${classId}`;
+
+    function formatDate(dateString) {
+      if (!dateString) return "";
+      const d = new Date(dateString);
+      return d.toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" });
+    }
 
     const i18n = {
       ms: {
