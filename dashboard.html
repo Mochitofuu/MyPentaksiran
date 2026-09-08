@@ -33,8 +33,8 @@
   <!-- Laci Menu Tepi -->
   <div id="drawerBackdrop" class="hidden fixed inset-0 z-30 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
   <aside id="sideDrawer" class="fixed top-0 left-0 bottom-0 z-40 w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 p-5 flex flex-col justify-between -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl">
-    <div class="space-y-6">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-700">
+    <div class="space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">P</div>
           <span id="txtDrawerHeader" class="font-bold text-slate-900 dark:text-white text-sm">Menu Utama</span>
@@ -43,18 +43,27 @@
       </div>
 
       <nav class="space-y-1.5 text-xs font-semibold">
-        <a href="profile.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+        <a href="profile.html" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
           <span class="text-base">👤</span>
           <span id="txtMenuProfile">Profil Guru & Akaun</span>
         </a>
-        <a href="dskp.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+        <a href="dskp.html" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
           <span class="text-base">📚</span>
           <span id="txtMenuDSKP">Bank DSKP Komuniti</span>
         </a>
 
-        <!-- PAUTAN KHAS MASTER ADMIN (HANYA MUNCUL JIKA ANDA YANG LOG MASUK) -->
-        <a id="adminMenuLink" href="admin.html" class="hidden flex items-center justify-between p-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 dark:text-rose-300 border border-rose-200 dark:border-rose-900 transition">
-          <div class="flex items-center gap-3">
+        <!-- BUTANG LANGGANAN / NAIK TARAF PREMIUM -->
+        <button id="btnOpenSubModal" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 to-indigo-500/10 hover:from-amber-500/20 hover:to-indigo-500/20 text-slate-800 dark:text-slate-100 border border-amber-300 dark:border-amber-700/60 transition text-left">
+          <div class="flex items-center gap-2.5">
+            <span class="text-base">⭐</span>
+            <span class="font-bold">Langganan & Pelan</span>
+          </div>
+          <span class="text-[9px] bg-amber-500 text-slate-950 font-extrabold px-1.5 py-0.5 rounded shadow-xs">PRO</span>
+        </button>
+
+        <!-- PAUTAN KHAS MASTER ADMIN -->
+        <a id="adminMenuLink" href="admin.html" class="hidden flex items-center justify-between p-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 dark:text-rose-300 border border-rose-200 dark:border-rose-900 transition">
+          <div class="flex items-center gap-2.5">
             <span class="text-base">⚡</span>
             <span>Master Admin Panel</span>
           </div>
@@ -62,7 +71,7 @@
         </a>
       </nav>
 
-      <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+      <div class="pt-3 border-t border-slate-100 dark:border-slate-700 space-y-3">
         <p id="txtSettingsHead" class="text-[10px] uppercase font-bold text-slate-400">Pilihan Sistem</p>
         <div class="flex items-center justify-between">
           <span id="txtLanguageLabel" class="text-xs text-slate-600 dark:text-slate-300">Bahasa / Language</span>
@@ -79,7 +88,7 @@
       </div>
     </div>
 
-    <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
+    <div class="pt-3 border-t border-slate-100 dark:border-slate-700">
       <button id="btnLogout" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold rounded-xl text-xs border border-rose-200 dark:border-rose-900 transition">
         🚪 <span id="txtMenuLogout">Log Keluar</span>
       </button>
@@ -133,6 +142,88 @@
       </div>
     </div>
   </main>
+
+  <!-- ======================================================= -->
+  <!-- MODAL TAWARAN & PERBANDINGAN PELAN (FREE VS PREMIUM)    -->
+  <!-- ======================================================= -->
+  <div id="modalSubscription" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto space-y-4">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <span>⭐</span> Pelan & Langganan MyPentaksiran
+          </h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Pilih akses terbaik untuk memudahkan tugas harian anda.</p>
+        </div>
+        <button id="btnCloseSubModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg p-1">✕</button>
+      </div>
+
+      <!-- Jadual Perbandingan -->
+      <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden text-xs">
+        <div class="grid grid-cols-3 bg-slate-100 dark:bg-slate-700/60 p-2.5 font-bold text-slate-700 dark:text-slate-200 text-center">
+          <span class="text-left">Ciri-Ciri</span>
+          <span>Free</span>
+          <span class="text-amber-600 dark:text-amber-400">Premium ⭐</span>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-slate-700 p-1">
+          <div class="grid grid-cols-3 p-2 text-center items-center">
+            <span class="text-left font-medium">Pengurusan Kelas & Murid</span>
+            <span class="text-emerald-600 font-bold">✓</span>
+            <span class="text-emerald-600 font-bold">✓</span>
+          </div>
+          <div class="grid grid-cols-3 p-2 text-center items-center">
+            <span class="text-left font-medium">Bank DSKP & Transit PBD</span>
+            <span class="text-emerald-600 font-bold">✓</span>
+            <span class="text-emerald-600 font-bold">✓</span>
+          </div>
+          <div class="grid grid-cols-3 p-2 text-center items-center bg-amber-50/40 dark:bg-amber-950/20">
+            <span class="text-left font-medium">Modul Sahsiah & Merit</span>
+            <span class="text-rose-500 font-bold">✕</span>
+            <span class="text-emerald-600 font-bold">✓</span>
+          </div>
+          <div class="grid grid-cols-3 p-2 text-center items-center bg-amber-50/40 dark:bg-amber-950/20">
+            <span class="text-left font-medium">Penjejak Kerja Rumah</span>
+            <span class="text-rose-500 font-bold">✕</span>
+            <span class="text-emerald-600 font-bold">✓</span>
+          </div>
+          <div class="grid grid-cols-3 p-2 text-center items-center bg-amber-50/40 dark:bg-amber-950/20">
+            <span class="text-left font-medium">Muat Turun Slip PDF Rasmi</span>
+            <span class="text-rose-500 font-bold">✕</span>
+            <span class="text-emerald-600 font-bold">✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kad Pilihan Harga -->
+      <div class="grid grid-cols-2 gap-2.5 pt-1">
+        <div class="p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-500 cursor-pointer transition text-center space-y-1">
+          <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">Bulanan</span>
+          <p class="text-base font-black text-slate-900 dark:text-white">RM 6<span class="text-[10px] font-normal text-slate-400">/bln</span></p>
+          <p class="text-[9px] text-slate-400">Akses fleksibel tanpa komitmen</p>
+        </div>
+
+        <div class="p-3 rounded-xl border-2 border-amber-500 bg-amber-500/5 relative cursor-pointer text-center space-y-1">
+          <span class="absolute -top-2 right-2 text-[8px] bg-amber-500 text-slate-950 font-black px-1.5 py-0.5 rounded-full uppercase">Jimat 2 Bulan</span>
+          <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 block uppercase">Tahunan</span>
+          <p class="text-base font-black text-slate-900 dark:text-white">RM 60<span class="text-[10px] font-normal text-slate-400">/thn</span></p>
+          <p class="text-[9px] text-slate-400">Setara RM5 sahaja sebulan</p>
+        </div>
+      </div>
+
+      <!-- Butang WhatsApp -->
+      <div class="pt-2">
+        <a id="btnUpgradeWA" href="https://wa.link/5fgaah" target="_blank"
+          class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition active:scale-98">
+          <span>💬</span> Langgan Sekarang via WhatsApp
+        </a>
+        <p class="text-[10px] text-center text-slate-400 mt-2">
+          Selepas bayaran dibuat, akaun anda akan dinaik taraf ke Premium dengan serta-merta oleh admin.
+        </p>
+      </div>
+
+    </div>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
@@ -204,10 +295,28 @@
     document.getElementById("btnCloseDrawer").addEventListener("click", closeDrawer);
     drawerBackdrop.addEventListener("click", closeDrawer);
 
+    // Modal Subscription Handling
+    const modalSubscription = document.getElementById("modalSubscription");
+    const btnOpenSubModal = document.getElementById("btnOpenSubModal");
+    const btnCloseSubModal = document.getElementById("btnCloseSubModal");
+
+    btnOpenSubModal.addEventListener("click", () => {
+      closeDrawer();
+      modalSubscription.classList.remove("hidden");
+    });
+    btnCloseSubModal.addEventListener("click", () => {
+      modalSubscription.classList.add("hidden");
+    });
+
     async function init() {
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
+
+      // Pautan WhatsApp dengan auto-text email pengguna
+      const waLink = `https://wa.link/5fgaah`;
+      document.getElementById("btnUpgradeWA").href = waLink;
+
       await loadProfile();
       loadClasses();
     }
@@ -219,12 +328,17 @@
         document.getElementById("userDisplayName").textContent = data.full_name || currentUser.email.split("@")[0];
         document.getElementById("userSchoolSub").textContent = data.school_name || currentUser.email;
 
-        // Semak status Premium & Admin
         if (data.plan === 'premium') {
           document.getElementById("userPlanBadge").classList.remove("hidden");
+          document.getElementById("btnOpenSubModal").innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">⭐</span>
+              <span class="font-bold text-amber-600 dark:text-amber-400">Akaun Premium Aktif</span>
+            </div>
+            <span class="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.5 rounded">AKTIF</span>
+          `;
         }
         
-        // HANYA PAPARKAN BUTANG ADMIN JIKA is_admin TRUE
         if (data.is_admin === true) {
           document.getElementById("adminMenuLink").classList.remove("hidden");
         }
