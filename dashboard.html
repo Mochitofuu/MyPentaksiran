@@ -51,6 +51,15 @@
           <span class="text-base">📚</span>
           <span id="txtMenuDSKP">Bank DSKP Komuniti</span>
         </a>
+
+        <!-- PAUTAN KHAS MASTER ADMIN (HANYA MUNCUL JIKA ANDA YANG LOG MASUK) -->
+        <a id="adminMenuLink" href="admin.html" class="hidden flex items-center justify-between p-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 dark:text-rose-300 border border-rose-200 dark:border-rose-900 transition">
+          <div class="flex items-center gap-3">
+            <span class="text-base">⚡</span>
+            <span>Master Admin Panel</span>
+          </div>
+          <span class="text-[9px] bg-rose-600 text-white px-1.5 py-0.5 rounded font-bold">VIP</span>
+        </a>
       </nav>
 
       <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
@@ -81,7 +90,12 @@
   <main class="max-w-4xl mx-auto px-4 pt-6 space-y-6">
     <div class="bg-indigo-600 dark:bg-indigo-700 rounded-2xl p-5 text-white shadow-sm flex justify-between items-center">
       <div class="flex-1 mr-3">
-        <p class="text-xs text-indigo-200" id="txtGreeting">Selamat bertugas,</p>
+        <div class="flex items-center gap-2">
+          <p class="text-xs text-indigo-200" id="txtGreeting">Selamat bertugas,</p>
+          <span id="userPlanBadge" class="hidden text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-amber-400 text-amber-950 shadow-sm">
+            ⭐ PREMIUM
+          </span>
+        </div>
         <h2 id="userDisplayName" class="text-base font-bold truncate mt-0.5">Memuat...</h2>
         <p id="userSchoolSub" class="text-[11px] text-indigo-200 truncate mt-0.5">...</p>
       </div>
@@ -145,7 +159,6 @@
 
     const globalT = window.AppI18n[currentLang];
 
-    // Kemas kini label UI
     document.getElementById("txtMenuSub").textContent = globalT.tapMenu;
     document.getElementById("txtDrawerHeader").textContent = globalT.menuMain;
     document.getElementById("txtGreeting").textContent = texts.greeting;
@@ -161,7 +174,6 @@
     document.getElementById("btnSaveClass").textContent = globalT.save;
     document.getElementById("btnLang").textContent = currentLang === 'ms' ? 'BM' : 'EN';
 
-    // Tema
     function updateThemeIcons() {
       const isDark = document.documentElement.classList.contains("dark");
       document.getElementById("btnQuickTheme").textContent = isDark ? "☀️" : "🌙";
@@ -179,7 +191,6 @@
     });
     document.getElementById("btnLang").addEventListener("click", window.toggleLanguage);
 
-    // Laci Drawer
     const sideDrawer = document.getElementById("sideDrawer");
     const drawerBackdrop = document.getElementById("drawerBackdrop");
     document.getElementById("btnOpenDrawer").addEventListener("click", () => {
@@ -202,10 +213,21 @@
     }
 
     async function loadProfile() {
-      const { data } = await client.from("profiles").select("full_name, school_name").eq("id", currentUser.id).maybeSingle();
-      if (data && data.full_name) {
-        document.getElementById("userDisplayName").textContent = data.full_name;
+      const { data } = await client.from("profiles").select("full_name, school_name, is_admin, plan").eq("id", currentUser.id).maybeSingle();
+      
+      if (data) {
+        document.getElementById("userDisplayName").textContent = data.full_name || currentUser.email.split("@")[0];
         document.getElementById("userSchoolSub").textContent = data.school_name || currentUser.email;
+
+        // Semak status Premium & Admin
+        if (data.plan === 'premium') {
+          document.getElementById("userPlanBadge").classList.remove("hidden");
+        }
+        
+        // HANYA PAPARKAN BUTANG ADMIN JIKA is_admin TRUE
+        if (data.is_admin === true) {
+          document.getElementById("adminMenuLink").classList.remove("hidden");
+        }
       } else {
         document.getElementById("userDisplayName").textContent = currentUser.email.split("@")[0];
         document.getElementById("userSchoolSub").textContent = currentUser.email;
