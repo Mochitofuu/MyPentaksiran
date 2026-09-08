@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Perkembangan Murid - MyPentaksiran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background-color: #ffffff; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-16">
+
+  <!-- Navigasi & Butang Cetak -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10 no-print">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600">
+        ← Kembali ke Senarai Murid
+      </a>
+      <button onclick="window.print()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-sm">
+        🖨️ Cetak / Simpan PDF
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
+    <!-- Kad Profil Utama -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+      <div>
+        <span class="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+          Profil Perkembangan Murid
+        </span>
+        <h1 id="studentName" class="text-lg font-bold text-slate-900 mt-1">Memuat nama...</h1>
+        <p id="studentMeta" class="text-xs text-slate-500">...</p>
+      </div>
+      <div class="text-right">
+        <span id="studentGender" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 uppercase">
+          -
+        </span>
+      </div>
+    </div>
+
+    <!-- Ringkasan Tiga Kotak (PBD, Sahsiah, Kerja Rumah) -->
+    <div class="grid grid-cols-3 gap-3 text-center">
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <p class="text-[11px] text-slate-400">Purata TP</p>
+        <p id="avgTP" class="text-lg font-bold text-indigo-600 mt-1">-</p>
+      </div>
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <p class="text-[11px] text-slate-400">Budi Pekerti</p>
+        <p id="behaviorStat" class="text-lg font-bold text-emerald-600 mt-1">0</p>
+      </div>
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <p class="text-[11px] text-slate-400">Kerja Rumah</p>
+        <p id="hwRate" class="text-lg font-bold text-amber-500 mt-1">-%</p>
+      </div>
+    </div>
+
+    <!-- Bahagian 1: Rekod PBD Murid -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pencapaian Pentaksiran Bilik Darjah (PBD)</h3>
+      <div id="pbdRecordsList" class="divide-y divide-slate-100 text-xs">
+        <p class="text-slate-400 py-3 text-center">Tiada rekod pentaksiran lagi.</p>
+      </div>
+    </div>
+
+    <!-- Bahagian 2: Rekod Sahsiah & Disiplin -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Catatan Sahsiah & Keperibadian</h3>
+      <div id="behaviorList" class="divide-y divide-slate-100 text-xs">
+        <p class="text-slate-400 py-3 text-center">Tiada catatan tingkah laku direkodkan.</p>
+      </div>
+    </div>
+
+    <!-- Bahagian 3: Status Kerja Rumah -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Rekod Penghantaran Kerja Rumah</h3>
+      <div id="hwList" class="divide-y divide-slate-100 text-xs">
+        <p class="text-slate-400 py-3 text-center">Tiada tugasan direkodkan.</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ub2phaGlicWJoeGhweXhrcWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDU5NjAsImV4cCI6MjEwNDQyMTk2MH0.UhKRSYCcAizVnKf9dSsIcF1bgOeD8-5KRRSngBvsocI";
+
+    const { createClient } = window.supabase;
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentId = urlParams.get("student_id");
+    const classId = urlParams.get("class_id");
+
+    if (!studentId) window.location.href = "dashboard.html";
+    if (classId) document.getElementById("backBtn").href = `class.html?id=${classId}`;
+
+    async function init() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) return window.location.href = "index.html";
+
+      await loadStudentProfile();
+      await loadPBD();
+      await loadBehavior();
+      await loadHomework();
+    }
+
+    async function loadStudentProfile() {
+      const { data } = await client
+        .from("students")
+        .select("*, classes(class_name, year_session)")
+        .eq("id", studentId)
+        .single();
+
+      if (!data) return;
+      document.getElementById("studentName").textContent = data.full_name;
+      document.getElementById("studentMeta").textContent = `${data.classes?.class_name || 'Kelas'} • ${data.classes?.year_session || '2026'}`;
+      document.getElementById("studentGender").textContent = data.gender === 'P' ? 'Perempuan' : 'Lelaki';
+    }
+
+    async function loadPBD() {
+      const container = document.getElementById("pbdRecordsList");
+      const { data } = await client
+        .from("pbd_records")
+        .select("tp_score, dskp_items(sp_code, sp_desc, dskp_subjects(subject_name))")
+        .eq("student_id", studentId);
+
+      if (!data || data.length === 0) return;
+
+      let totalTP = 0;
+      data.forEach(r => totalTP += r.tp_score);
+      document.getElementById("avgTP").textContent = "TP " + (totalTP / data.length).toFixed(1);
+
+      container.innerHTML = data.map(r => `
+        <div class="py-2.5 flex items-start justify-between gap-3">
+          <div>
+            <span class="text-[10px] font-bold text-indigo-600">${r.dskp_items?.dskp_subjects?.subject_name || 'Subjek'} • SP ${r.dskp_items?.sp_code}</span>
+            <p class="text-slate-700 mt-0.5">${r.dskp_items?.sp_desc || 'Penerangan SP'}</p>
+          </div>
+          <span class="text-xs font-bold px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg shrink-0">
+            TP ${r.tp_score}
+          </span>
+        </div>
+      `).join("");
+    }
+
+    async function loadBehavior() {
+      const container = document.getElementById("behaviorList");
+      const { data } = await client
+        .from("behavior_records")
+        .select("*")
+        .eq("student_id", studentId)
+        .order("created_at", { ascending: false });
+
+      if (!data || data.length === 0) return;
+
+      const positiveCount = data.filter(d => d.type === 'positive').length;
+      const warningCount = data.filter(d => d.type === 'warning').length;
+      document.getElementById("behaviorStat").textContent = `+${positiveCount} / -${warningCount}`;
+
+      container.innerHTML = data.map(b => `
+        <div class="py-2 flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-slate-800">${b.category}</p>
+            ${b.notes ? `<p class="text-[11px] text-slate-500">${b.notes}</p>` : ''}
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${b.type === 'positive' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+            ${b.type === 'positive' ? '+ Baik' : '- Teguran'}
+          </span>
+        </div>
+      `).join("");
+    }
+
+    async function loadHomework() {
+      const container = document.getElementById("hwList");
+      const { data } = await client
+        .from("homework_records")
+        .select("*")
+        .eq("student_id", studentId)
+        .order("assigned_date", { ascending: false });
+
+      if (!data || data.length === 0) return;
+
+      const doneCount = data.filter(d => d.status === 'selesai').length;
+      const rate = Math.round((doneCount / data.length) * 100);
+      document.getElementById("hwRate").textContent = `${rate}%`;
+
+      const statusMap = {
+        selesai: '<span class="text-emerald-600 font-bold">Siap</span>',
+        lewat: '<span class="text-amber-500 font-bold">Lewat</span>',
+        tidak_hantar: '<span class="text-rose-600 font-bold">Tidak Siap</span>'
+      };
+
+      container.innerHTML = data.map(h => `
+        <div class="py-2 flex items-center justify-between">
+          <p class="font-semibold text-slate-800">${h.title}</p>
+          <span class="text-[11px]">${statusMap[h.status] || h.status}</span>
+        </div>
+      `).join("");
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
