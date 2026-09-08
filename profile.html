@@ -6,66 +6,120 @@
   <title>Profil Guru - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
-  <script src="app.js"></script>
+  <script>
+    if (localStorage.getItem("app_theme") === "dark") document.documentElement.classList.add("dark");
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20 transition-colors duration-200">
 
-  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
     <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 gap-1" id="linkBack">
-        ← Papan Pemuka
-      </a>
-      <span class="text-xs font-bold text-slate-700 dark:text-white" id="txtHeader">Profil Guru</span>
+      <a href="dashboard.html" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">← Papan Pemuka</a>
+      <span class="text-xs font-bold text-slate-700 dark:text-white">Tetapan Profil</span>
     </div>
   </header>
 
-  <main class="max-w-xl mx-auto px-4 pt-6 space-y-5">
+  <main class="max-w-xl mx-auto px-4 pt-6 space-y-6">
+    <!-- Kad Status Pelan -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-[11px] text-slate-400 font-semibold uppercase">Status Langganan</p>
+        <h3 id="planBadgeText" class="text-base font-bold text-slate-900 dark:text-white mt-0.5">Percuma (Free)</h3>
+      </div>
+      <span id="planBadgePill" class="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+        Pelan Asas
+      </span>
+    </div>
+
+    <!-- Borang Maklumat Profil Guru & Logo -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-      <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 pb-4">
-        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-bold flex items-center justify-center text-lg">P</div>
-        <div>
-          <h1 id="profHeaderName" class="text-base font-bold text-slate-900 dark:text-white">Memuat...</h1>
-          <p id="profHeaderEmail" class="text-xs text-slate-500 dark:text-slate-400">...</p>
+      <h2 class="text-sm font-bold text-slate-900 dark:text-white">Maklumat Guru & Sekolah</h2>
+
+      <!-- Bahagian Logo Sekolah -->
+      <div class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+        <div class="w-16 h-16 rounded-xl border border-slate-300 dark:border-slate-600 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+          <img id="logoPreview" src="" alt="Logo" class="w-full h-full object-contain hidden">
+          <span id="logoPlaceholder" class="text-[10px] text-slate-400 text-center font-bold">Tiada<br>Logo</span>
+        </div>
+        <div class="flex-1 space-y-1.5">
+          <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Lencana / Logo Sekolah</p>
+          <p class="text-[10px] text-slate-400 leading-tight">Akan dipaparkan di kepala surat laporan PDF murid.</p>
+          <div class="flex items-center gap-2 pt-1">
+            <label class="cursor-pointer text-[11px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-2.5 py-1 rounded-md transition shadow-xs">
+              Pilih Gambar
+              <input type="file" id="logoInput" accept="image/*" class="hidden">
+            </label>
+            <button type="button" id="btnRemoveLogo" class="hidden text-[11px] text-rose-500 hover:text-rose-700 font-medium">
+              Padam Logo
+            </button>
+          </div>
         </div>
       </div>
 
-      <form id="formProfileInfo" class="space-y-3 pt-1">
+      <form id="profileForm" class="space-y-3 pt-2">
         <div>
-          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1" id="lblNameLabel">Nama Panggilan / Gelaran Guru</label>
-          <input type="text" id="profFullName" required placeholder="Cth: Cikgu Saz, Sir Daniel"
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">E-mel Akaun</label>
+          <input type="email" id="emailInput" disabled 
+            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-400">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Penuh Guru</label>
+          <input type="text" id="fullNameInput" required placeholder="Cth: Cikgu Sazriane" 
             class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
         </div>
 
         <div>
-          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1" id="lblSchoolLabel">Nama Sekolah / Institusi</label>
-          <input type="text" id="profSchool" placeholder="Cth: SK Kolombong, SMK St. Mary"
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Sekolah</label>
+          <input type="text" id="schoolNameInput" placeholder="Cth: SK Kolombong, Kota Kinabalu" 
             class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
         </div>
 
-        <button type="submit" id="btnSaveInfo" class="w-full text-xs py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm">
-          Simpan Maklumat Profil
+        <button type="submit" id="btnSaveProfile" class="w-full text-xs py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+          Simpan Profil & Logo
         </button>
       </form>
     </div>
 
-    <!-- Tukar Kata Laluan -->
-    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
-      <h2 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider" id="lblPasswordHead">Tukar Kata Laluan</h2>
-      
-      <form id="formChangePassword" class="space-y-3">
-        <div>
-          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1" id="lblNewPass">Kata Laluan Baharu (Min. 6 aksara)</label>
-          <input type="password" id="newPassword" minlength="6" required placeholder="••••••••"
-            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
-        </div>
-
-        <button type="submit" id="btnSavePassword" class="w-full text-xs py-2.5 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-semibold rounded-lg shadow-sm">
-          Kemas Kini Kata Laluan
-        </button>
-      </form>
+    <!-- ZON BAHAYA: PADAM AKAUN -->
+    <div class="bg-rose-50/50 dark:bg-rose-950/20 p-5 rounded-2xl border border-rose-200 dark:border-rose-900/60 shadow-sm space-y-3">
+      <div class="flex items-center gap-2">
+        <span class="text-base">⚠️</span>
+        <h3 class="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Zon Bahaya (Danger Zone)</h3>
+      </div>
+      <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+        Memadam akaun akan menghapuskan semua maklumat peribadi, senarai kelas, murid, dan rekod pentaksiran PBD anda secara kekal. Tindakan ini tidak boleh dibatalkan.
+      </p>
+      <button type="button" id="btnOpenDeleteModal" class="text-xs px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow-sm transition">
+        Padam Akaun Saya
+      </button>
     </div>
   </main>
+
+  <!-- MODAL PENGESAHAN PADAM AKAUN -->
+  <div id="modalDeleteAccount" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <h3 class="text-sm font-bold text-rose-600 dark:text-rose-400">Sahkan Pemadaman Akaun</h3>
+        <button id="btnCloseDeleteModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        Adakah anda betul-betul pasti? Sila taip perkataan <strong class="text-rose-600 font-bold">PADAM</strong> di bawah untuk mengesahkan:
+      </p>
+
+      <input type="text" id="deleteConfirmInput" placeholder="Taip PADAM" 
+        class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-rose-500 font-mono">
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+        <button id="btnCancelDelete" class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300">Batal</button>
+        <button id="btnConfirmDelete" disabled class="text-xs px-4 py-1.5 bg-rose-600 disabled:bg-rose-300 dark:disabled:bg-rose-900/40 text-white font-bold rounded-lg transition">
+          Padam Selamanya
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
@@ -74,85 +128,164 @@
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const currentLang = window.getLang();
-    const globalT = window.AppI18n[currentLang];
-
-    const i18n = {
-      ms: {
-        nameLabel: "Nama Panggilan / Gelaran Guru",
-        schoolLabel: "Nama Sekolah / Institusi",
-        saveInfo: "Simpan Maklumat Profil",
-        passHead: "Tukar Kata Laluan",
-        newPass: "Kata Laluan Baharu (Min. 6 aksara)",
-        savePass: "Kemas Kini Kata Laluan"
-      },
-      en: {
-        nameLabel: "Teacher Name / Title",
-        schoolLabel: "School / Institution Name",
-        saveInfo: "Save Profile Info",
-        passHead: "Change Password",
-        newPass: "New Password (Min. 6 characters)",
-        savePass: "Update Password"
-      }
-    }[currentLang];
-
-    document.getElementById("linkBack").textContent = globalT.backDashboard;
-    document.getElementById("txtHeader").textContent = globalT.profileTitle;
-    document.getElementById("lblNameLabel").textContent = i18n.nameLabel;
-    document.getElementById("lblSchoolLabel").textContent = i18n.schoolLabel;
-    document.getElementById("btnSaveInfo").textContent = i18n.saveInfo;
-    document.getElementById("lblPasswordHead").textContent = i18n.passHead;
-    document.getElementById("lblNewPass").textContent = i18n.newPass;
-    document.getElementById("btnSavePassword").textContent = i18n.savePass;
-
     let currentUser = null;
+    let base64Logo = "";
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
-      document.getElementById("profHeaderEmail").textContent = currentUser.email;
+      document.getElementById("emailInput").value = currentUser.email;
 
+      await loadProfile();
+    }
+
+    async function loadProfile() {
       const { data } = await client.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
       if (data) {
-        document.getElementById("profHeaderName").textContent = data.full_name || "Cikgu";
-        document.getElementById("profFullName").value = data.full_name || "";
-        document.getElementById("profSchool").value = data.school_name || "";
-      } else {
-        document.getElementById("profHeaderName").textContent = currentUser.email.split("@")[0];
+        document.getElementById("fullNameInput").value = data.full_name || "";
+        document.getElementById("schoolNameInput").value = data.school_name || "";
+
+        if (data.plan === 'premium' || data.is_admin) {
+          document.getElementById("planBadgeText").textContent = "Premium ⭐";
+          document.getElementById("planBadgePill").textContent = "Akses Penuh";
+          document.getElementById("planBadgePill").className = "text-xs font-extrabold px-3 py-1 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300";
+        }
+
+        if (data.school_logo) {
+          base64Logo = data.school_logo;
+          showLogoPreview(data.school_logo);
+        }
       }
     }
 
-    document.getElementById("formProfileInfo").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const fullName = document.getElementById("profFullName").value.trim();
-      const school = document.getElementById("profSchool").value.trim();
-      const btn = document.getElementById("btnSaveInfo");
-      btn.disabled = true;
+    function showLogoPreview(src) {
+      const preview = document.getElementById("logoPreview");
+      const placeholder = document.getElementById("logoPlaceholder");
+      const btnRemove = document.getElementById("btnRemoveLogo");
+      preview.src = src;
+      preview.classList.remove("hidden");
+      placeholder.classList.add("hidden");
+      btnRemove.classList.remove("hidden");
+    }
 
-      try {
-        await client.from("profiles").upsert({ id: currentUser.id, full_name: fullName, school_name: school });
-        alert(currentLang === 'en' ? "Profile saved!" : "Profil berjaya disimpan!");
-        document.getElementById("profHeaderName").textContent = fullName;
-      } finally {
-        btn.disabled = false;
+    // Tukar fail gambar ke Base64 (Kompak & Jimat)
+    document.getElementById("logoInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 1.5 * 1024 * 1024) {
+        return alert("Saiz fail melebihi 1.5MB. Sila pilih gambar yang lebih kecil.");
       }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const maxDim = 250; // Dimensi kemas untuk logo
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height *= maxDim / width;
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width *= maxDim / height;
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          base64Logo = canvas.toDataURL("image/png");
+          showLogoPreview(base64Logo);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
     });
 
-    document.getElementById("formChangePassword").addEventListener("submit", async (e) => {
+    document.getElementById("btnRemoveLogo").addEventListener("click", () => {
+      base64Logo = "";
+      document.getElementById("logoPreview").src = "";
+      document.getElementById("logoPreview").classList.add("hidden");
+      document.getElementById("logoPlaceholder").classList.remove("hidden");
+      document.getElementById("btnRemoveLogo").classList.add("hidden");
+      document.getElementById("logoInput").value = "";
+    });
+
+    // Simpan Profil
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const pwd = document.getElementById("newPassword").value;
-      const btn = document.getElementById("btnSavePassword");
+      const fullName = document.getElementById("fullNameInput").value.trim();
+      const schoolName = document.getElementById("schoolNameInput").value.trim();
+      const btn = document.getElementById("btnSaveProfile");
+
       btn.disabled = true;
+      btn.textContent = "Menyimpan...";
 
       try {
-        await client.auth.updateUser({ password: pwd });
-        alert(currentLang === 'en' ? "Password updated!" : "Kata laluan dikemaskini!");
-        document.getElementById("formChangePassword").reset();
+        const { error } = await client.from("profiles").update({
+          full_name: fullName,
+          school_name: schoolName,
+          school_logo: base64Logo || null
+        }).eq("id", currentUser.id);
+
+        if (error) throw error;
+        alert("Profil dan logo sekolah berjaya disimpan!");
       } catch (err) {
         alert("Ralat: " + err.message);
       } finally {
         btn.disabled = false;
+        btn.textContent = "Simpan Profil & Logo";
+      }
+    });
+
+    // PENGENDALIAN PADAM AKAUN
+    const modalDelete = document.getElementById("modalDeleteAccount");
+    const confirmInput = document.getElementById("deleteConfirmInput");
+    const btnConfirmDelete = document.getElementById("btnConfirmDelete");
+
+    document.getElementById("btnOpenDeleteModal").addEventListener("click", () => {
+      modalDelete.classList.remove("hidden");
+      confirmInput.value = "";
+      btnConfirmDelete.disabled = true;
+    });
+
+    const closeDeleteModal = () => modalDelete.classList.add("hidden");
+    document.getElementById("btnCloseDeleteModal").addEventListener("click", closeDeleteModal);
+    document.getElementById("btnCancelDelete").addEventListener("click", closeDeleteModal);
+
+    confirmInput.addEventListener("input", (e) => {
+      btnConfirmDelete.disabled = (e.target.value.trim().toUpperCase() !== "PADAM");
+    });
+
+    btnConfirmDelete.addEventListener("click", async () => {
+      btnConfirmDelete.disabled = true;
+      btnConfirmDelete.textContent = "Memadam...";
+
+      try {
+        // Padam rekod yang berkaitan
+        await client.from("pbd_records").delete().eq("user_id", currentUser.id);
+        await client.from("behavior_records").delete().eq("user_id", currentUser.id);
+        await client.from("homework_records").delete().eq("user_id", currentUser.id);
+        await client.from("students").delete().eq("user_id", currentUser.id);
+        await client.from("classes").delete().eq("user_id", currentUser.id);
+        await client.from("profiles").delete().eq("id", currentUser.id);
+
+        alert("Akaun anda telah berjaya dipadam sepenuhnya. Terima kasih kerana menggunakan MyPentaksiran.");
+        await client.auth.signOut();
+        window.location.href = "index.html";
+      } catch (err) {
+        alert("Ralat memadam akaun: " + err.message);
+        btnConfirmDelete.disabled = false;
+        btnConfirmDelete.textContent = "Padam Selamanya";
       }
     });
 
