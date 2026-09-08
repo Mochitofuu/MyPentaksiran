@@ -6,6 +6,11 @@
   <title>Pengurusan Kelas - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
+  <script>
+    if (localStorage.getItem("app_theme") === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
@@ -14,20 +19,20 @@
   <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
       <a href="dashboard.html" id="linkBack" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 gap-1">
-        ← Papan Pemuka
+        ← Dashboard
       </a>
       <span id="navClassName" class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate max-w-[150px]">Memuat...</span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-5 space-y-4">
-    <!-- Maklumat Kelas & Butang Modul -->
+    <!-- Kad Kelas & Butang Modul -->
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <div class="flex items-center gap-2">
           <h1 id="displayClassName" class="text-lg font-bold text-slate-900 dark:text-white">...</h1>
           <span id="studentCountBadge" class="text-[11px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-semibold px-2 py-0.5 rounded-full">
-            0 Murid
+            0 Students
           </span>
         </div>
         <p id="displayClassSession" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">...</p>
@@ -38,7 +43,7 @@
           📝 PBD
         </a>
         <a id="btnActivity" href="#" class="flex-1 sm:flex-none inline-flex items-center justify-center text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition">
-          ⭐ Sahsiah & Tugasan
+          ⭐ Behavior & Homework
         </a>
       </div>
     </div>
@@ -46,56 +51,93 @@
     <!-- Senarai Murid -->
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
-        <h2 id="txtStudentListHead" class="text-sm font-bold text-slate-800 dark:text-white">Senarai Murid</h2>
+        <h2 id="txtStudentListHead" class="text-sm font-bold text-slate-800 dark:text-white">Student List</h2>
         <button id="btnToggleAdd" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg">
-          + Tambah Murid
+          + Add Student
         </button>
       </div>
 
       <!-- Borang Tambah Murid -->
       <div id="addStudentSection" class="hidden bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
         <div class="flex gap-2 border-b border-slate-200 dark:border-slate-600 pb-2 text-xs">
-          <button id="tabSingle" class="font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1">Satu Murid</button>
-          <button id="tabBulk" class="text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800">Tampal Banyak (Bulk)</button>
+          <button id="tabSingle" class="font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1">Single Student</button>
+          <button id="tabBulk" class="text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white">Bulk Paste</button>
         </div>
 
+        <!-- Single Student Form -->
         <form id="formSingleStudent" class="space-y-3">
           <div>
-            <label id="lblStudentName" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Penuh Murid</label>
+            <label id="lblStudentName" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Student Full Name</label>
             <input type="text" id="studentName" required placeholder="Contoh: Muhammad Ali bin Ahmad"
               class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
           </div>
           <div>
-            <label id="lblGender" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Jantina</label>
+            <label id="lblGender" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Gender</label>
             <select id="studentGender" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
-              <option value="L">Lelaki (L)</option>
-              <option value="P">Perempuan (P)</option>
+              <option value="L">Male (L)</option>
+              <option value="P">Female (P)</option>
             </select>
           </div>
           <div class="flex justify-end gap-2 pt-1">
-            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg">Batal</button>
-            <button type="submit" id="btnSaveSingle" class="text-xs px-3 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Simpan Murid</button>
+            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg">Cancel</button>
+            <button type="submit" id="btnSaveSingle" class="text-xs px-3.5 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Save Student</button>
           </div>
         </form>
 
+        <!-- Bulk Paste Form (Dengan format Jantina Pintar) -->
         <form id="formBulkStudent" class="hidden space-y-3">
           <div>
-            <label id="lblBulkDesc" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Tampal Senarai Nama (Satu baris satu nama):</label>
-            <textarea id="bulkNames" rows="5" placeholder="Ahmad Daniel&#10;Nur Syuhada&#10;Chong Wei Loon"
+            <label id="lblBulkDesc" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+              Paste Name List (Boleh sertakan jantina: Nama | L atau Nama | P):
+            </label>
+            <textarea id="bulkNames" rows="5" placeholder="Ahmad Daniel | L&#10;Nur Syuhada | P&#10;Chong Wei Loon, L&#10;Siti Sarah, P"
               class="w-full text-xs p-3 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"></textarea>
+            <p class="text-[10px] text-slate-400 mt-1">*Jika tiada jantina diletakkan, sistem akan setkan 'L' secara automatik.</p>
           </div>
           <div class="flex justify-end gap-2 pt-1">
-            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg">Batal</button>
-            <button type="submit" id="btnSaveBulk" class="text-xs px-3 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Proses & Simpan</button>
+            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg">Cancel</button>
+            <button type="submit" id="btnSaveBulk" class="text-xs px-3.5 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Process & Save</button>
           </div>
         </form>
       </div>
 
+      <!-- Senarai Murid -->
       <div id="studentsList" class="divide-y divide-slate-100 dark:divide-slate-700">
-        <p class="text-xs text-slate-400 py-4 text-center">Sedang memuat...</p>
+        <p class="text-xs text-slate-400 py-4 text-center">Loading...</p>
       </div>
     </div>
   </main>
+
+  <!-- MODAL EDIT NAMA & JANTINA MURID -->
+  <div id="modalEditStudent" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-xl border border-slate-200 dark:border-slate-700 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white" id="txtEditModalHead">Edit Student</h3>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold">✕</button>
+      </div>
+
+      <input type="hidden" id="editStudentId">
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1" id="lblEditName">Full Name</label>
+          <input type="text" id="editStudentName" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1" id="lblEditGender">Gender</label>
+          <select id="editStudentGender" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
+            <option value="L">Male (L)</option>
+            <option value="P">Female (P)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+        <button onclick="closeEditModal()" class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300" id="btnCancelEdit">Cancel</button>
+        <button id="btnSaveEditStudent" class="text-xs px-4 py-1.5 bg-indigo-600 text-white font-medium rounded-lg" id="btnSubmitEdit">Save Changes</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
@@ -109,10 +151,6 @@
 
     let currentUser = null;
     const currentLang = localStorage.getItem("app_lang") || "ms";
-
-    if (localStorage.getItem("app_theme") === "dark") {
-      document.documentElement.classList.add("dark");
-    }
 
     if (!classId) window.location.href = "dashboard.html";
 
@@ -129,7 +167,7 @@
         tabBulk: "Tampal Banyak (Bulk)",
         lblStudentName: "Nama Penuh Murid",
         lblGender: "Jantina",
-        lblBulkDesc: "Tampal Senarai Nama (Satu baris satu nama):",
+        lblBulkDesc: "Tampal Senarai Nama (Boleh sertakan jantina: Nama | L atau Nama | P):",
         btnCancel: "Batal",
         btnSaveSingle: "Simpan Murid",
         btnSaveBulk: "Proses & Simpan",
@@ -137,7 +175,9 @@
         btnDelete: "Padam",
         studentsSuffix: "Murid",
         noStudents: "Tiada murid lagi. Masukkan nama murid untuk mula mentaksir.",
-        confirmDelete: "Adakah anda pasti mahu memadam rekod murid ini?"
+        confirmDelete: "Adakah anda pasti mahu memadam rekod murid ini?",
+        editHead: "Kemaskini Maklumat Murid",
+        saveChanges: "Simpan Perubahan"
       },
       en: {
         linkBack: "← Dashboard",
@@ -148,7 +188,7 @@
         tabBulk: "Bulk Paste",
         lblStudentName: "Student Full Name",
         lblGender: "Gender",
-        lblBulkDesc: "Paste Name List (One name per line):",
+        lblBulkDesc: "Paste Name List (Can include gender: Name | L or Name | P):",
         btnCancel: "Cancel",
         btnSaveSingle: "Save Student",
         btnSaveBulk: "Process & Save",
@@ -156,7 +196,9 @@
         btnDelete: "Delete",
         studentsSuffix: "Students",
         noStudents: "No students registered yet. Add students to begin assessment.",
-        confirmDelete: "Are you sure you want to delete this student record?"
+        confirmDelete: "Are you sure you want to delete this student record?",
+        editHead: "Edit Student Details",
+        saveChanges: "Save Changes"
       }
     };
 
@@ -173,6 +215,11 @@
       document.getElementById("lblBulkDesc").textContent = t.lblBulkDesc;
       document.getElementById("btnSaveSingle").textContent = t.btnSaveSingle;
       document.getElementById("btnSaveBulk").textContent = t.btnSaveBulk;
+      document.getElementById("txtEditModalHead").textContent = t.editHead;
+      document.getElementById("lblEditName").textContent = t.lblStudentName;
+      document.getElementById("lblEditGender").textContent = t.lblGender;
+      document.getElementById("btnCancelEdit").textContent = t.btnCancel;
+      document.getElementById("btnSubmitEdit").textContent = t.saveChanges;
       document.querySelectorAll(".btnCancelAdd").forEach(b => b.textContent = t.btnCancel);
     }
 
@@ -180,26 +227,15 @@
       applyLanguage();
 
       const { data: { session } } = await client.auth.getSession();
-      if (!session) {
-        window.location.href = "index.html";
-        return;
-      }
+      if (!session) return window.location.href = "index.html";
       currentUser = session.user;
       await fetchClassDetails();
       await fetchStudents();
     }
 
     async function fetchClassDetails() {
-      const { data, error } = await client
-        .from("classes")
-        .select("*")
-        .eq("id", classId)
-        .single();
-
-      if (error || !data) {
-        window.location.href = "dashboard.html";
-        return;
-      }
+      const { data, error } = await client.from("classes").select("*").eq("id", classId).single();
+      if (error || !data) return window.location.href = "dashboard.html";
 
       document.getElementById("navClassName").textContent = data.class_name;
       document.getElementById("displayClassName").textContent = data.class_name;
@@ -221,10 +257,7 @@
         document.getElementById("studentCountBadge").textContent = `${students.length} ${t.studentsSuffix}`;
 
         if (students.length === 0) {
-          studentsList.innerHTML = `
-            <div class="text-center py-6 text-slate-400 dark:text-slate-500 text-xs">
-              ${t.noStudents}
-            </div>`;
+          studentsList.innerHTML = `<div class="text-center py-6 text-slate-400 dark:text-slate-500 text-xs">${t.noStudents}</div>`;
           return;
         }
 
@@ -234,10 +267,14 @@
               <span class="text-[11px] font-semibold text-slate-400 w-5">${idx + 1}.</span>
               <div>
                 <p class="text-xs font-semibold text-slate-800 dark:text-white">${s.full_name}</p>
-                <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? (currentLang === 'en' ? 'Female' : 'Perempuan') : (currentLang === 'en' ? 'Male' : 'Lelaki')}</span>
+                <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? (currentLang === 'en' ? 'FEMALE' : 'PEREMPUAN') : (currentLang === 'en' ? 'MALE' : 'LELAKI')}</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="openEditModal('${s.id}', '${s.full_name.replace(/'/g, "\\'")}', '${s.gender || 'L'}')"
+                class="text-[11px] bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-semibold px-2 py-1 rounded-md border border-slate-200 dark:border-slate-600">
+                ✏️
+              </button>
               <a href="report.html?student_id=${s.id}&class_id=${classId}" 
                 class="text-[11px] bg-slate-100 dark:bg-slate-700 hover:bg-indigo-50 text-indigo-600 dark:text-indigo-400 font-semibold px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-600">
                 ${t.btnReport}
@@ -253,6 +290,43 @@
       }
     }
 
+    // Modal Edit
+    window.openEditModal = function(id, name, gender) {
+      document.getElementById("editStudentId").value = id;
+      document.getElementById("editStudentName").value = name;
+      document.getElementById("editStudentGender").value = gender;
+      document.getElementById("modalEditStudent").classList.remove("hidden");
+    };
+
+    window.closeEditModal = function() {
+      document.getElementById("modalEditStudent").classList.add("hidden");
+    };
+
+    document.getElementById("btnSaveEditStudent").addEventListener("click", async () => {
+      const id = document.getElementById("editStudentId").value;
+      const newName = document.getElementById("editStudentName").value.trim();
+      const newGender = document.getElementById("editStudentGender").value;
+      const btn = document.getElementById("btnSaveEditStudent");
+
+      if (!newName) return alert("Sila masukkan nama murid.");
+
+      btn.disabled = true;
+      try {
+        const { error } = await client.from("students").update({
+          full_name: newName,
+          gender: newGender
+        }).eq("id", id);
+
+        if (error) throw error;
+        closeEditModal();
+        fetchStudents();
+      } catch (err) {
+        alert("Ralat: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
     const addSection = document.getElementById("addStudentSection");
     const tabSingle = document.getElementById("tabSingle");
     const tabBulk = document.getElementById("tabBulk");
@@ -266,18 +340,19 @@
 
     tabSingle.addEventListener("click", () => {
       tabSingle.className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
-      tabBulk.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800";
+      tabBulk.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white";
       formSingle.classList.remove("hidden");
       formBulk.classList.add("hidden");
     });
 
     tabBulk.addEventListener("click", () => {
       tabBulk.className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
-      tabSingle.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800";
+      tabSingle.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800 dark:hover:text-white";
       formBulk.classList.remove("hidden");
       formSingle.classList.add("hidden");
     });
 
+    // Simpan Single
     formSingle.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("studentName").value.trim();
@@ -285,7 +360,6 @@
       const btn = document.getElementById("btnSaveSingle");
 
       btn.disabled = true;
-
       try {
         const { error } = await client.from("students").insert([
           { class_id: classId, user_id: currentUser.id, full_name: name, gender: gender }
@@ -302,22 +376,45 @@
       }
     });
 
+    // Simpan Bulk Paste (Pintar Pecahkan Nama & Jantina)
     formBulk.addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawText = document.getElementById("bulkNames").value;
-      const names = rawText.split("\n").map(n => n.trim()).filter(n => n.length > 0);
+      const lines = rawText.split("\n").map(n => n.trim()).filter(n => n.length > 0);
       const btn = document.getElementById("btnSaveBulk");
 
-      if (names.length === 0) return alert("Sila masukkan sekurang-kurangnya satu nama.");
+      if (lines.length === 0) return alert("Sila masukkan sekurang-kurangnya satu nama.");
 
       btn.disabled = true;
 
-      const records = names.map(name => ({
-        class_id: classId,
-        user_id: currentUser.id,
-        full_name: name,
-        gender: "L"
-      }));
+      const records = lines.map(line => {
+        let name = line;
+        let gender = "L";
+
+        // Sokong pemisah palang (|), koma (,), atau tab (\t)
+        let delimiter = null;
+        if (line.includes("|")) delimiter = "|";
+        else if (line.includes(",")) delimiter = ",";
+        else if (line.includes("\t")) delimiter = "\t";
+
+        if (delimiter) {
+          const parts = line.split(delimiter).map(p => p.trim());
+          name = parts[0];
+          const gCandidate = (parts[1] || "").toUpperCase();
+          if (gCandidate.startsWith("P") || gCandidate.startsWith("F")) {
+            gender = "P";
+          } else {
+            gender = "L";
+          }
+        }
+
+        return {
+          class_id: classId,
+          user_id: currentUser.id,
+          full_name: name,
+          gender: gender
+        };
+      });
 
       try {
         const { error } = await client.from("students").insert(records);
