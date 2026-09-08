@@ -20,11 +20,62 @@
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-5">
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-6">
+    <!-- BAHAGIAN 1: SIARAN PENGUMUMAN / BROADCAST -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <span>📢</span> Siaran Pengumuman & Kemas Kini (Broadcast)
+          </h2>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Mesej ini akan terus dipaparkan di bahagian atas papan pemuka semua pengguna.</p>
+        </div>
+      </div>
+
+      <form id="formBroadcast" class="space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Tajuk Pengumuman</label>
+            <input type="text" id="bcTitle" required placeholder="Cth: Ciri Baru: Butang TH & Domain Sahsiah Universal" 
+              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Kategori / Tag</label>
+            <select id="bcTag" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
+              <option value="Kemas Kini">🚀 Kemas Kini Baru</option>
+              <option value="Penyelenggaraan">⚠️ Info / Penyelenggaraan</option>
+              <option value="Promosi">⭐ Tawaran / Promosi</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Perincian Mesej</label>
+          <textarea id="bcMessage" rows="3" required placeholder="Tulis huraian fungsi baharu atau pesanan untuk cikgu-cikgu di sini..." 
+            class="w-full text-xs p-3 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500"></textarea>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="submit" id="btnSendBroadcast" class="text-xs px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+            🚀 Hantar Siaran Sekarang
+          </button>
+        </div>
+      </form>
+
+      <!-- Senarai Pengumuman Aktif -->
+      <div class="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-2">
+        <h3 class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Pengumuman Aktif Semasa</h3>
+        <div id="broadcastList" class="space-y-2 text-xs">
+          <p class="text-slate-400 text-center py-2">Memuatkan pengumuman...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BAHAGIAN 2: PENGURUSAN LANGGANAN PENGGUNA -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 class="text-base font-bold text-slate-900 dark:text-white">Pengurusan Pengguna & Langganan</h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Urus akses guru ke modul Premium atau percuma.</p>
+        <h1 class="text-sm font-bold text-slate-900 dark:text-white">Pengurusan Pengguna & Langganan</h1>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">Urus akses guru ke modul Premium atau percuma.</p>
       </div>
       <input type="text" id="searchUser" placeholder="Cari nama atau emel..." 
         class="text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
@@ -68,9 +119,81 @@
         return window.location.href = "dashboard.html";
       }
 
+      loadBroadcasts();
       loadUsers();
     }
 
+    // PENGURUSAN BROADCAST
+    async function loadBroadcasts() {
+      const container = document.getElementById("broadcastList");
+      const { data, error } = await client
+        .from("announcements")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-center py-2">Tiada siaran pengumuman aktif.</p>`;
+        return;
+      }
+
+      container.innerHTML = data.map(b => `
+        <div class="p-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40 flex items-start justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[9px] bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded font-bold">${b.tag || 'Info'}</span>
+              <h4 class="font-bold text-slate-800 dark:text-white text-xs">${b.title}</h4>
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">${b.message}</p>
+          </div>
+          <button onclick="deleteBroadcast('${b.id}')" class="text-rose-500 hover:text-rose-700 text-xs p-1" title="Padam Pengumuman">
+            🗑️
+          </button>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("formBroadcast").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("bcTitle").value.trim();
+      const tag = document.getElementById("bcTag").value;
+      const message = document.getElementById("bcMessage").value.trim();
+      const btn = document.getElementById("btnSendBroadcast");
+
+      btn.disabled = true;
+      btn.textContent = "Menghantar...";
+
+      try {
+        const { error } = await client.from("announcements").insert([{
+          title: title,
+          tag: tag,
+          message: message,
+          is_active: true
+        }]);
+
+        if (error) throw error;
+
+        alert("Siaran pengumuman berjaya dihantar ke papan pemuka pengguna!");
+        document.getElementById("formBroadcast").reset();
+        loadBroadcasts();
+      } catch (err) {
+        alert("Ralat: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🚀 Hantar Siaran Sekarang";
+      }
+    });
+
+    window.deleteBroadcast = async function(id) {
+      if (!confirm("Padam siaran pengumuman ini?")) return;
+      try {
+        await client.from("announcements").delete().eq("id", id);
+        loadBroadcasts();
+      } catch (err) {
+        alert("Gagal memadam: " + err.message);
+      }
+    };
+
+    // PENGURUSAN PENGGUNA
     async function loadUsers() {
       const tbody = document.getElementById("userTableBody");
       const { data, error } = await client.from("profiles").select("*").order("created_at", { ascending: false });
@@ -135,4 +258,3 @@
   </script>
 </body>
 </html>
-
