@@ -20,25 +20,26 @@
       <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
         ← Kembali ke Kelas
       </a>
-      <span id="txtHeaderTitle" class="text-xs font-bold text-slate-700 dark:text-white">Pentaksiran PBD</span>
+      <span class="text-xs font-bold text-slate-700 dark:text-white">Pentaksiran PBD</span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
-        <label id="lblSelectSub" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase">1. Pilih Subjek DSKP</label>
+        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase">1. Pilih Subjek DSKP</label>
         <button id="btnExportCSV" disabled class="text-[11px] bg-emerald-600 disabled:bg-slate-200 dark:disabled:bg-slate-700 disabled:text-slate-400 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
           📥 Eksport Excel (CSV)
         </button>
       </div>
 
+      <!-- Dropdown Subjek -->
       <select id="selectSubject" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-white">
         <option value="">-- Sila Pilih Subjek --</option>
       </select>
 
       <div>
-        <label id="lblSelectSP" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
+        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
         <select id="selectSP" disabled class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800">
           <option value="">-- Pilih Subjek Dahulu --</option>
         </select>
@@ -56,7 +57,7 @@
 
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h2 id="txtListHead" class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Senarai Pentaksiran Murid</h2>
+        <h2 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Senarai Pentaksiran Murid</h2>
         <span id="saveStatus" class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hidden">Tersimpan ✓</span>
       </div>
 
@@ -71,15 +72,15 @@
     <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl p-5 shadow-xl border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-slate-900 dark:text-white" id="txtRubricTitle">Standard Prestasi (TP 1 - TP 6)</h3>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Standard Prestasi (TP 1 - TP 6)</h3>
           <p id="rubricSpTitle" class="text-[11px] text-slate-500 dark:text-slate-400">Penerangan</p>
         </div>
         <button onclick="document.getElementById('modalRubric').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold">✕</button>
       </div>
       <div class="overflow-y-auto py-3 space-y-3 text-xs flex-1" id="rubricFormList"></div>
       <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2">
-        <button onclick="document.getElementById('modalRubric').classList.add('hidden')" class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300" id="btnRubricClose">Tutup</button>
-        <button id="btnSaveRubric" class="text-xs px-4 py-1.5 bg-indigo-600 text-white font-medium rounded-lg" id="btnRubricSave">Simpan Perubahan</button>
+        <button onclick="document.getElementById('modalRubric').classList.add('hidden')" class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300">Tutup</button>
+        <button id="btnSaveRubric" class="text-xs px-4 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Simpan Perubahan</button>
       </div>
     </div>
   </div>
@@ -90,66 +91,6 @@
 
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const currentLang = localStorage.getItem("app_lang") || "ms";
-
-    const i18n = {
-      ms: {
-        back: "← Kembali ke Kelas",
-        header: "Pentaksiran PBD",
-        lblSub: "1. Pilih Subjek DSKP",
-        lblSP: "2. Pilih Standard Pembelajaran (SP)",
-        optSub: "-- Sila Pilih Subjek --",
-        optSP: "-- Sila Pilih Kod SP --",
-        optSPPrompt: "-- Pilih Subjek Dahulu --",
-        exportBtn: "📥 Eksport Excel (CSV)",
-        rubricBtn: "ℹ️ Rubrik & Penerangan TP",
-        listHead: "Senarai Pentaksiran Murid",
-        saved: "Tersimpan ✓",
-        saving: "Menyimpan...",
-        empty: "Sila pilih subjek dan SP di atas terlebih dahulu.",
-        noStudents: "Tiada murid dalam kelas.",
-        notAssessed: "Belum Ditaksir",
-        absent: "Tidak Hadir (TH)",
-        rubricTitle: "Standard Prestasi (TP 1 - TP 6)",
-        close: "Tutup",
-        saveChange: "Simpan Perubahan"
-      },
-      en: {
-        back: "← Back to Class",
-        header: "PBD Assessment",
-        lblSub: "1. Select DSKP Subject",
-        lblSP: "2. Select Learning Standard (SP)",
-        optSub: "-- Please Select Subject --",
-        optSP: "-- Please Select SP Code --",
-        optSPPrompt: "-- Select Subject First --",
-        exportBtn: "📥 Export Excel (CSV)",
-        rubricBtn: "ℹ️ TP Rubrics & Criteria",
-        listHead: "Student Assessment List",
-        saved: "Saved ✓",
-        saving: "Saving...",
-        empty: "Please select subject and SP above first.",
-        noStudents: "No students in this class.",
-        notAssessed: "Not Assessed",
-        absent: "Absent (TH)",
-        rubricTitle: "Performance Standards (TP 1 - TP 6)",
-        close: "Close",
-        saveChange: "Save Changes"
-      }
-    };
-
-    const t = i18n[currentLang];
-    document.getElementById("backBtn").textContent = t.back;
-    document.getElementById("txtHeaderTitle").textContent = t.header;
-    document.getElementById("lblSelectSub").textContent = t.lblSub;
-    document.getElementById("lblSelectSP").textContent = t.lblSP;
-    document.getElementById("btnExportCSV").textContent = t.exportBtn;
-    document.getElementById("btnViewRubrics").textContent = t.rubricBtn;
-    document.getElementById("txtListHead").textContent = t.listHead;
-    document.getElementById("txtEmptyPrompt").textContent = t.empty;
-    document.getElementById("txtRubricTitle").textContent = t.rubricTitle;
-    document.getElementById("btnRubricClose").textContent = t.close;
-    document.getElementById("btnRubricSave").textContent = t.saveChange;
 
     const urlParams = new URLSearchParams(window.location.search);
     const classId = urlParams.get("class_id");
@@ -178,6 +119,7 @@
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
 
+      // Jalankan fungsi secara teratur
       await loadClassInfo();
       await loadStudents();
       await loadSubjects();
@@ -193,26 +135,30 @@
       students = data || [];
     }
 
+    // Fungsi muat subjek
     async function loadSubjects() {
       const selectSubject = document.getElementById("selectSubject");
       try {
         const { data, error } = await client
           .from("dskp_subjects")
-          .select("*")
-          .order("subject_name", { ascending: true });
+          .select("id, subject_name, grade_level");
 
         if (error) {
-          selectSubject.innerHTML = `<option value="">Error: ${error.message}</option>`;
+          selectSubject.innerHTML = `<option value="">Ralat: ${error.message}</option>`;
           return;
         }
 
         if (!data || data.length === 0) {
-          selectSubject.innerHTML = `<option value="">${currentLang === 'en' ? '-- No Subjects in Bank --' : '-- Tiada Subjek Ditemui --'}</option>`;
+          selectSubject.innerHTML = `<option value="">-- Tiada DSKP Ditemui --</option>`;
           return;
         }
 
-        selectSubject.innerHTML = `<option value="">${t.optSub}</option>` + 
-          data.map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join("");
+        // Paparkan senarai subjek
+        let html = '<option value="">-- Sila Pilih Subjek --</option>';
+        data.forEach(s => {
+          html += `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`;
+        });
+        selectSubject.innerHTML = html;
 
       } catch (err) {
         selectSubject.innerHTML = `<option value="">Ralat: ${err.message}</option>`;
@@ -233,30 +179,36 @@
         selectSP.disabled = true;
         btnExport.disabled = true;
         selectSP.classList.add("bg-slate-50", "dark:bg-slate-800");
-        selectSP.innerHTML = `<option value="">${t.optSPPrompt}</option>`;
+        selectSP.innerHTML = `<option value="">-- Pilih Subjek Dahulu --</option>`;
         renderEmptyPrompt();
         return;
       }
 
       btnExport.disabled = false;
+      selectSP.disabled = true;
+      selectSP.innerHTML = `<option value="">Memuatkan senarai SP...</option>`;
 
       const { data, error } = await client
         .from("dskp_items")
         .select("*")
-        .eq("dskp_id", dskpId)
-        .order("sp_code", { ascending: true });
+        .eq("dskp_id", dskpId);
 
       if (error || !data || data.length === 0) {
         selectSP.disabled = true;
-        selectSP.innerHTML = `<option value="">${currentLang === 'en' ? 'No SP found for this subject' : 'Tiada SP bagi subjek ini'}</option>`;
+        selectSP.innerHTML = `<option value="">Tiada SP bagi subjek ini</option>`;
         return;
       }
 
+      data.sort((a, b) => (a.sp_code || '').localeCompare(b.sp_code || ''));
       spList = data;
       selectSP.disabled = false;
       selectSP.classList.remove("bg-slate-50", "dark:bg-slate-800");
-      selectSP.innerHTML = `<option value="">${t.optSP}</option>` +
-        data.map(item => `<option value="${item.id}">SP ${item.sp_code} - ${item.sp_desc.slice(0, 45)}...</option>`).join("");
+
+      let spHtml = '<option value="">-- Sila Pilih Kod SP --</option>';
+      data.forEach(item => {
+        spHtml += `<option value="${item.id}">SP ${item.sp_code} - ${item.sp_desc.slice(0, 45)}...</option>`;
+      });
+      selectSP.innerHTML = spHtml;
     });
 
     selectSP.addEventListener("change", async (e) => {
@@ -289,14 +241,14 @@
 
     function renderEmptyPrompt() {
       document.getElementById("studentAssessmentList").innerHTML = `
-        <p class="text-xs text-slate-400 py-6 text-center">${t.empty}</p>
+        <p class="text-xs text-slate-400 py-6 text-center">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
       `;
     }
 
     function renderAssessmentList() {
       const container = document.getElementById("studentAssessmentList");
       if (students.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">${t.noStudents}</p>`;
+        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tiada murid dalam kelas.</p>`;
         return;
       }
 
@@ -326,9 +278,9 @@
           </button>
         `;
 
-        let statusText = `<span class="text-slate-400">${t.notAssessed}</span>`;
+        let statusText = `<span class="text-slate-400">Belum Ditaksir</span>`;
         if (activeTP === 0) {
-          statusText = `<span class="font-bold text-rose-500">${t.absent}</span>`;
+          statusText = `<span class="font-bold text-rose-500">Tidak Hadir (TH)</span>`;
         } else if (activeTP > 0) {
           statusText = `<span class="font-bold text-indigo-600 dark:text-indigo-400">TP ${activeTP}:</span> ${rubrics[activeTP] || ''}`;
         }
@@ -355,7 +307,7 @@
       renderAssessmentList();
 
       const status = document.getElementById("saveStatus");
-      status.textContent = t.saving;
+      status.textContent = "Menyimpan...";
       status.classList.remove("hidden", "text-rose-600");
       status.classList.add("text-slate-400");
 
@@ -379,7 +331,7 @@
           }]);
         }
 
-        status.textContent = t.saved;
+        status.textContent = "Tersimpan ✓";
         status.classList.remove("text-slate-400");
         status.classList.add("text-emerald-600");
         setTimeout(() => status.classList.add("hidden"), 1500);
@@ -440,7 +392,7 @@
           scoreMap[`${r.student_id}_${r.sp_id}`] = r.tp_score === 0 ? "TH" : r.tp_score;
         });
 
-        const headers = ["No", currentLang === 'en' ? "Student Name" : "Nama Murid", currentLang === 'en' ? "Gender" : "Jantina", ...spList.map(item => `SP ${item.sp_code}`)];
+        const headers = ["No", "Nama Murid", "Jantina", ...spList.map(item => `SP ${item.sp_code}`)];
         const rows = [headers];
 
         students.forEach((s, idx) => {
