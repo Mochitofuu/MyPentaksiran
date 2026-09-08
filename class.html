@@ -19,19 +19,25 @@
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-5">
-    <!-- Header Maklumat Kelas -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-4">
+    <!-- Maklumat Kelas & Butang Utama Pentaksiran -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 id="displayClassName" class="text-lg font-bold text-slate-900">...</h1>
-        <p id="displayClassSession" class="text-xs text-slate-500">...</p>
+        <div class="flex items-center gap-2">
+          <h1 id="displayClassName" class="text-lg font-bold text-slate-900">...</h1>
+          <span id="studentCountBadge" class="text-[11px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">
+            0 Murid
+          </span>
+        </div>
+        <p id="displayClassSession" class="text-xs text-slate-500 mt-0.5">...</p>
       </div>
-      <span id="studentCountBadge" class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-3 py-1 rounded-full border border-indigo-100">
-        0 Murid
-      </span>
+
+      <a id="btnStartPBD" href="#" class="inline-flex items-center justify-center text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
+        📝 Mula Pentaksiran PBD →
+      </a>
     </div>
 
-    <!-- Pilihan Tambah Murid -->
+    <!-- Senarai Murid -->
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-bold text-slate-800">Senarai Murid</h2>
@@ -40,14 +46,13 @@
         </button>
       </div>
 
-      <!-- Borang Tambah Murid (Boleh Pilih: Tunggal atau Pukal/Bulk) -->
+      <!-- Borang Tambah Murid -->
       <div id="addStudentSection" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
         <div class="flex gap-2 border-b border-slate-200 pb-2 text-xs">
           <button id="tabSingle" class="font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1">Satu Murid</button>
           <button id="tabBulk" class="text-slate-500 pb-1 hover:text-slate-800">Tampal Banyak (Bulk)</button>
         </div>
 
-        <!-- Mod 1: Tambah Satu Murid -->
         <form id="formSingleStudent" class="space-y-3">
           <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Penuh Murid</label>
@@ -67,7 +72,6 @@
           </div>
         </form>
 
-        <!-- Mod 2: Tambah Pukal / Tampal Senarai Nama Sekaligus -->
         <form id="formBulkStudent" class="hidden space-y-3">
           <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tampal Senarai Nama (Satu baris satu nama):</label>
@@ -81,7 +85,6 @@
         </form>
       </div>
 
-      <!-- Senarai Paparan Murid -->
       <div id="studentsList" class="divide-y divide-slate-100">
         <p class="text-xs text-slate-400 py-4 text-center">Sedang memuat senarai murid...</p>
       </div>
@@ -101,9 +104,10 @@
     let currentUser = null;
 
     if (!classId) {
-      alert("Kelas tidak ditemui.");
       window.location.href = "dashboard.html";
     }
+
+    document.getElementById("btnStartPBD").href = `transit.html?class_id=${classId}`;
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
@@ -124,7 +128,6 @@
         .single();
 
       if (error || !data) {
-        alert("Gagal memuat maklumat kelas.");
         window.location.href = "dashboard.html";
         return;
       }
@@ -174,7 +177,6 @@
       }
     }
 
-    // UI Tab & Form Toggle
     const addSection = document.getElementById("addStudentSection");
     const tabSingle = document.getElementById("tabSingle");
     const tabBulk = document.getElementById("tabBulk");
@@ -200,7 +202,6 @@
       formSingle.classList.add("hidden");
     });
 
-    // Simpan Satu Murid
     formSingle.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("studentName").value.trim();
@@ -227,7 +228,6 @@
       }
     });
 
-    // Simpan Senarai Pukal (Bulk Names)
     formBulk.addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawText = document.getElementById("bulkNames").value;
@@ -261,7 +261,6 @@
       }
     });
 
-    // Padam Murid
     window.deleteStudent = async function(id) {
       if (!confirm("Adakah anda pasti mahu memadam rekod murid ini?")) return;
       try {
