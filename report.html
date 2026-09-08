@@ -14,7 +14,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 
   <style>
-    /* GAYA CETAKAN RASMI KERTAS A4 (PRINT STYLESHEET) */
     @media print {
       @page {
         size: A4 portrait;
@@ -37,8 +36,6 @@
       .print-only {
         display: block !important;
       }
-      
-      /* Format Jadual Cetakan Yang Padat & Kemas */
       .print-table {
         width: 100% !important;
         border-collapse: collapse !important;
@@ -57,12 +54,6 @@
         text-transform: uppercase !important;
         font-size: 8pt !important;
       }
-      .print-border-box {
-        border: 1px solid #94a3b8 !important;
-        border-radius: 4px !important;
-        padding: 8px 10px !important;
-        background: transparent !important;
-      }
       .page-break-inside-avoid {
         page-break-inside: avoid !important;
       }
@@ -77,21 +68,20 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
 
-  <!-- Navigasi Atas (Hanya Muncul di Skrin) -->
+  <!-- Navigasi Atas -->
   <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 no-print transition-colors">
     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
       <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
         ← Kembali
       </a>
-      <button onclick="window.print()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition active:scale-95">
+      <!-- Butang ini disekat dengan fungsi handlePrintPDF -->
+      <button onclick="handlePrintPDF()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition active:scale-95">
         🖨️ Cetak / Simpan PDF
       </button>
     </div>
   </header>
 
-  <!-- ======================================================= -->
-  <!-- 1. HEADER KHAS CETAKAN RASMI (HANYA KELUAR DI DALAM PDF) -->
-  <!-- ======================================================= -->
+  <!-- 1. HEADER CETAKAN KHAS PDF -->
   <div class="print-only mb-3">
     <div class="border-b-2 border-slate-800 pb-2 text-center">
       <h2 id="printSchoolTitle" class="text-sm font-extrabold uppercase tracking-wide">PELAPORAN PENTAKSIRAN BILIK DARJAH (PBD) & SAHSIAH</h2>
@@ -109,7 +99,6 @@
       </div>
     </div>
 
-    <!-- Ringkasan Statistik Kompak Dalam PDF -->
     <div class="grid grid-cols-3 gap-2 mt-2.5 text-center">
       <div class="border border-slate-300 rounded p-1.5 bg-slate-50">
         <span class="text-[7.5pt] uppercase font-bold text-slate-500 block">Purata Keseluruhan</span>
@@ -126,11 +115,8 @@
     </div>
   </div>
 
-  <!-- ======================================================= -->
-  <!-- 2. PAPARAN KAD DI SKRIN TELEFON (MODEN & GELAP/CERAH)   -->
-  <!-- ======================================================= -->
+  <!-- 2. PAPARAN SKRIN TELEFON -->
   <main class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
-    <!-- Kad Maklumat Murid (Skrin Sahaja) -->
     <div class="screen-only bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
       <div>
         <div class="flex items-center gap-2">
@@ -149,7 +135,6 @@
       </div>
     </div>
 
-    <!-- Tiga Kotak Statistik (Skrin Sahaja) -->
     <div class="screen-only grid grid-cols-3 gap-3 text-center">
       <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <p class="text-[11px] text-slate-400">Purata TP</p>
@@ -165,18 +150,16 @@
       </div>
     </div>
 
-    <!-- SEKSYEN 1: PENTAKSIRAN BILIK DARJAH (PBD) -->
+    <!-- SEKSYEN 1: PBD -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 print:p-0 print:border-none print:shadow-none print:space-y-1">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider print:text-[8.5pt] print:font-extrabold print:text-slate-900 print:mb-1">
         Pencapaian Pentaksiran Bilik Darjah (PBD)
       </h3>
 
-      <!-- Paparan Skrin Telefon (Senarai Kad) -->
       <div id="pbdRecordsListScreen" class="screen-only divide-y divide-slate-100 dark:divide-slate-700 text-xs">
         <p class="text-slate-400 py-3 text-center">Memuatkan rekod pentaksiran...</p>
       </div>
 
-      <!-- Paparan PDF / Cetak (Jadual Kompak Standard) -->
       <div class="print-only">
         <table class="print-table">
           <thead>
@@ -197,9 +180,8 @@
       </div>
     </div>
 
-    <!-- SEKSYEN 2 & 3: SAHSIAH & KERJA RUMAH (CETAKAN BERSEBELAHAN JIMAT RUANG) -->
+    <!-- SEKSYEN 2 & 3: SAHSIAH & KERJA RUMAH -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 print:grid-cols-2 print:gap-3 print:mt-3">
-      
       <!-- Sahsiah -->
       <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 print:p-0 print:border-none print:shadow-none print:space-y-1">
         <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider print:text-[8.5pt] print:font-extrabold print:text-slate-900">
@@ -226,7 +208,7 @@
         </div>
       </div>
 
-      <!-- Tugasan Kerja Rumah -->
+      <!-- Kerja Rumah -->
       <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 print:p-0 print:border-none print:shadow-none print:space-y-1">
         <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider print:text-[8.5pt] print:font-extrabold print:text-slate-900">
           Rekod Kerja Rumah
@@ -253,11 +235,11 @@
       </div>
     </div>
 
-    <!-- RUANG PENGESAHAN GURU & IBU BAPA (HANYA MUNCUL DI PDF) -->
+    <!-- RUANG PENGESAHAN GURU & IBU BAPA (PDF) -->
     <div class="print-only mt-6 pt-4 border-t border-slate-300 page-break-inside-avoid">
       <div class="grid grid-cols-2 gap-10 text-[8.5pt] text-slate-700 text-center">
         <div>
-          <p class="mb-12 font-medium">Disemak oleh (Guru Mata Pelajaran / Kelas):</p>
+          <p class="mb-12 font-medium">Disemak oleh (Guru):</p>
           <div class="border-t border-slate-400 w-44 mx-auto"></div>
           <p class="mt-1 font-bold" id="printTeacherSignName">Guru Pembimbing</p>
         </div>
@@ -305,6 +287,27 @@
       await loadHomework();
     }
 
+    // KUNCI LANGGANAN PDF
+    window.handlePrintPDF = async function() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) return;
+
+      const { data: profile } = await client
+        .from("profiles")
+        .select("plan, is_admin")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      const isPremium = profile && (profile.plan === 'premium' || profile.is_admin === true);
+
+      if (!isPremium) {
+        alert("⭐ Muat turun slip PDF rasmi sekolah adalah ciri Premium.\n\nSila hubungi pentadbir untuk menaik taraf akaun anda.");
+        return;
+      }
+
+      window.print();
+    };
+
     async function loadTeacherProfile(userId) {
       const { data } = await client.from("profiles").select("full_name, school_name").eq("id", userId).maybeSingle();
       if (data) {
@@ -328,12 +331,10 @@
       const genderText = data.gender === 'P' ? 'Perempuan' : 'Lelaki';
       const classText = `${data.classes?.class_name || 'Kelas'} • ${data.classes?.year_session || '2026'}`;
 
-      // Set paparan skrin
       document.getElementById("studentName").textContent = data.full_name;
       document.getElementById("studentMeta").textContent = classText;
       document.getElementById("studentGender").textContent = genderText;
 
-      // Set paparan cetakan PDF
       document.getElementById("printStudentName").textContent = data.full_name;
       document.getElementById("printClassMeta").textContent = classText;
       document.getElementById("printGender").textContent = genderText;
@@ -359,7 +360,6 @@
           return;
         }
 
-        // Kira Purata TP
         const scored = records.filter(r => r.tp_score > 0);
         let avgText = "-";
         if (scored.length > 0) {
@@ -372,7 +372,6 @@
         document.getElementById("avgTP").textContent = avgText;
         document.getElementById("printAvgTP").textContent = avgText;
 
-        // Ambil maklumat SP
         const spIds = records.map(r => r.sp_id).filter(id => !!id);
         let spMap = {};
 
@@ -407,7 +406,6 @@
           }
         }
 
-        // 1. Render Paparan Skrin Telefon (Kad Moden + Butang Padam)
         screenContainer.innerHTML = records.map(r => {
           const spInfo = spMap[r.sp_id] || { sp_code: "1.1.1", sp_desc: "Standard Pembelajaran", subject_name: "Subjek" };
           const isTH = r.tp_score === 0;
@@ -436,7 +434,6 @@
           `;
         }).join("");
 
-        // 2. Render Paparan PDF (Jadual Sangat Kompak & Padat)
         printContainer.innerHTML = records.map((r, idx) => {
           const spInfo = spMap[r.sp_id] || { sp_code: "1.1.1", sp_desc: "Standard Pembelajaran", subject_name: "Subjek" };
           const isTH = r.tp_score === 0;
@@ -458,7 +455,6 @@
       }
     }
 
-    // Padam rekod PBD dari laporan
     window.deleteSinglePBD = async function(recordId) {
       if (!confirm("Padam rekod pentaksiran ini?")) return;
       try {
@@ -488,7 +484,6 @@
       document.getElementById("behaviorStat").textContent = statText;
       document.getElementById("printBehaviorStat").textContent = statText;
 
-      // Paparan Skrin
       screenContainer.innerHTML = data.map(b => `
         <div class="py-2.5 flex items-center justify-between">
           <div>
@@ -504,7 +499,6 @@
         </div>
       `).join("");
 
-      // Paparan Cetak PDF (Jadual Kompak)
       printContainer.innerHTML = data.map(b => `
         <tr>
           <td><strong>${b.category}</strong><br><span style="color: #64748b; font-size: 7.5pt;">${formatDate(b.created_at)}</span></td>
@@ -545,7 +539,6 @@
         tidak_hantar: `<span style="color: #dc2626; font-weight: 700;">Tidak Siap</span>`
       };
 
-      // Paparan Skrin
       screenContainer.innerHTML = data.map(h => `
         <div class="py-2 flex items-center justify-between">
           <div>
@@ -556,7 +549,6 @@
         </div>
       `).join("");
 
-      // Paparan Cetak PDF (Jadual Kompak)
       printContainer.innerHTML = data.map(h => `
         <tr>
           <td>${h.title}</td>
