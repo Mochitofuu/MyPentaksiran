@@ -177,13 +177,15 @@
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
-      await loadClassInfo();
-      await loadStudents();
-      await loadSubjects();
+      
+      // Muat data kelas, murid, dan subjek serentak
+      loadClassInfo();
+      loadStudents();
+      loadSubjects();
     }
 
     async function loadClassInfo() {
-      const { data } = await client.from("classes").select("*").eq("id", classId).single();
+      const { data } = await client.from("classes").select("*").eq("id", classId).maybeSingle();
       currentClass = data;
     }
 
@@ -195,10 +197,10 @@
     async function loadSubjects() {
       const selectSubject = document.getElementById("selectSubject");
       try {
+        // Query mudah tanpa sorting created_at untuk elak ralat struktur jadual
         const { data, error } = await client
           .from("dskp_subjects")
-          .select("*")
-          .order("created_at", { ascending: false });
+          .select("id, subject_name, grade_level");
 
         if (error) throw error;
 
@@ -206,6 +208,9 @@
           selectSubject.innerHTML = `<option value="">${currentLang === 'en' ? '-- No Subjects in Bank --' : '-- Tiada Subjek Ditemui --'}</option>`;
           return;
         }
+
+        // Susun abjad secara tempatan di browser
+        data.sort((a, b) => a.subject_name.localeCompare(b.subject_name));
 
         selectSubject.innerHTML = `<option value="">${t.optSub}</option>` + 
           data.map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join("");
@@ -239,8 +244,7 @@
       const { data, error } = await client
         .from("dskp_items")
         .select("*")
-        .eq("dskp_id", dskpId)
-        .order("sp_code", { ascending: true });
+        .eq("dskp_id", dskpId);
 
       if (error || !data || data.length === 0) {
         selectSP.disabled = true;
@@ -248,6 +252,7 @@
         return;
       }
 
+      data.sort((a, b) => (a.sp_code || '').localeCompare(b.sp_code || ''));
       spList = data;
       selectSP.disabled = false;
       selectSP.classList.remove("bg-slate-50", "dark:bg-slate-800");
@@ -451,14 +456,4 @@
         const link = document.createElement("a");
 
         link.setAttribute("href", url);
-        link.setAttribute("download", `PBD_${currentClass?.class_name || 'Class'}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } finally {
-        btnExport.disabled = false;
-      }
-    });
-
-    init();
-    
+        link.setA
