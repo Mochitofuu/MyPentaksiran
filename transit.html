@@ -12,26 +12,10 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
-
-  <style>
-    @media print {
-      @page { size: A4 landscape; margin: 8mm; }
-      body { background: #fff !important; color: #000 !important; font-size: 8pt !important; }
-      .no-print { display: none !important; }
-      .print-only { display: block !important; }
-      .print-table { width: 100% !important; border-collapse: collapse !important; margin-top: 5px; }
-      .print-table th, .print-table td { border: 1px solid #94a3b8 !important; padding: 4px 6px !important; text-align: center; }
-      .print-table th { background-color: #f1f5f9 !important; font-weight: bold; }
-      .print-table td:nth-child(2) { text-align: left !important; }
-    }
-    @media screen {
-      .print-only { display: none !important; }
-    }
-  </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-24 transition-colors duration-200">
 
-  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 no-print transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
       <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
         ← Kembali ke Kelas
@@ -40,28 +24,7 @@
     </div>
   </header>
 
-  <!-- CETAKAN KHAS PDF TRANSIT KELAS -->
-  <div class="print-only p-4">
-    <div class="text-center border-b-2 border-slate-800 pb-2 mb-3">
-      <h2 class="text-sm font-extrabold uppercase">REKOD TRANSIT PENCAPAIAN PBD KELAS</h2>
-      <p id="printClassTitle" class="text-[9pt] font-bold text-slate-700">KELAS</p>
-    </div>
-    <div class="mb-2 text-[8pt] flex justify-between">
-      <p><strong>Mata Pelajaran:</strong> <span id="printSubName">-</span></p>
-      <p><strong>Tarikh Cetak:</strong> <span id="printDate">-</span></p>
-    </div>
-    <table class="print-table">
-      <thead>
-        <tr id="printTableHeader">
-          <th>No</th>
-          <th>Nama Murid</th>
-        </tr>
-      </thead>
-      <tbody id="printTableBody"></tbody>
-    </table>
-  </div>
-
-  <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4 no-print">
+  <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div>
         <label id="lblSelectSub" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">1. Pilih Subjek DSKP</label>
@@ -88,7 +51,6 @@
       </div>
     </div>
 
-    <!-- KAWASAN UTAMA: SENARAI PENTAKSIRAN MURID -->
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
         <h2 id="txtListHead" class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Senarai Pentaksiran Murid</h2>
@@ -97,18 +59,6 @@
 
       <div id="studentAssessmentList" class="divide-y divide-slate-100 dark:divide-slate-700">
         <p class="text-xs text-slate-400 py-6 text-center" id="txtEmptyPrompt">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
-      </div>
-
-      <!-- ======================================================= -->
-      <!-- TAMBAHAN: BUTANG CSV & PDF KELAS DI BAWAH SENARAI MURID -->
-      <!-- ======================================================= -->
-      <div id="exportActionWrapper" class="hidden pt-3 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-2 justify-end">
-        <button id="btnExportCSV" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
-          📥 Eksport Excel (CSV)
-        </button>
-        <button id="btnExportPDFClass" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
-          ⭐ 🖨️ Muat Turun Rekod PBD Kelas (PDF)
-        </button>
       </div>
     </div>
   </main>
@@ -143,12 +93,10 @@
     const classId = urlParams.get("class_id") || urlParams.get("id");
 
     let currentUser = null;
-    let currentClass = null;
     let students = [];
     let spList = [];
     let currentSP = null;
     let currentScores = {};
-    let selectedSubjectName = "";
 
     const defaultRubrics = {
       "1": "Tahu asas kemahiran.",
@@ -173,17 +121,8 @@
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
 
-      await loadClassInfo();
       await loadStudents();
       await loadSubjects();
-    }
-
-    async function loadClassInfo() {
-      const { data } = await client.from("classes").select("*").eq("id", classId).maybeSingle();
-      currentClass = data;
-      if (data) {
-        document.getElementById("printClassTitle").textContent = `${data.class_name} (${data.year_session || '2026'})`;
-      }
     }
 
     async function loadStudents() {
@@ -211,15 +150,10 @@
     const selectSP = document.getElementById("selectSP");
     const spContainer = document.getElementById("spContainer");
     const spDesc = document.getElementById("spDescription");
-    const exportWrapper = document.getElementById("exportActionWrapper");
 
     selectSubject.addEventListener("change", async (e) => {
       const dskpId = e.target.value;
       spContainer.classList.add("hidden");
-      exportWrapper.classList.add("hidden");
-
-      const selectedOpt = e.target.options[e.target.selectedIndex];
-      selectedSubjectName = selectedOpt ? selectedOpt.text : "";
 
       if (!dskpId) {
         selectSP.disabled = true;
@@ -255,7 +189,6 @@
       const spId = e.target.value;
       if (!spId) {
         spContainer.classList.add("hidden");
-        exportWrapper.classList.add("hidden");
         renderEmptyPrompt();
         return;
       }
@@ -263,7 +196,6 @@
       currentSP = spList.find(i => i.id === spId);
       if (currentSP) {
         spContainer.classList.remove("hidden");
-        exportWrapper.classList.remove("hidden");
         spDesc.innerHTML = `<strong>SP ${currentSP.sp_code}:</strong> ${currentSP.sp_desc}`;
       }
 
@@ -407,7 +339,6 @@
       }
     }
 
-    // Modal Rubrik
     document.getElementById("btnViewRubrics").addEventListener("click", () => {
       if (!currentSP) return;
       document.getElementById("rubricSpTitle").textContent = `SP ${currentSP.sp_code}: ${currentSP.sp_desc}`;
@@ -431,97 +362,6 @@
       currentSP.tp_rubrics = updated;
       renderAssessmentList();
       document.getElementById("modalRubric").classList.add("hidden");
-    });
-
-    // Eksport CSV
-    document.getElementById("btnExportCSV").addEventListener("click", async () => {
-      const dskpId = selectSubject.value;
-      if (!dskpId || spList.length === 0) return alert("Pilih subjek.");
-
-      try {
-        const studentIds = students.map(s => s.id);
-        const spIds = spList.map(item => item.id);
-        const { data: allRecords } = await client.from("pbd_records").select("student_id, sp_id, tp_score").in("student_id", studentIds).in("sp_id", spIds);
-
-        const scoreMap = {};
-        (allRecords || []).forEach(r => {
-          scoreMap[`${r.student_id}_${r.sp_id}`] = r.tp_score === 0 ? "TH" : r.tp_score;
-        });
-
-        const headers = ["No", "Nama Murid", "Jantina", ...spList.map(item => `SP ${item.sp_code}`)];
-        const rows = [headers];
-
-        students.forEach((s, idx) => {
-          const row = [idx + 1, `"${s.full_name}"`, s.gender || "L"];
-          spList.forEach(item => { row.push(scoreMap[`${s.id}_${item.id}`] || ""); });
-          rows.push(row);
-        });
-
-        const csvContent = "\uFEFF" + rows.map(r => r.join(",")).join("\r\n");
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `PBD_${currentClass?.class_name || 'Class'}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (err) {
-        alert("Gagal eksport CSV: " + err.message);
-      }
-    });
-
-    // KUNCI PREMIUM: Muat Turun Rekod PBD Kelas (PDF)
-    document.getElementById("btnExportPDFClass").addEventListener("click", async () => {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) return;
-
-      const { data: profile } = await client.from("profiles").select("plan, is_admin").eq("id", session.user.id).maybeSingle();
-      const isPremium = profile && (profile.plan === 'premium' || profile.is_admin === true);
-
-      if (!isPremium) {
-        alert("⭐ Muat turun jadual transit PDF seluruh kelas adalah ciri Premium.\n\nSila hubungi pentadbir untuk menaik taraf akaun anda.");
-        return;
-      }
-
-      if (!currentSP || spList.length === 0) return alert("Sila pilih subjek dan SP terlebih dahulu.");
-
-      try {
-        const studentIds = students.map(s => s.id);
-        const spIds = spList.map(item => item.id);
-        const { data: allRecords } = await client.from("pbd_records").select("student_id, sp_id, tp_score").in("student_id", studentIds).in("sp_id", spIds);
-
-        const scoreMap = {};
-        (allRecords || []).forEach(r => {
-          scoreMap[`${r.student_id}_${r.sp_id}`] = r.tp_score === 0 ? "TH" : r.tp_score;
-        });
-
-        document.getElementById("printSubName").textContent = selectedSubjectName;
-        document.getElementById("printDate").textContent = formatDate(new Date());
-
-        const thead = document.getElementById("printTableHeader");
-        let headerHtml = `<th>No</th><th style="width:200px;">Nama Murid</th>`;
-        spList.forEach(item => {
-          headerHtml += `<th>SP ${item.sp_code}</th>`;
-        });
-        thead.innerHTML = headerHtml;
-
-        const tbody = document.getElementById("printTableBody");
-        tbody.innerHTML = students.map((s, idx) => {
-          let rowHtml = `<tr><td style="text-align:center;">${idx + 1}</td><td><strong>${s.full_name}</strong></td>`;
-          spList.forEach(item => {
-            const val = scoreMap[`${s.id}_${item.id}`] !== undefined ? scoreMap[`${s.id}_${item.id}`] : "";
-            const displayVal = val === "TH" ? "TH" : (val !== "" ? `TP ${val}` : "-");
-            rowHtml += `<td style="text-align:center; font-weight:bold;">${displayVal}</td>`;
-          });
-          rowHtml += `</tr>`;
-          return rowHtml;
-        }).join("");
-
-        window.print();
-      } catch (err) {
-        alert("Gagal menjana PDF Kelas: " + err.message);
-      }
     });
 
     init();
