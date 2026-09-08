@@ -509,67 +509,6 @@
         <tr>
           <td><strong>${b.category}</strong><br><span style="color: #64748b; font-size: 7.5pt;">${formatDate(b.created_at)}</span></td>
           <td>${b.notes || '-'}</td>
-          <td style="text-align: center; font-weight: 700; ${b.type === 'positive' ? 'color: #16a34a;' : 'color: #dc2626;' : 'color: #1e293b;'}">${isTH ? 'TH' : 'TP ' + r.tp_score}</td>
-            </tr>
-          `;
-        }).join("");
-
-      } catch (err) {
-        screenContainer.innerHTML = `<p class="text-xs text-rose-500 py-3 text-center">Ralat: ${err.message}</p>`;
-      }
-    }
-
-    // Padam rekod PBD dari laporan
-    window.deleteSinglePBD = async function(recordId) {
-      if (!confirm("Padam rekod pentaksiran ini?")) return;
-      try {
-        const { error } = await client.from("pbd_records").delete().eq("id", recordId);
-        if (error) throw error;
-        loadPBD();
-      } catch (err) {
-        alert("Gagal memadam: " + err.message);
-      }
-    };
-
-    async function loadBehavior() {
-      const screenContainer = document.getElementById("behaviorListScreen");
-      const printContainer = document.getElementById("behaviorListPrint");
-
-      const { data } = await client
-        .from("behavior_records")
-        .select("*")
-        .eq("student_id", studentId)
-        .order("created_at", { ascending: false });
-
-      if (!data || data.length === 0) return;
-
-      const pos = data.filter(d => d.type === 'positive').length;
-      const warn = data.filter(d => d.type === 'warning').length;
-      const statText = `+${pos} / -${warn}`;
-      document.getElementById("behaviorStat").textContent = statText;
-      document.getElementById("printBehaviorStat").textContent = statText;
-
-      // Paparan Skrin
-      screenContainer.innerHTML = data.map(b => `
-        <div class="py-2.5 flex items-center justify-between">
-          <div>
-            <div class="flex items-center gap-2">
-              <p class="font-semibold text-slate-800 dark:text-white">${b.category}</p>
-              <span class="text-[10px] text-slate-400">📅 ${formatDate(b.created_at)}</span>
-            </div>
-            ${b.notes ? `<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${b.notes}</p>` : ''}
-          </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${b.type === 'positive' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600' : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600'}">
-            ${b.type === 'positive' ? '+ Amalan Baik' : '- Teguran'}
-          </span>
-        </div>
-      `).join("");
-
-      // Paparan Cetak PDF (Jadual Kompak)
-      printContainer.innerHTML = data.map(b => `
-        <tr>
-          <td><strong>${b.category}</strong><br><span style="color: #64748b; font-size: 7.5pt;">${formatDate(b.created_at)}</span></td>
-          <td>${b.notes || '-'}</td>
           <td style="text-align: center; font-weight: 700; ${b.type === 'positive' ? 'color: #16a34a;' : 'color: #dc2626;'}">
             ${b.type === 'positive' ? 'Baik (+)' : 'Teguran (-)'}
           </td>
