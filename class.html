@@ -5,34 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pengurusan Kelas - MyPentaksiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 pb-16">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-16 transition-colors duration-200">
 
   <!-- Navigasi Atas -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 gap-1">
+      <a href="dashboard.html" id="linkBack" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 gap-1">
         ← Papan Pemuka
       </a>
-      <span id="navClassName" class="text-xs font-bold text-slate-700 truncate max-w-[150px]">Memuat...</span>
+      <span id="navClassName" class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate max-w-[150px]">Memuat...</span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-5 space-y-4">
     <!-- Maklumat Kelas & Butang Modul -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <div class="flex items-center gap-2">
-          <h1 id="displayClassName" class="text-lg font-bold text-slate-900">...</h1>
-          <span id="studentCountBadge" class="text-[11px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">
+          <h1 id="displayClassName" class="text-lg font-bold text-slate-900 dark:text-white">...</h1>
+          <span id="studentCountBadge" class="text-[11px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-semibold px-2 py-0.5 rounded-full">
             0 Murid
           </span>
         </div>
-        <p id="displayClassSession" class="text-xs text-slate-500 mt-0.5">...</p>
+        <p id="displayClassSession" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">...</p>
       </div>
 
-      <!-- Dua Butang Utama: PBD & Sahsiah -->
       <div class="flex gap-2">
         <a id="btnStartPBD" href="#" class="flex-1 sm:flex-none inline-flex items-center justify-center text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition">
           📝 PBD
@@ -44,55 +44,55 @@
     </div>
 
     <!-- Senarai Murid -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold text-slate-800">Senarai Murid</h2>
+        <h2 id="txtStudentListHead" class="text-sm font-bold text-slate-800 dark:text-white">Senarai Murid</h2>
         <button id="btnToggleAdd" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg">
           + Tambah Murid
         </button>
       </div>
 
       <!-- Borang Tambah Murid -->
-      <div id="addStudentSection" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-        <div class="flex gap-2 border-b border-slate-200 pb-2 text-xs">
-          <button id="tabSingle" class="font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1">Satu Murid</button>
-          <button id="tabBulk" class="text-slate-500 pb-1 hover:text-slate-800">Tampal Banyak (Bulk)</button>
+      <div id="addStudentSection" class="hidden bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
+        <div class="flex gap-2 border-b border-slate-200 dark:border-slate-600 pb-2 text-xs">
+          <button id="tabSingle" class="font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1">Satu Murid</button>
+          <button id="tabBulk" class="text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800">Tampal Banyak (Bulk)</button>
         </div>
 
         <form id="formSingleStudent" class="space-y-3">
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Penuh Murid</label>
+            <label id="lblStudentName" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Penuh Murid</label>
             <input type="text" id="studentName" required placeholder="Contoh: Muhammad Ali bin Ahmad"
-              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
           </div>
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jantina</label>
-            <select id="studentGender" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
+            <label id="lblGender" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Jantina</label>
+            <select id="studentGender" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
               <option value="L">Lelaki (L)</option>
               <option value="P">Perempuan (P)</option>
             </select>
           </div>
           <div class="flex justify-end gap-2 pt-1">
-            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-lg">Batal</button>
+            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg">Batal</button>
             <button type="submit" id="btnSaveSingle" class="text-xs px-3 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Simpan Murid</button>
           </div>
         </form>
 
         <form id="formBulkStudent" class="hidden space-y-3">
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tampal Senarai Nama (Satu baris satu nama):</label>
+            <label id="lblBulkDesc" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Tampal Senarai Nama (Satu baris satu nama):</label>
             <textarea id="bulkNames" rows="5" placeholder="Ahmad Daniel&#10;Nur Syuhada&#10;Chong Wei Loon"
-              class="w-full text-xs p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"></textarea>
+              class="w-full text-xs p-3 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"></textarea>
           </div>
           <div class="flex justify-end gap-2 pt-1">
-            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-lg">Batal</button>
+            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg">Batal</button>
             <button type="submit" id="btnSaveBulk" class="text-xs px-3 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Proses & Simpan</button>
           </div>
         </form>
       </div>
 
-      <div id="studentsList" class="divide-y divide-slate-100">
-        <p class="text-xs text-slate-400 py-4 text-center">Sedang memuat senarai murid...</p>
+      <div id="studentsList" class="divide-y divide-slate-100 dark:divide-slate-700">
+        <p class="text-xs text-slate-400 py-4 text-center">Sedang memuat...</p>
       </div>
     </div>
   </main>
@@ -108,15 +108,77 @@
     const classId = urlParams.get("id");
 
     let currentUser = null;
+    const currentLang = localStorage.getItem("app_lang") || "ms";
 
-    if (!classId) {
-      window.location.href = "dashboard.html";
+    if (localStorage.getItem("app_theme") === "dark") {
+      document.documentElement.classList.add("dark");
     }
+
+    if (!classId) window.location.href = "dashboard.html";
 
     document.getElementById("btnStartPBD").href = `transit.html?class_id=${classId}`;
     document.getElementById("btnActivity").href = `activity.html?class_id=${classId}`;
 
+    const i18n = {
+      ms: {
+        linkBack: "← Papan Pemuka",
+        btnActivity: "⭐ Sahsiah & Tugasan",
+        txtStudentListHead: "Senarai Murid",
+        btnAddStudent: "+ Tambah Murid",
+        tabSingle: "Satu Murid",
+        tabBulk: "Tampal Banyak (Bulk)",
+        lblStudentName: "Nama Penuh Murid",
+        lblGender: "Jantina",
+        lblBulkDesc: "Tampal Senarai Nama (Satu baris satu nama):",
+        btnCancel: "Batal",
+        btnSaveSingle: "Simpan Murid",
+        btnSaveBulk: "Proses & Simpan",
+        btnReport: "Laporan",
+        btnDelete: "Padam",
+        studentsSuffix: "Murid",
+        noStudents: "Tiada murid lagi. Masukkan nama murid untuk mula mentaksir.",
+        confirmDelete: "Adakah anda pasti mahu memadam rekod murid ini?"
+      },
+      en: {
+        linkBack: "← Dashboard",
+        btnActivity: "⭐ Behavior & Homework",
+        txtStudentListHead: "Student List",
+        btnAddStudent: "+ Add Student",
+        tabSingle: "Single Student",
+        tabBulk: "Bulk Paste",
+        lblStudentName: "Student Full Name",
+        lblGender: "Gender",
+        lblBulkDesc: "Paste Name List (One name per line):",
+        btnCancel: "Cancel",
+        btnSaveSingle: "Save Student",
+        btnSaveBulk: "Process & Save",
+        btnReport: "Report",
+        btnDelete: "Delete",
+        studentsSuffix: "Students",
+        noStudents: "No students registered yet. Add students to begin assessment.",
+        confirmDelete: "Are you sure you want to delete this student record?"
+      }
+    };
+
+    function applyLanguage() {
+      const t = i18n[currentLang];
+      document.getElementById("linkBack").textContent = t.linkBack;
+      document.getElementById("btnActivity").textContent = t.btnActivity;
+      document.getElementById("txtStudentListHead").textContent = t.txtStudentListHead;
+      document.getElementById("btnToggleAdd").textContent = t.btnAddStudent;
+      document.getElementById("tabSingle").textContent = t.tabSingle;
+      document.getElementById("tabBulk").textContent = t.tabBulk;
+      document.getElementById("lblStudentName").textContent = t.lblStudentName;
+      document.getElementById("lblGender").textContent = t.lblGender;
+      document.getElementById("lblBulkDesc").textContent = t.lblBulkDesc;
+      document.getElementById("btnSaveSingle").textContent = t.btnSaveSingle;
+      document.getElementById("btnSaveBulk").textContent = t.btnSaveBulk;
+      document.querySelectorAll(".btnCancelAdd").forEach(b => b.textContent = t.btnCancel);
+    }
+
     async function init() {
+      applyLanguage();
+
       const { data: { session } } = await client.auth.getSession();
       if (!session) {
         window.location.href = "index.html";
@@ -141,11 +203,12 @@
 
       document.getElementById("navClassName").textContent = data.class_name;
       document.getElementById("displayClassName").textContent = data.class_name;
-      document.getElementById("displayClassSession").textContent = data.year_session || "Tiada sesi ditetapkan";
+      document.getElementById("displayClassSession").textContent = data.year_session || "2026";
     }
 
     async function fetchStudents() {
       const studentsList = document.getElementById("studentsList");
+      const t = i18n[currentLang];
       try {
         const { data: students, error } = await client
           .from("students")
@@ -155,12 +218,12 @@
 
         if (error) throw error;
 
-        document.getElementById("studentCountBadge").textContent = `${students.length} Murid`;
+        document.getElementById("studentCountBadge").textContent = `${students.length} ${t.studentsSuffix}`;
 
         if (students.length === 0) {
           studentsList.innerHTML = `
-            <div class="text-center py-6 text-slate-400 text-xs">
-              Tiada murid lagi. Masukkan nama murid untuk mula mentaksir.
+            <div class="text-center py-6 text-slate-400 dark:text-slate-500 text-xs">
+              ${t.noStudents}
             </div>`;
           return;
         }
@@ -170,17 +233,17 @@
             <div class="flex items-center gap-2">
               <span class="text-[11px] font-semibold text-slate-400 w-5">${idx + 1}.</span>
               <div>
-                <p class="text-xs font-semibold text-slate-800">${s.full_name}</p>
-                <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? 'Perempuan' : 'Lelaki'}</span>
+                <p class="text-xs font-semibold text-slate-800 dark:text-white">${s.full_name}</p>
+                <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? (currentLang === 'en' ? 'Female' : 'Perempuan') : (currentLang === 'en' ? 'Male' : 'Lelaki')}</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <a href="report.html?student_id=${s.id}&class_id=${classId}" 
-                class="text-[11px] bg-slate-100 hover:bg-indigo-50 text-indigo-600 font-semibold px-2.5 py-1 rounded-md border border-slate-200">
-                Laporan
+                class="text-[11px] bg-slate-100 dark:bg-slate-700 hover:bg-indigo-50 text-indigo-600 dark:text-indigo-400 font-semibold px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-600">
+                ${t.btnReport}
               </a>
               <button onclick="deleteStudent('${s.id}')" class="text-[11px] text-rose-500 hover:text-rose-700 p-1">
-                Padam
+                ${t.btnDelete}
               </button>
             </div>
           </div>
@@ -202,15 +265,15 @@
     });
 
     tabSingle.addEventListener("click", () => {
-      tabSingle.className = "font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1";
-      tabBulk.className = "text-slate-500 pb-1 hover:text-slate-800";
+      tabSingle.className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
+      tabBulk.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800";
       formSingle.classList.remove("hidden");
       formBulk.classList.add("hidden");
     });
 
     tabBulk.addEventListener("click", () => {
-      tabBulk.className = "font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1";
-      tabSingle.className = "text-slate-500 pb-1 hover:text-slate-800";
+      tabBulk.className = "font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 pb-1";
+      tabSingle.className = "text-slate-500 dark:text-slate-400 pb-1 hover:text-slate-800";
       formBulk.classList.remove("hidden");
       formSingle.classList.add("hidden");
     });
@@ -222,7 +285,6 @@
       const btn = document.getElementById("btnSaveSingle");
 
       btn.disabled = true;
-      btn.textContent = "Menyimpan...";
 
       try {
         const { error } = await client.from("students").insert([
@@ -237,7 +299,6 @@
         alert("Ralat: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "Simpan Murid";
       }
     });
 
@@ -250,7 +311,6 @@
       if (names.length === 0) return alert("Sila masukkan sekurang-kurangnya satu nama.");
 
       btn.disabled = true;
-      btn.textContent = "Memproses...";
 
       const records = names.map(name => ({
         class_id: classId,
@@ -270,12 +330,11 @@
         alert("Ralat: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "Proses & Simpan";
       }
     });
 
     window.deleteStudent = async function(id) {
-      if (!confirm("Adakah anda pasti mahu memadam rekod murid ini?")) return;
+      if (!confirm(i18n[currentLang].confirmDelete)) return;
       try {
         const { error } = await client.from("students").delete().eq("id", id);
         if (error) throw error;
