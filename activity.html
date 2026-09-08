@@ -26,7 +26,6 @@
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
-    <!-- Tab Navigasi -->
     <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold">
       <button id="btnTabBehavior" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm transition">
         ⭐ Sahsiah & Merit
@@ -44,7 +43,7 @@
         <form id="formBehavior" class="space-y-3">
           <div>
             <label id="lblSelectStudent" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Murid</label>
-            <select id="behaviorStudent" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
+            <select id="behaviorStudent" required class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
               <option value="">-- Pilih Murid --</option>
             </select>
           </div>
@@ -52,31 +51,26 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label id="lblActionType" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Jenis Tindakan</label>
-              <select id="behaviorType" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
+              <select id="behaviorType" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
                 <option value="positive">+ Amalan Baik (+)</option>
                 <option value="warning">- Teguran / Isu (-)</option>
               </select>
             </div>
             <div>
-              <label id="lblCategory" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Kategori</label>
-              <select id="behaviorCategory" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
-                <option value="Fokus / Aktif">Fokus / Aktif</option>
-                <option value="Tolong Rakan / Guru">Tolong Rakan / Guru</option>
-                <option value="Budi Pekerti Baik">Budi Pekerti Baik</option>
-                <option value="Bising / Ganggu Rakan">Bising / Ganggu Rakan</option>
-                <option value="Tidak Bawa Buku">Tidak Bawa Buku</option>
-                <option value="Tidur / Tidak Fokus">Tidur / Tidak Fokus</option>
+              <label id="lblCategory" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Domain Sahsiah</label>
+              <select id="behaviorCategory" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
+                <!-- Dimuat secara dinamik berdasarkan jenis tindakan -->
               </select>
             </div>
           </div>
 
           <div>
-            <label id="lblNotes" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Catatan Tambahan (Pilihan)</label>
-            <input type="text" id="behaviorNotes" placeholder="Cth: Sangat rajin bantu lap papan hitam"
-              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+            <label id="lblNotes" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Perincian / Catatan Perlakuan</label>
+            <input type="text" id="behaviorNotes" required placeholder="Cth: Mengutip sampah tanpa disuruh / Mengganggu rakan berbincang"
+              class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
           </div>
 
-          <button type="submit" id="btnSaveBehavior" class="w-full text-xs py-2.5 bg-indigo-600 text-white font-medium rounded-lg shadow-sm">
+          <button type="submit" id="btnSaveBehavior" class="w-full text-xs py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
             Simpan Catatan Sahsiah
           </button>
         </form>
@@ -96,8 +90,8 @@
         <h3 id="txtCreateHw" class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Bina Tugasan Baharu</h3>
         <div class="flex gap-2">
           <input type="text" id="homeworkTitle" placeholder="Tajuk Tugasan (Cth: Buku Aktiviti ms 12)" 
-            class="flex-1 text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
-          <button id="btnSetHomework" class="text-xs px-3 py-2 bg-indigo-600 text-white font-medium rounded-lg">
+            class="flex-1 text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+          <button id="btnSetHomework" class="text-xs px-3.5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg">
             Tetapkan
           </button>
         </div>
@@ -128,6 +122,44 @@
 
     const currentLang = localStorage.getItem("app_lang") || "ms";
 
+    // Domain Sahsiah Universal
+    const universalCategories = {
+      ms: {
+        positive: [
+          "Budi Pekerti",
+          "Kerjasama",
+          "Kepimpinan",
+          "Kerajinan & Inisiatif",
+          "Disiplin & Ketepatan Masa",
+          "Keberanian & Keyakinan"
+        ],
+        warning: [
+          "Disiplin Diri",
+          "Tanggungjawab Tugasan",
+          "Fokus & Sikap Belajar",
+          "Interaksi Sosial / Rakan",
+          "Kebersihan & Kekemasan"
+        ]
+      },
+      en: {
+        positive: [
+          "Moral Character & Manners",
+          "Teamwork & Collaboration",
+          "Leadership",
+          "Diligence & Initiative",
+          "Discipline & Punctuality",
+          "Confidence & Courage"
+        ],
+        warning: [
+          "Self-Discipline",
+          "Task Responsibility",
+          "Focus & Learning Attitude",
+          "Social Interaction",
+          "Cleanliness & Organization"
+        ]
+      }
+    };
+
     const i18n = {
       ms: {
         back: "← Kembali ke Kelas",
@@ -137,8 +169,8 @@
         logHead: "Catat Sahsiah Murid",
         selectStudent: "Pilih Murid",
         actionType: "Jenis Tindakan",
-        category: "Kategori",
-        notes: "Catatan Tambahan (Pilihan)",
+        category: "Domain Sahsiah",
+        notes: "Perincian / Catatan Perlakuan",
         saveBehavior: "Simpan Catatan Sahsiah",
         recentLogs: "Log Sahsiah Terkini",
         createHw: "Bina Tugasan Baharu",
@@ -159,9 +191,9 @@
         logHead: "Record Student Behavior",
         selectStudent: "Select Student",
         actionType: "Action Type",
-        category: "Category",
-        notes: "Additional Notes (Optional)",
-        saveBehavior: "Save Behavior Log",
+        category: "Behavior Domain",
+        notes: "Behavior Details / Remarks",
+        saveBehavior: "Save Behavior Record",
         recentLogs: "Recent Behavior Logs",
         createHw: "Create New Homework",
         setBtn: "Set Assignment",
@@ -207,6 +239,7 @@
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
       await loadStudents();
+      updateCategoryDropdown();
       await loadBehaviorLogs();
     }
 
@@ -217,6 +250,16 @@
       select.innerHTML = `<option value="">-- ${t.selectStudent} --</option>` + 
         students.map(s => `<option value="${s.id}">${s.full_name}</option>`).join("");
     }
+
+    function updateCategoryDropdown() {
+      const type = document.getElementById("behaviorType").value;
+      const catSelect = document.getElementById("behaviorCategory");
+      const list = universalCategories[currentLang][type] || universalCategories.ms[type];
+
+      catSelect.innerHTML = list.map(item => `<option value="${item}">${item}</option>`).join("");
+    }
+
+    document.getElementById("behaviorType").addEventListener("change", updateCategoryDropdown);
 
     const tabBehavior = document.getElementById("btnTabBehavior");
     const tabHomework = document.getElementById("btnTabHomework");
@@ -284,7 +327,7 @@
         <div class="py-2.5 flex items-start justify-between gap-2">
           <div>
             <p class="font-semibold text-slate-800 dark:text-white">${log.students?.full_name || 'Murid'}</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">${log.category} ${log.notes ? '— ' + log.notes : ''}</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400"><strong class="text-indigo-600 dark:text-indigo-400">${log.category}</strong> — ${log.notes || ''}</p>
           </div>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded ${log.type === 'positive' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 border border-emerald-200' : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 border border-rose-200'}">
             ${log.type === 'positive' ? t.positive : t.warning}
