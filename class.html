@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengurusan Kelas - MyPentaksiran</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-16">
+
+  <!-- Navigasi Atas -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 gap-1">
+        ← Papan Pemuka
+      </a>
+      <span id="navClassName" class="text-xs font-bold text-slate-700 truncate max-w-[150px]">Memuat...</span>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-5">
+    <!-- Header Maklumat Kelas -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+      <div>
+        <h1 id="displayClassName" class="text-lg font-bold text-slate-900">...</h1>
+        <p id="displayClassSession" class="text-xs text-slate-500">...</p>
+      </div>
+      <span id="studentCountBadge" class="text-xs bg-indigo-50 text-indigo-700 font-semibold px-3 py-1 rounded-full border border-indigo-100">
+        0 Murid
+      </span>
+    </div>
+
+    <!-- Pilihan Tambah Murid -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-bold text-slate-800">Senarai Murid</h2>
+        <button id="btnToggleAdd" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg">
+          + Tambah Murid
+        </button>
+      </div>
+
+      <!-- Borang Tambah Murid (Boleh Pilih: Tunggal atau Pukal/Bulk) -->
+      <div id="addStudentSection" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+        <div class="flex gap-2 border-b border-slate-200 pb-2 text-xs">
+          <button id="tabSingle" class="font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1">Satu Murid</button>
+          <button id="tabBulk" class="text-slate-500 pb-1 hover:text-slate-800">Tampal Banyak (Bulk)</button>
+        </div>
+
+        <!-- Mod 1: Tambah Satu Murid -->
+        <form id="formSingleStudent" class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Penuh Murid</label>
+            <input type="text" id="studentName" required placeholder="Contoh: Muhammad Ali bin Ahmad"
+              class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jantina</label>
+            <select id="studentGender" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white">
+              <option value="L">Lelaki (L)</option>
+              <option value="P">Perempuan (P)</option>
+            </select>
+          </div>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-lg">Batal</button>
+            <button type="submit" id="btnSaveSingle" class="text-xs px-3 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Simpan Murid</button>
+          </div>
+        </form>
+
+        <!-- Mod 2: Tambah Pukal / Tampal Senarai Nama Sekaligus -->
+        <form id="formBulkStudent" class="hidden space-y-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tampal Senarai Nama (Satu baris satu nama):</label>
+            <textarea id="bulkNames" rows="5" placeholder="Ahmad Daniel&#10;Nur Syuhada&#10;Chong Wei Loon"
+              class="w-full text-xs p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"></textarea>
+          </div>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" class="btnCancelAdd text-xs px-3 py-1.5 text-slate-600 hover:bg-slate-200 rounded-lg">Batal</button>
+            <button type="submit" id="btnSaveBulk" class="text-xs px-3 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Proses & Simpan</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Senarai Paparan Murid -->
+      <div id="studentsList" class="divide-y divide-slate-100">
+        <p class="text-xs text-slate-400 py-4 text-center">Sedang memuat senarai murid...</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ub2phaGlicWJoeGhweXhrcWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDU5NjAsImV4cCI6MjEwNDQyMTk2MH0.UhKRSYCcAizVnKf9dSsIcF1bgOeD8-5KRRSngBvsocI";
+
+    const { createClient } = window.supabase;
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const classId = urlParams.get("id");
+
+    let currentUser = null;
+
+    if (!classId) {
+      alert("Kelas tidak ditemui.");
+      window.location.href = "dashboard.html";
+    }
+
+    async function init() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) {
+        window.location.href = "index.html";
+        return;
+      }
+      currentUser = session.user;
+      await fetchClassDetails();
+      await fetchStudents();
+    }
+
+    async function fetchClassDetails() {
+      const { data, error } = await client
+        .from("classes")
+        .select("*")
+        .eq("id", classId)
+        .single();
+
+      if (error || !data) {
+        alert("Gagal memuat maklumat kelas.");
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      document.getElementById("navClassName").textContent = data.class_name;
+      document.getElementById("displayClassName").textContent = data.class_name;
+      document.getElementById("displayClassSession").textContent = data.year_session || "Tiada sesi ditetapkan";
+    }
+
+    async function fetchStudents() {
+      const studentsList = document.getElementById("studentsList");
+      try {
+        const { data: students, error } = await client
+          .from("students")
+          .select("*")
+          .eq("class_id", classId)
+          .order("full_name", { ascending: true });
+
+        if (error) throw error;
+
+        document.getElementById("studentCountBadge").textContent = `${students.length} Murid`;
+
+        if (students.length === 0) {
+          studentsList.innerHTML = `
+            <div class="text-center py-6 text-slate-400 text-xs">
+              Tiada murid lagi. Masukkan nama murid untuk mula mentaksir.
+            </div>`;
+          return;
+        }
+
+        studentsList.innerHTML = students.map((s, idx) => `
+          <div class="py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-[11px] font-semibold text-slate-400 w-5">${idx + 1}.</span>
+              <div>
+                <p class="text-xs font-semibold text-slate-800">${s.full_name}</p>
+                <span class="text-[10px] text-slate-400 uppercase">${s.gender === 'P' ? 'Perempuan' : 'Lelaki'}</span>
+              </div>
+            </div>
+            <button onclick="deleteStudent('${s.id}')" class="text-[11px] text-rose-500 hover:text-rose-700 p-1">
+              Padam
+            </button>
+          </div>
+        `).join("");
+      } catch (err) {
+        studentsList.innerHTML = `<p class="text-xs text-rose-600 text-center py-2">${err.message}</p>`;
+      }
+    }
+
+    // UI Tab & Form Toggle
+    const addSection = document.getElementById("addStudentSection");
+    const tabSingle = document.getElementById("tabSingle");
+    const tabBulk = document.getElementById("tabBulk");
+    const formSingle = document.getElementById("formSingleStudent");
+    const formBulk = document.getElementById("formBulkStudent");
+
+    document.getElementById("btnToggleAdd").addEventListener("click", () => addSection.classList.toggle("hidden"));
+    document.querySelectorAll(".btnCancelAdd").forEach(btn => {
+      btn.addEventListener("click", () => addSection.classList.add("hidden"));
+    });
+
+    tabSingle.addEventListener("click", () => {
+      tabSingle.className = "font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1";
+      tabBulk.className = "text-slate-500 pb-1 hover:text-slate-800";
+      formSingle.classList.remove("hidden");
+      formBulk.classList.add("hidden");
+    });
+
+    tabBulk.addEventListener("click", () => {
+      tabBulk.className = "font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1";
+      tabSingle.className = "text-slate-500 pb-1 hover:text-slate-800";
+      formBulk.classList.remove("hidden");
+      formSingle.classList.add("hidden");
+    });
+
+    // Simpan Satu Murid
+    formSingle.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("studentName").value.trim();
+      const gender = document.getElementById("studentGender").value;
+      const btn = document.getElementById("btnSaveSingle");
+
+      btn.disabled = true;
+      btn.textContent = "Menyimpan...";
+
+      try {
+        const { error } = await client.from("students").insert([
+          { class_id: classId, user_id: currentUser.id, full_name: name, gender: gender }
+        ]);
+        if (error) throw error;
+
+        formSingle.reset();
+        addSection.classList.add("hidden");
+        fetchStudents();
+      } catch (err) {
+        alert("Ralat: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Simpan Murid";
+      }
+    });
+
+    // Simpan Senarai Pukal (Bulk Names)
+    formBulk.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const rawText = document.getElementById("bulkNames").value;
+      const names = rawText.split("\n").map(n => n.trim()).filter(n => n.length > 0);
+      const btn = document.getElementById("btnSaveBulk");
+
+      if (names.length === 0) return alert("Sila masukkan sekurang-kurangnya satu nama.");
+
+      btn.disabled = true;
+      btn.textContent = "Memproses...";
+
+      const records = names.map(name => ({
+        class_id: classId,
+        user_id: currentUser.id,
+        full_name: name,
+        gender: "L"
+      }));
+
+      try {
+        const { error } = await client.from("students").insert(records);
+        if (error) throw error;
+
+        formBulk.reset();
+        addSection.classList.add("hidden");
+        fetchStudents();
+      } catch (err) {
+        alert("Ralat: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Proses & Simpan";
+      }
+    });
+
+    // Padam Murid
+    window.deleteStudent = async function(id) {
+      if (!confirm("Adakah anda pasti mahu memadam rekod murid ini?")) return;
+      try {
+        const { error } = await client.from("students").delete().eq("id", id);
+        if (error) throw error;
+        fetchStudents();
+      } catch (err) {
+        alert("Gagal memadam: " + err.message);
+      }
+    };
+
+    init();
+  </script>
+</body>
+</html>
