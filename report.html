@@ -71,7 +71,7 @@
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Pencapaian Pentaksiran Bilik Darjah (PBD)</h3>
       <div id="pbdRecordsList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
-        <p class="text-slate-400 py-3 text-center">Tiada rekod pentaksiran lagi.</p>
+        <p class="text-slate-400 py-3 text-center" id="pbdLoadingText">Memuatkan rekod pentaksiran...</p>
       </div>
     </div>
 
@@ -100,7 +100,7 @@
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const studentId = urlParams.get("student_id");
+    const studentId = urlParams.get("student_id") || urlParams.get("id");
     const classId = urlParams.get("class_id");
 
     if (!studentId) window.location.href = "dashboard.html";
@@ -112,7 +112,6 @@
       return d.toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" });
     }
 
-    // Tarikh jana laporan hari ini
     document.getElementById("reportGenDate").textContent = "Dijana: " + formatDate(new Date());
 
     async function init() {
@@ -130,7 +129,7 @@
         .from("students")
         .select("*, classes(class_name, year_session)")
         .eq("id", studentId)
-        .single();
+        .maybeSingle();
 
       if (!data) return;
       document.getElementById("studentName").textContent = data.full_name;
@@ -140,38 +139,91 @@
 
     async function loadPBD() {
       const container = document.getElementById("pbdRecordsList");
-      const { data } = await client
-        .from("pbd_records")
-        .select("tp_score, created_at, dskp_items(sp_code, sp_desc, dskp_subjects(subject_name))")
-        .eq("student_id", studentId);
+      try {
+        // Ambil terus rekod murid tanpa query bersarang yang berisiko ralat
+        const { data: records, error } = await client
+          .from("pbd_records")
+          .select("id, tp_score, sp_id, created_at")
+          .eq("student_id", studentId);
 
-      if (!data || data.length === 0) return;
+        if (error) throw error;
 
-      const scored = data.filter(r => r.tp_score > 0);
-      if (scored.length > 0) {
-        let totalTP = 0;
-        scored.forEach(r => totalTP += r.tp_score);
-        document.getElementById("avgTP").textContent = "TP " + (totalTP / scored.length).toFixed(1);
-      } else {
-        document.getElementById("avgTP").textContent = "TH";
-      }
+        if (!records || records.length === 0) {
+          container.innerHTML = `<p class="text-slate-400 py-3 text-center">Tiada rekod pentaksiran lagi.</p>`;
+          document.getElementById("avgTP").textContent = "-";
+          return;
+        }
 
-      container.innerHTML = data.map(r => `
-        <div class="py-3 flex items-start justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
-                ${r.dskp_items?.dskp_subjects?.subject_name || 'Subjek'} • SP ${r.dskp_items?.sp_code}
+        // Kira Purata TP
+        const scored = records.filter(r => r.tp_score > 0);
+        if (scored.length > 0) {
+          let totalTP = 0;
+          scored.forEach(r => totalTP += r.tp_score);
+          document.getElementById("avgTP").textContent = "TP " + (totalTP / scored.length).toFixed(1);
+        } else {
+          document.getElementById("avgTP").textContent = "TH";
+        }
+
+        // Ambil maklumat SP secara berasingan untuk jaminan paparan
+        const spIds = records.map(r => r.sp_id).filter(id => !!id);
+        let spMap = {};
+
+        if (spIds.length > 0) {
+          const { data: items } = await client
+            .from("dskp_items")
+            .select("id, sp_code, sp_desc, dskp_id")
+            .in("id", spIds);
+
+          if (items) {
+            const dskpIds = [...new Set(items.map(i => i.dskp_id).filter(id => !!id))];
+            let subjectMap = {};
+
+            if (dskpIds.length > 0) {
+              const { data: subs } = await client
+                .from("dskp_subjects")
+                .select("id, subject_name")
+                .in("id", dskpIds);
+
+              if (subs) {
+                subs.forEach(s => { subjectMap[s.id] = s.subject_name; });
+              }
+            }
+
+            items.forEach(item => {
+              spMap[item.id] = {
+                sp_code: item.sp_code,
+                sp_desc: item.sp_desc,
+                subject_name: subjectMap[item.dskp_id] || "Mata Pelajaran"
+              };
+            });
+          }
+        }
+
+        container.innerHTML = records.map(r => {
+          const spInfo = spMap[r.sp_id] || { sp_code: "1.1.1", sp_desc: "Standard Pembelajaran", subject_name: "Subjek" };
+          const isTH = r.tp_score === 0;
+
+          return `
+            <div class="py-3 flex items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                    ${spInfo.subject_name} • SP ${spInfo.sp_code}
+                  </span>
+                  <span class="text-[10px] text-slate-400">📅 ${formatDate(r.created_at)}</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-200 mt-0.5">${spInfo.sp_desc}</p>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 ${isTH ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 'bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300'} rounded-lg shrink-0">
+                ${isTH ? 'TH' : 'TP ' + r.tp_score}
               </span>
-              <span class="text-[10px] text-slate-400">📅 ${formatDate(r.created_at)}</span>
             </div>
-            <p class="text-slate-700 dark:text-slate-200 mt-0.5">${r.dskp_items?.sp_desc || ''}</p>
-          </div>
-          <span class="text-xs font-bold px-2.5 py-1 ${r.tp_score === 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40' : 'bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300'} rounded-lg shrink-0">
-            ${r.tp_score === 0 ? 'TH' : 'TP ' + r.tp_score}
-          </span>
-        </div>
-      `).join("");
+          `;
+        }).join("");
+
+      } catch (err) {
+        container.innerHTML = `<p class="text-xs text-rose-500 py-3 text-center">Ralat memuatkan rekod: ${err.message}</p>`;
+      }
     }
 
     async function loadBehavior() {
