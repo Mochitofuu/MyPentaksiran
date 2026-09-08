@@ -138,34 +138,39 @@
         return window.location.href = "dashboard.html";
       }
 
-      loadFeedbackTickets();
-      loadBroadcasts();
-      loadUsers();
+      await loadUsers();
+      await loadFeedbackTickets();
+      await loadBroadcasts();
     }
 
-    // 1. PENGENDALIAN TIKET MAKLUM BALAS
+    // 1. PENGENDALIAN TIKET MAKLUM BALAS (Kueri Bebas Ralat Relasi)
     async function loadFeedbackTickets() {
       const container = document.getElementById("ticketsList");
       const badge = document.getElementById("ticketCountBadge");
 
       try {
-        const { data, error } = await client
+        const { data: tickets, error } = await client
           .from("feedback_tickets")
-          .select("*, profiles(full_name, school_name)")
+          .select("*")
           .order("created_at", { ascending: false });
 
         if (error) throw error;
 
-        badge.textContent = `${data ? data.length : 0} Isu`;
+        badge.textContent = `${tickets ? tickets.length : 0} Isu`;
 
-        if (!data || data.length === 0) {
+        if (!tickets || tickets.length === 0) {
           container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">Peti masuk bersih. Tiada isu atau maklum balas baru! 🎉</div>`;
           return;
         }
 
-        container.innerHTML = data.map(t => {
-          const senderName = t.profiles?.full_name || 'Guru';
-          const senderSchool = t.profiles?.school_name ? `(${t.profiles.school_name})` : '';
+        // Peta profil pengguna secara tempatan tanpa join SQL rumit
+        const userMap = {};
+        allUsers.forEach(u => { userMap[u.id] = u; });
+
+        container.innerHTML = tickets.map(t => {
+          const userObj = userMap[t.user_id] || {};
+          const senderName = userObj.full_name || 'Guru';
+          const senderSchool = userObj.school_name ? `(${userObj.school_name})` : '';
           const dateStr = new Date(t.created_at).toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
           return `
@@ -346,4 +351,3 @@
   </script>
 </body>
 </html>
-2
