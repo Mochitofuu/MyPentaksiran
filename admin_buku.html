@@ -26,7 +26,7 @@
     
     <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 p-4 rounded-xl">
       <p class="text-xs text-rose-800 dark:text-rose-200 font-medium">
-        Kawasan kawalan Master Admin. Susunan: <strong>Subjek ➔ Tema ➔ Unit ➔ Tajuk & SK</strong>.
+        Kawasan kawalan Master Admin. Susunan: <strong>Subjek ➔ Tema ➔ Unit ➔ Tajuk & SP</strong>.
       </p>
     </div>
 
@@ -50,12 +50,12 @@
         <span id="themeCountBadge" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0 Tema</span>
       </div>
       
-      <div id="themeList" class="space-y-2 max-h-40 overflow-y-auto"></div>
+      <div id="themeList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
 
       <div class="bg-emerald-50 dark:bg-slate-700/50 p-3 rounded-xl border border-emerald-100 dark:border-slate-600 space-y-3 mt-2">
         <input type="text" id="inputThemeName" placeholder="Contoh: Tema 1 - Kekeluargaan" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-emerald-500">
         <button id="btnSubmitStep2" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
-          Sahkan Tema & Teruskan ➔
+          Simpan Tema & Teruskan ➔
         </button>
       </div>
     </div>
@@ -67,39 +67,45 @@
         <span id="activeThemeLabel" class="text-[10px] text-slate-500">Tema: -</span>
       </div>
       
-      <div id="unitList" class="space-y-2 max-h-40 overflow-y-auto"></div>
+      <div id="unitList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
 
       <div class="bg-amber-50 dark:bg-slate-700/50 p-3 rounded-xl border border-amber-100 dark:border-slate-600 space-y-3 mt-2">
         <input type="text" id="inputUnitName" placeholder="Contoh: Unit 1 - Keluarga Cergas" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-amber-500">
         <button id="btnSubmitStep3" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
-          Sahkan Unit & Teruskan ➔
+          Simpan Unit & Teruskan ➔
         </button>
       </div>
     </div>
 
-    <!-- LANGKAH 4: TAJUK & SK -->
+    <!-- LANGKAH 4: TAJUK & SP -->
     <div id="step4Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm space-y-4">
       <div class="border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h2 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Langkah 4: Tajuk & Padanan SK</h2>
+        <h2 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Langkah 4: Tajuk & Padanan SP</h2>
         <p id="activeUnitLabel" class="text-[11px] text-slate-500 font-medium mt-0.5">Unit Terpilih: -</p>
       </div>
 
-      <div id="topicList" class="space-y-2 max-h-48 overflow-y-auto"></div>
+      <div id="topicList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
 
+      <!-- Borang Tambah / Edit Tajuk -->
       <div class="bg-indigo-50 dark:bg-slate-700/50 p-3 rounded-xl border border-indigo-100 dark:border-slate-600 space-y-3 mt-2">
         <div>
           <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Nama Tajuk</label>
-          <input type="text" id="inputTopicName" placeholder="Contoh: Beli Basikal" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-indigo-500">
+          <input type="text" id="inputTopicName" placeholder="Contoh: Membeli Basikal" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Pilih SK Berkenaan</label>
-          <select id="selectSKForTopic" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 bg-white focus:ring-1 focus:ring-indigo-500">
-            <option value="">-- Memuatkan senarai SK... --</option>
+          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Pilih SP (Standard Pembelajaran) Berkenaan</label>
+          <select id="selectSPForTopic" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 bg-white focus:ring-1 focus:ring-indigo-500">
+            <option value="">-- Memuatkan senarai SP... --</option>
           </select>
         </div>
-        <button id="btnSubmitStep4" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
-          Simpan Tajuk & SK ✓
-        </button>
+        <div class="flex gap-2">
+          <button id="btnCancelEditTopic" class="hidden bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-500 text-slate-800 dark:text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+            Batal
+          </button>
+          <button id="btnSubmitStep4" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+            Simpan Tajuk & SP ✓
+          </button>
+        </div>
       </div>
     </div>
 
@@ -114,7 +120,8 @@
     let currentSubjectId = null;
     let currentThemeId = null;
     let currentUnitId = null;
-    let availableSKs = [];
+    let editingTopicId = null; // Menyimpan ID jika sedang edit tajuk
+    let availableSPs = [];
 
     async function init() {
       try {
@@ -152,7 +159,6 @@
         }
       } catch (err) {
         select.innerHTML = `<option value="">Ralat: ${err.message}</option>`;
-        alert("Gagal menarik data subjek: " + err.message);
       }
     }
 
@@ -169,34 +175,36 @@
         document.getElementById("step3Container").classList.add("hidden");
         document.getElementById("step4Container").classList.add("hidden");
         
-        await fetchSKForSubject(currentSubjectId);
+        await fetchSPForSubject(currentSubjectId);
         await loadThemes();
         document.getElementById("step2Container").scrollIntoView({ behavior: 'smooth' });
       } catch (err) {
-        alert("Ralat di Langkah 1: " + err.message + "\nSila pastikan anda telah Run SQL jadual baharu.");
+        alert("Ralat di Langkah 1: " + err.message);
       } finally {
         btn.textContent = "Sahkan Subjek & Teruskan ➔";
       }
     });
 
-    async function fetchSKForSubject(dskpId) {
-      const { data, error } = await client.from("dskp_items").select("sk_code, sk_desc").eq("dskp_id", dskpId);
+    // Tarik senarai SP untuk subjek tersebut
+    async function fetchSPForSubject(dskpId) {
+      const { data, error } = await client.from("dskp_items").select("sp_code, sp_desc").eq("dskp_id", dskpId);
       if (error) throw error;
 
-      availableSKs = [];
+      availableSPs = [];
       const seen = new Set();
       if (data) {
         data.forEach(item => {
-          if (item.sk_code && !seen.has(item.sk_code)) {
-            seen.add(item.sk_code);
-            availableSKs.push(item);
+          // Asingkan SK, hanya masukkan SP (kod SP tidak mengandungi tag [SK])
+          if (item.sp_code && !item.sp_desc.includes("[SK]") && !seen.has(item.sp_code)) {
+            seen.add(item.sp_code);
+            availableSPs.push(item);
           }
         });
       }
-      availableSKs.sort((a, b) => a.sk_code.localeCompare(b.sk_code, undefined, { numeric: true }));
-      const skSelect = document.getElementById("selectSKForTopic");
-      skSelect.innerHTML = '<option value="">-- Pilih SK --</option>' + 
-        availableSKs.map(sk => `<option value="${sk.sk_code}">SK ${sk.sk_code} - ${sk.sk_desc.substring(0, 50)}...</option>`).join('');
+      availableSPs.sort((a, b) => a.sp_code.localeCompare(b.sp_code, undefined, { numeric: true }));
+      const spSelect = document.getElementById("selectSPForTopic");
+      spSelect.innerHTML = '<option value="">-- Pilih SP --</option>' + 
+        availableSPs.map(sp => `<option value="${sp.sp_code}">SP ${sp.sp_code} - ${sp.sp_desc.substring(0, 60)}...</option>`).join('');
     }
 
     // --- LANGKAH 2: TEMA ---
@@ -213,9 +221,15 @@
           return;
         }
         list.innerHTML = data.map((t, idx) => `
-          <div onclick="proceedToStep3('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')" class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer hover:border-amber-500 transition group">
-            <span class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${t.theme_name}</span>
-            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">Pilih Tema ➔</span>
+          <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex justify-between items-center group">
+            <div class="flex-1 cursor-pointer hover:text-emerald-600 transition" onclick="proceedToStep3('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')">
+              <span class="text-xs font-bold text-slate-800 dark:text-white group-hover:text-emerald-500">${idx + 1}. ${t.theme_name}</span>
+            </div>
+            <div class="flex gap-1.5 shrink-0">
+              <button onclick="editTheme('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')" title="Edit Tema" class="text-[10px] bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-700 dark:text-slate-200 px-2 py-1 rounded">✏️</button>
+              <button onclick="deleteTheme('${t.id}')" title="Padam Tema" class="text-[10px] bg-rose-100 hover:bg-rose-200 text-rose-600 px-2 py-1 rounded">🗑️</button>
+              <button onclick="proceedToStep3('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-2 py-1 rounded font-bold ml-1">Pilih ➔</button>
+            </div>
           </div>
         `).join("");
       } catch (err) {
@@ -244,11 +258,31 @@
       }
     });
 
+    window.editTheme = async function(id, oldName) {
+      const newName = prompt("Kemaskini Nama Tema:", oldName);
+      if (newName && newName.trim() !== "" && newName !== oldName) {
+        await client.from("textbook_themes").update({ theme_name: newName.trim() }).eq("id", id);
+        loadThemes();
+        if(currentThemeId === id) document.getElementById("activeThemeLabel").innerHTML = `Tema: <strong>${newName}</strong>`;
+      }
+    };
+
+    window.deleteTheme = async function(id) {
+      if(confirm("AWAS: Padam tema ini? Semua Unit dan Tajuk di bawahnya akan terpadam juga!")) {
+        await client.from("textbook_themes").delete().eq("id", id);
+        loadThemes();
+        if(currentThemeId === id) {
+          document.getElementById("step3Container").classList.add("hidden");
+          document.getElementById("step4Container").classList.add("hidden");
+        }
+      }
+    };
+
     window.proceedToStep3 = function(themeId, themeName) {
       currentThemeId = themeId;
       document.getElementById("step3Container").classList.remove("hidden");
       document.getElementById("step4Container").classList.add("hidden");
-      document.getElementById("activeThemeLabel").innerHTML = `Tema: <strong>${themeName}</strong>`;
+      document.getElementById("activeThemeLabel").innerHTML = `Tema: <strong class="text-emerald-600 dark:text-emerald-400">${themeName}</strong>`;
       loadUnits();
       document.getElementById("step3Container").scrollIntoView({ behavior: 'smooth' });
     };
@@ -265,9 +299,15 @@
           return;
         }
         list.innerHTML = data.map((u, idx) => `
-          <div onclick="proceedToStep4('${u.id}', '${u.unit_name.replace(/'/g, "\\'")}')" class="p-3 bg-amber-50 dark:bg-slate-700/50 rounded-xl border border-amber-200 dark:border-slate-600 flex justify-between items-center cursor-pointer hover:border-indigo-500 transition group">
-            <span class="text-xs font-bold text-amber-900 dark:text-amber-100">${idx + 1}. ${u.unit_name}</span>
-            <span class="text-[10px] bg-amber-200 text-amber-800 px-2 py-1 rounded font-bold">Pilih Unit ➔</span>
+          <div class="p-3 bg-amber-50 dark:bg-slate-700/50 rounded-xl border border-amber-200 dark:border-slate-600 flex justify-between items-center group">
+            <div class="flex-1 cursor-pointer hover:text-indigo-600 transition" onclick="proceedToStep4('${u.id}', '${u.unit_name.replace(/'/g, "\\'")}')">
+              <span class="text-xs font-bold text-amber-900 dark:text-amber-100 group-hover:text-indigo-400">${idx + 1}. ${u.unit_name}</span>
+            </div>
+            <div class="flex gap-1.5 shrink-0">
+              <button onclick="editUnit('${u.id}', '${u.unit_name.replace(/'/g, "\\'")}')" title="Edit Unit" class="text-[10px] bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-700 dark:text-slate-200 px-2 py-1 rounded">✏️</button>
+              <button onclick="deleteUnit('${u.id}')" title="Padam Unit" class="text-[10px] bg-rose-100 hover:bg-rose-200 text-rose-600 px-2 py-1 rounded">🗑️</button>
+              <button onclick="proceedToStep4('${u.id}', '${u.unit_name.replace(/'/g, "\\'")}')" class="text-[10px] bg-amber-200 hover:bg-amber-300 text-amber-800 px-2 py-1 rounded font-bold ml-1">Pilih ➔</button>
+            </div>
           </div>
         `).join("");
       } catch(err) {
@@ -296,15 +336,32 @@
       }
     });
 
+    window.editUnit = async function(id, oldName) {
+      const newName = prompt("Kemaskini Nama Unit:", oldName);
+      if (newName && newName.trim() !== "" && newName !== oldName) {
+        await client.from("textbook_units").update({ unit_name: newName.trim() }).eq("id", id);
+        loadUnits();
+        if(currentUnitId === id) document.getElementById("activeUnitLabel").innerHTML = `Unit: <strong>${newName}</strong>`;
+      }
+    };
+
+    window.deleteUnit = async function(id) {
+      if(confirm("AWAS: Padam unit ini? Semua Tajuk di bawahnya akan terpadam juga!")) {
+        await client.from("textbook_units").delete().eq("id", id);
+        loadUnits();
+        if(currentUnitId === id) document.getElementById("step4Container").classList.add("hidden");
+      }
+    };
+
     window.proceedToStep4 = function(unitId, unitName) {
       currentUnitId = unitId;
       document.getElementById("step4Container").classList.remove("hidden");
-      document.getElementById("activeUnitLabel").innerHTML = `Unit Terpilih: <strong class="text-indigo-600 dark:text-indigo-400">${unitName}</strong>`;
+      document.getElementById("activeUnitLabel").innerHTML = `Unit Terpilih: <strong class="text-amber-600 dark:text-amber-400">${unitName}</strong>`;
       loadTopics();
       document.getElementById("step4Container").scrollIntoView({ behavior: 'smooth' });
     };
 
-    // --- LANGKAH 4: TAJUK & SK ---
+    // --- LANGKAH 4: TAJUK & SP ---
     async function loadTopics() {
       const list = document.getElementById("topicList");
       try {
@@ -312,16 +369,19 @@
         if (error) throw error;
 
         if (!data || data.length === 0) {
-          list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-1">Belum ada tajuk & SK.</p>';
+          list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-1">Belum ada tajuk & SP.</p>';
           return;
         }
         list.innerHTML = data.map((t, idx) => `
-          <div class="p-3 bg-indigo-50 dark:bg-slate-800 rounded-xl border-l-4 border-indigo-500 shadow-sm mb-2 flex justify-between items-start">
+          <div class="p-3 bg-indigo-50 dark:bg-slate-800 rounded-xl border-l-4 border-indigo-500 shadow-sm mb-2 flex justify-between items-start group">
             <div>
               <p class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${t.topic_name}</p>
-              <p class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5">SK Berkenaan: ${t.sk_code}</p>
+              <p class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5">SP Padanan: <span class="font-bold">${t.sp_code}</span></p>
             </div>
-            <button onclick="deleteTopic('${t.id}')" class="text-[10px] text-rose-500 hover:text-rose-700">✕ Padam</button>
+            <div class="flex gap-1.5">
+              <button onclick="editTopic('${t.id}', '${t.topic_name.replace(/'/g, "\\'")}', '${t.sp_code}')" title="Edit Tajuk" class="text-[10px] bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-700 dark:text-slate-200 px-2 py-1 rounded">✏️</button>
+              <button onclick="deleteTopic('${t.id}')" title="Padam Tajuk" class="text-[10px] bg-rose-100 hover:bg-rose-200 text-rose-600 px-2 py-1 rounded">🗑️</button>
+            </div>
           </div>
         `).join("");
       } catch (err) {
@@ -331,24 +391,55 @@
 
     document.getElementById("btnSubmitStep4").addEventListener("click", async () => {
       const name = document.getElementById("inputTopicName").value.trim();
-      const skCode = document.getElementById("selectSKForTopic").value;
-      if (!name || !skCode) return alert("Lengkapkan tajuk dan pilih SK.");
+      const spCode = document.getElementById("selectSPForTopic").value;
+      if (!name || !spCode) return alert("Lengkapkan tajuk dan pilih SP.");
       
       const btn = document.getElementById("btnSubmitStep4");
       btn.textContent = "Menyimpan...";
       
       try {
-        const { error } = await client.from("textbook_topics").insert([{ unit_id: currentUnitId, topic_name: name, sk_code: skCode }]);
-        if (error) throw error;
+        if (editingTopicId) {
+          // Jika dalam mode kemaskini
+          const { error } = await client.from("textbook_topics").update({ topic_name: name, sp_code: spCode }).eq("id", editingTopicId);
+          if (error) throw error;
+          editingTopicId = null;
+          document.getElementById("btnCancelEditTopic").classList.add("hidden");
+        } else {
+          // Jika tambah baru
+          const { error } = await client.from("textbook_topics").insert([{ unit_id: currentUnitId, topic_name: name, sp_code: spCode }]);
+          if (error) throw error;
+        }
 
         document.getElementById("inputTopicName").value = "";
-        document.getElementById("selectSKForTopic").value = "";
+        document.getElementById("selectSPForTopic").value = "";
         await loadTopics();
       } catch(err) {
         alert("Gagal simpan tajuk: " + err.message);
       } finally {
-        btn.textContent = "Simpan Tajuk & SK ✓";
+        btn.textContent = "Simpan Tajuk & SP ✓";
       }
+    });
+
+    window.editTopic = function(id, name, spCode) {
+      editingTopicId = id;
+      document.getElementById("inputTopicName").value = name;
+      document.getElementById("selectSPForTopic").value = spCode;
+      
+      document.getElementById("btnSubmitStep4").textContent = "Kemaskini Tajuk ✓";
+      document.getElementById("btnSubmitStep4").classList.replace("bg-indigo-600", "bg-emerald-600");
+      document.getElementById("btnSubmitStep4").classList.replace("hover:bg-indigo-700", "hover:bg-emerald-700");
+      document.getElementById("btnCancelEditTopic").classList.remove("hidden");
+    };
+
+    document.getElementById("btnCancelEditTopic").addEventListener("click", () => {
+      editingTopicId = null;
+      document.getElementById("inputTopicName").value = "";
+      document.getElementById("selectSPForTopic").value = "";
+      
+      document.getElementById("btnSubmitStep4").textContent = "Simpan Tajuk & SP ✓";
+      document.getElementById("btnSubmitStep4").classList.replace("bg-emerald-600", "bg-indigo-600");
+      document.getElementById("btnSubmitStep4").classList.replace("hover:bg-emerald-700", "hover:bg-indigo-700");
+      document.getElementById("btnCancelEditTopic").classList.add("hidden");
     });
 
     window.deleteTopic = async function(id) {
