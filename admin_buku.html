@@ -11,14 +11,13 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20 transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-24 transition-colors duration-200">
 
-  <!-- Header Eksklusif Admin -->
   <header class="bg-rose-700 dark:bg-rose-900 border-b border-rose-800 sticky top-0 z-10 shadow-md">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="admin.html" class="text-xs font-semibold text-rose-100 hover:text-white">← Kembali ke Master Admin</a>
+      <a href="admin.html" class="text-xs font-semibold text-rose-100 hover:text-white">← Kembali</a>
       <span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1">
-        ⚡ Pemetaan Buku Teks (VIP)
+        ⚡ Master Buku Teks
       </span>
     </div>
   </header>
@@ -27,69 +26,79 @@
     
     <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 p-4 rounded-xl">
       <p class="text-xs text-rose-800 dark:text-rose-200 font-medium">
-        Kawasan kawalan Master Admin. Susunan yang dihantar di sini akan muncul pada pilihan PBD semua pengguna (guru).
+        Kawasan kawalan Master Admin. Susunan: <strong>Subjek ➔ Tema ➔ Unit ➔ Tajuk & SK</strong>.
       </p>
     </div>
 
-    <!-- LANGKAH 1: PILIH SUBJEK -->
+    <!-- LANGKAH 1: SUBJEK -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" id="step1Container">
-      <h2 class="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-3">Langkah 1: Pilih Subjek DSKP</h2>
+      <h2 class="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-3">Langkah 1: Subjek & Tahun</h2>
       <div class="space-y-3">
         <select id="selectSubject" class="w-full text-xs px-3 py-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-2 focus:ring-rose-500 font-semibold bg-slate-50">
           <option value="">-- Memuatkan senarai subjek... --</option>
         </select>
-        <button id="btnSubmitStep1" class="w-full bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+        <button id="btnSubmitStep1" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
           Sahkan Subjek & Teruskan ➔
         </button>
       </div>
     </div>
 
-    <!-- LANGKAH 2: MASUKKAN TEMA -->
-    <div id="step2Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 transition-all">
+    <!-- LANGKAH 2: TEMA -->
+    <div id="step2Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-sm space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h2 class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Langkah 2: Masukkan Tema</h2>
-        <span id="themeCountBadge" class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 rounded-full">0 Tema</span>
+        <h2 class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Langkah 2: Tema</h2>
+        <span id="themeCountBadge" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0 Tema</span>
       </div>
       
-      <!-- Paparan Tema Sedia Ada -->
       <div id="themeList" class="space-y-2 max-h-40 overflow-y-auto"></div>
 
-      <!-- Input Tema Baru -->
       <div class="bg-emerald-50 dark:bg-slate-700/50 p-3 rounded-xl border border-emerald-100 dark:border-slate-600 space-y-3 mt-2">
-        <div>
-          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Cipta Tema Baru</label>
-          <input type="text" id="inputThemeName" placeholder="Contoh: Tema 1 - Kekeluargaan" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-emerald-500">
-        </div>
+        <input type="text" id="inputThemeName" placeholder="Contoh: Tema 1 - Kekeluargaan" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-emerald-500">
         <button id="btnSubmitStep2" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
-          Simpan Tema & Teruskan ➔
+          Sahkan Tema & Teruskan ➔
         </button>
       </div>
     </div>
 
-    <!-- LANGKAH 3: MASUKKAN TAJUK & PADAN SK -->
-    <div id="step3Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 transition-all">
+    <!-- LANGKAH 3: UNIT -->
+    <div id="step3Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-amber-200 dark:border-amber-800 shadow-sm space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <h2 class="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-wider">Langkah 3: Unit</h2>
+        <span id="activeThemeLabel" class="text-[10px] text-slate-500">Tema: -</span>
+      </div>
+      
+      <div id="unitList" class="space-y-2 max-h-40 overflow-y-auto"></div>
+
+      <div class="bg-amber-50 dark:bg-slate-700/50 p-3 rounded-xl border border-amber-100 dark:border-slate-600 space-y-3 mt-2">
+        <input type="text" id="inputUnitName" placeholder="Contoh: Unit 1 - Keluarga Cergas" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-amber-500">
+        <button id="btnSubmitStep3" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+          Sahkan Unit & Teruskan ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- LANGKAH 4: TAJUK & SK -->
+    <div id="step4Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm space-y-4">
       <div class="border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h2 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Langkah 3: Masukkan Tajuk & Padankan SK</h2>
-        <p id="activeThemeLabel" class="text-[11px] text-slate-500 font-medium mt-0.5">Bagi Tema: -</p>
+        <h2 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Langkah 4: Tajuk & Padanan SK</h2>
+        <p id="activeUnitLabel" class="text-[11px] text-slate-500 font-medium mt-0.5">Unit Terpilih: -</p>
       </div>
 
-      <!-- Paparan Tajuk Sedia Ada -->
       <div id="topicList" class="space-y-2 max-h-48 overflow-y-auto"></div>
 
-      <!-- Input Tajuk Baru -->
       <div class="bg-indigo-50 dark:bg-slate-700/50 p-3 rounded-xl border border-indigo-100 dark:border-slate-600 space-y-3 mt-2">
         <div>
-          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Nama Tajuk / Unit</label>
-          <input type="text" id="inputTopicName" placeholder="Contoh: Unit 1 - Keluarga Cergas" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-indigo-500">
+          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Nama Tajuk</label>
+          <input type="text" id="inputTopicName" placeholder="Contoh: Beli Basikal" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Pilih Standard Kandungan (SK) Untuk Tajuk Ini</label>
+          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Pilih SK Berkenaan</label>
           <select id="selectSKForTopic" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 bg-white focus:ring-1 focus:ring-indigo-500">
             <option value="">-- Memuatkan senarai SK... --</option>
           </select>
         </div>
-        <button id="btnSubmitStep3" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
-          Simpan Tajuk (Selesai) ✓
+        <button id="btnSubmitStep4" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+          Simpan Tajuk & SK ✓
         </button>
       </div>
     </div>
@@ -104,36 +113,47 @@
 
     let currentSubjectId = null;
     let currentThemeId = null;
-    let currentThemeName = "";
+    let currentUnitId = null;
     let availableSKs = [];
 
     async function init() {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) return window.location.href = "index.html";
-      
-      // SEKURITI: Pastikan ini Admin Master
-      const { data: profile } = await client.from("profiles").select("is_admin").eq("id", session.user.id).maybeSingle();
-      if (!profile || profile.is_admin !== true) {
-        alert("Akses Ditolak: Halaman Master Admin sahaja.");
-        window.location.href = "dashboard.html";
-        return;
-      }
+      try {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = "index.html";
+        
+        const { data: profile, error: pErr } = await client.from("profiles").select("is_admin").eq("id", session.user.id).maybeSingle();
+        if (pErr) throw pErr;
 
-      document.getElementById("adminContent").style.display = "block";
-      loadSubjects();
+        if (!profile || profile.is_admin !== true) {
+          alert("Akses Ditolak: Halaman Master Admin sahaja.");
+          window.location.href = "dashboard.html";
+          return;
+        }
+
+        document.getElementById("adminContent").style.display = "block";
+        await loadSubjects();
+      } catch (err) {
+        alert("Gagal memuatkan tetapan awal: " + err.message);
+      }
     }
 
-    // --- LANGKAH 1 ---
+    // --- LANGKAH 1: SUBJEK ---
     async function loadSubjects() {
       const select = document.getElementById("selectSubject");
-      const { data } = await client.from("dskp_subjects").select("*").order("created_at", { ascending: false });
-      
-      if (!data || data.length === 0) {
-        select.innerHTML = '<option value="">Tiada Subjek DSKP dijumpai.</option>';
-        return;
+      try {
+        const { data, error } = await client.from("dskp_subjects").select("*").order("created_at", { ascending: false });
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          select.innerHTML = '<option value="">-- Sila Pilih Subjek --</option>' + 
+            data.map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join('');
+        } else {
+          select.innerHTML = '<option value="">Tiada Subjek DSKP dijumpai.</option>';
+        }
+      } catch (err) {
+        select.innerHTML = `<option value="">Ralat: ${err.message}</option>`;
+        alert("Gagal menarik data subjek: " + err.message);
       }
-      select.innerHTML = '<option value="">-- Sila Pilih Subjek --</option>' + 
-        data.map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join('');
     }
 
     document.getElementById("btnSubmitStep1").addEventListener("click", async () => {
@@ -141,21 +161,30 @@
       if (!subj) return alert("Pilih subjek terlebih dahulu.");
       
       currentSubjectId = subj;
-      document.getElementById("step2Container").classList.remove("hidden");
-      document.getElementById("step3Container").classList.add("hidden");
-      
-      await fetchSKForSubject(currentSubjectId);
-      await loadThemes();
-      
-      // Auto-scroll ke Langkah 2
-      document.getElementById("step2Container").scrollIntoView({ behavior: 'smooth' });
+      const btn = document.getElementById("btnSubmitStep1");
+      btn.textContent = "Sila tunggu...";
+
+      try {
+        document.getElementById("step2Container").classList.remove("hidden");
+        document.getElementById("step3Container").classList.add("hidden");
+        document.getElementById("step4Container").classList.add("hidden");
+        
+        await fetchSKForSubject(currentSubjectId);
+        await loadThemes();
+        document.getElementById("step2Container").scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        alert("Ralat di Langkah 1: " + err.message + "\nSila pastikan anda telah Run SQL jadual baharu.");
+      } finally {
+        btn.textContent = "Sahkan Subjek & Teruskan ➔";
+      }
     });
 
     async function fetchSKForSubject(dskpId) {
-      const { data } = await client.from("dskp_items").select("sk_code, sk_desc").eq("dskp_id", dskpId);
+      const { data, error } = await client.from("dskp_items").select("sk_code, sk_desc").eq("dskp_id", dskpId);
+      if (error) throw error;
+
       availableSKs = [];
       const seen = new Set();
-      
       if (data) {
         data.forEach(item => {
           if (item.sk_code && !seen.has(item.sk_code)) {
@@ -165,29 +194,33 @@
         });
       }
       availableSKs.sort((a, b) => a.sk_code.localeCompare(b.sk_code, undefined, { numeric: true }));
-      
       const skSelect = document.getElementById("selectSKForTopic");
       skSelect.innerHTML = '<option value="">-- Pilih SK --</option>' + 
-        availableSKs.map(sk => `<option value="${sk.sk_code}">SK ${sk.sk_code} - ${sk.sk_desc.substring(0, 60)}...</option>`).join('');
+        availableSKs.map(sk => `<option value="${sk.sk_code}">SK ${sk.sk_code} - ${sk.sk_desc.substring(0, 50)}...</option>`).join('');
     }
 
-    // --- LANGKAH 2 ---
+    // --- LANGKAH 2: TEMA ---
     async function loadThemes() {
-      const { data } = await client.from("textbook_themes").select("*").eq("dskp_id", currentSubjectId).order("created_at", { ascending: true });
       const list = document.getElementById("themeList");
-      document.getElementById("themeCountBadge").textContent = `${data ? data.length : 0} Tema`;
+      try {
+        const { data, error } = await client.from("textbook_themes").select("*").eq("dskp_id", currentSubjectId).order("created_at", { ascending: true });
+        if (error) throw error;
 
-      if (!data || data.length === 0) {
-        list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-2">Belum ada tema. Sila tambah di bawah.</p>';
-        return;
+        document.getElementById("themeCountBadge").textContent = `${data ? data.length : 0} Tema`;
+
+        if (!data || data.length === 0) {
+          list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-1">Tiada tema direkodkan.</p>';
+          return;
+        }
+        list.innerHTML = data.map((t, idx) => `
+          <div onclick="proceedToStep3('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')" class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer hover:border-amber-500 transition group">
+            <span class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${t.theme_name}</span>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">Pilih Tema ➔</span>
+          </div>
+        `).join("");
+      } catch (err) {
+        list.innerHTML = `<p class="text-rose-500 text-xs">Gagal tarik tema: ${err.message}</p>`;
       }
-
-      list.innerHTML = data.map((t, idx) => `
-        <div onclick="proceedToStep3('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')" class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer hover:border-emerald-500 transition group">
-          <span class="text-xs font-semibold text-slate-800 dark:text-white group-hover:text-emerald-600">${idx + 1}. ${t.theme_name}</span>
-          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">Pilih ➔</span>
-        </div>
-      `).join("");
     }
 
     document.getElementById("btnSubmitStep2").addEventListener("click", async () => {
@@ -196,77 +229,125 @@
       
       const btn = document.getElementById("btnSubmitStep2");
       btn.textContent = "Menyimpan...";
-      btn.disabled = true;
       
       try {
         const { data, error } = await client.from("textbook_themes").insert([{ dskp_id: currentSubjectId, theme_name: name }]).select().single();
         if (error) throw error;
-        
+
         document.getElementById("inputThemeName").value = "";
         await loadThemes();
-        
-        // Terus buka langkah 3 untuk tema yang baru dicipta
         proceedToStep3(data.id, data.theme_name);
       } catch (err) {
-        alert("Ralat: " + err.message);
+        alert("Gagal simpan tema: " + err.message);
       } finally {
-        btn.textContent = "Simpan Tema & Teruskan ➔";
-        btn.disabled = false;
+        btn.textContent = "Sahkan Tema & Teruskan ➔";
       }
     });
 
     window.proceedToStep3 = function(themeId, themeName) {
       currentThemeId = themeId;
-      currentThemeName = themeName;
       document.getElementById("step3Container").classList.remove("hidden");
-      document.getElementById("activeThemeLabel").innerHTML = `Bagi Tema: <strong class="text-indigo-600 dark:text-indigo-400">${themeName}</strong>`;
-      loadTopics();
+      document.getElementById("step4Container").classList.add("hidden");
+      document.getElementById("activeThemeLabel").innerHTML = `Tema: <strong>${themeName}</strong>`;
+      loadUnits();
       document.getElementById("step3Container").scrollIntoView({ behavior: 'smooth' });
     };
 
-    // --- LANGKAH 3 ---
-    async function loadTopics() {
-      const { data } = await client.from("textbook_topics").select("*").eq("theme_id", currentThemeId).order("created_at", { ascending: true });
-      const list = document.getElementById("topicList");
+    // --- LANGKAH 3: UNIT ---
+    async function loadUnits() {
+      const list = document.getElementById("unitList");
+      try {
+        const { data, error } = await client.from("textbook_units").select("*").eq("theme_id", currentThemeId).order("created_at", { ascending: true });
+        if (error) throw error;
 
-      if (!data || data.length === 0) {
-        list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-2">Belum ada tajuk. Sila tambah di bawah.</p>';
-        return;
-      }
-
-      list.innerHTML = data.map((t, idx) => `
-        <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border-l-4 border-indigo-500 shadow-sm mb-2 flex justify-between items-start">
-          <div>
-            <p class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${t.topic_name}</p>
-            <p class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5">Dipadankan: SK ${t.sk_code}</p>
+        if (!data || data.length === 0) {
+          list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-1">Tiada unit direkodkan.</p>';
+          return;
+        }
+        list.innerHTML = data.map((u, idx) => `
+          <div onclick="proceedToStep4('${u.id}', '${u.unit_name.replace(/'/g, "\\'")}')" class="p-3 bg-amber-50 dark:bg-slate-700/50 rounded-xl border border-amber-200 dark:border-slate-600 flex justify-between items-center cursor-pointer hover:border-indigo-500 transition group">
+            <span class="text-xs font-bold text-amber-900 dark:text-amber-100">${idx + 1}. ${u.unit_name}</span>
+            <span class="text-[10px] bg-amber-200 text-amber-800 px-2 py-1 rounded font-bold">Pilih Unit ➔</span>
           </div>
-          <button onclick="deleteTopic('${t.id}')" class="text-[10px] text-rose-500 hover:text-rose-700">✕ Padam</button>
-        </div>
-      `).join("");
+        `).join("");
+      } catch(err) {
+        list.innerHTML = `<p class="text-rose-500 text-xs">Gagal tarik unit: ${err.message}</p>`;
+      }
     }
 
     document.getElementById("btnSubmitStep3").addEventListener("click", async () => {
-      const name = document.getElementById("inputTopicName").value.trim();
-      const skCode = document.getElementById("selectSKForTopic").value;
-      
-      if (!name || !skCode) return alert("Sila lengkapkan nama tajuk dan pilih padanan SK.");
+      const name = document.getElementById("inputUnitName").value.trim();
+      if (!name) return alert("Sila masukkan nama unit.");
       
       const btn = document.getElementById("btnSubmitStep3");
       btn.textContent = "Menyimpan...";
-      btn.disabled = true;
       
       try {
-        const { error } = await client.from("textbook_topics").insert([{ theme_id: currentThemeId, topic_name: name, sk_code: skCode }]);
+        const { data, error } = await client.from("textbook_units").insert([{ theme_id: currentThemeId, unit_name: name }]).select().single();
         if (error) throw error;
-        
+
+        document.getElementById("inputUnitName").value = "";
+        await loadUnits();
+        proceedToStep4(data.id, data.unit_name);
+      } catch (err) {
+        alert("Gagal simpan unit: " + err.message);
+      } finally {
+        btn.textContent = "Sahkan Unit & Teruskan ➔";
+      }
+    });
+
+    window.proceedToStep4 = function(unitId, unitName) {
+      currentUnitId = unitId;
+      document.getElementById("step4Container").classList.remove("hidden");
+      document.getElementById("activeUnitLabel").innerHTML = `Unit Terpilih: <strong class="text-indigo-600 dark:text-indigo-400">${unitName}</strong>`;
+      loadTopics();
+      document.getElementById("step4Container").scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // --- LANGKAH 4: TAJUK & SK ---
+    async function loadTopics() {
+      const list = document.getElementById("topicList");
+      try {
+        const { data, error } = await client.from("textbook_topics").select("*").eq("unit_id", currentUnitId).order("created_at", { ascending: true });
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-1">Belum ada tajuk & SK.</p>';
+          return;
+        }
+        list.innerHTML = data.map((t, idx) => `
+          <div class="p-3 bg-indigo-50 dark:bg-slate-800 rounded-xl border-l-4 border-indigo-500 shadow-sm mb-2 flex justify-between items-start">
+            <div>
+              <p class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${t.topic_name}</p>
+              <p class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5">SK Berkenaan: ${t.sk_code}</p>
+            </div>
+            <button onclick="deleteTopic('${t.id}')" class="text-[10px] text-rose-500 hover:text-rose-700">✕ Padam</button>
+          </div>
+        `).join("");
+      } catch (err) {
+        list.innerHTML = `<p class="text-rose-500 text-xs">Gagal tarik tajuk: ${err.message}</p>`;
+      }
+    }
+
+    document.getElementById("btnSubmitStep4").addEventListener("click", async () => {
+      const name = document.getElementById("inputTopicName").value.trim();
+      const skCode = document.getElementById("selectSKForTopic").value;
+      if (!name || !skCode) return alert("Lengkapkan tajuk dan pilih SK.");
+      
+      const btn = document.getElementById("btnSubmitStep4");
+      btn.textContent = "Menyimpan...";
+      
+      try {
+        const { error } = await client.from("textbook_topics").insert([{ unit_id: currentUnitId, topic_name: name, sk_code: skCode }]);
+        if (error) throw error;
+
         document.getElementById("inputTopicName").value = "";
         document.getElementById("selectSKForTopic").value = "";
         await loadTopics();
-      } catch (err) {
-        alert("Ralat: " + err.message);
+      } catch(err) {
+        alert("Gagal simpan tajuk: " + err.message);
       } finally {
-        btn.textContent = "Simpan Tajuk (Selesai) ✓";
-        btn.disabled = false;
+        btn.textContent = "Simpan Tajuk & SK ✓";
       }
     });
 
