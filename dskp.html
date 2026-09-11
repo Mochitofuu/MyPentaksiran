@@ -15,7 +15,7 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20 transition-colors duration-200">
 
   <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -28,7 +28,7 @@
     <div class="bg-indigo-600 dark:bg-indigo-700 p-5 rounded-2xl text-white shadow-sm space-y-2">
       <h1 class="text-sm font-bold flex items-center gap-1.5">📄 Pengurusan Bank DSKP KPM</h1>
       <p class="text-xs text-indigo-100 leading-relaxed">
-        Sistem kini mengesan dan mengasingkan pecahan (i), (ii), (iii) secara automatik untuk memudahkan guru menanda *tick* sewaktu PBD!
+        Sistem kini membenarkan anda mengawal pecahan (i), (ii) secara manual. Jika ada pecahan yang tertinggal, klik <strong>+ Tambah Pecahan</strong> sebelum menyimpannya.
       </p>
     </div>
 
@@ -61,7 +61,7 @@
       <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 shadow-sm space-y-3">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
           <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Standard Kandungan (SK)</h3>
-          <span id="badgeCountSK" class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">0 SK</span>
+          <span id="badgeCountSK" class="text-[10px] bg-indigo-100 text-indigo-700 dark:text-indigo-300 dark:bg-indigo-900/60 font-bold px-2 py-0.5 rounded-full">0 SK</span>
         </div>
         <div id="listSK" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
       </div>
@@ -70,9 +70,9 @@
       <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 shadow-sm space-y-3">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
           <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Standard Pembelajaran (SP)</h3>
-          <span id="badgeCountSP" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0 SP</span>
+          <span id="badgeCountSP" class="text-[10px] bg-emerald-100 text-emerald-800 dark:text-emerald-300 dark:bg-emerald-900/60 font-bold px-2 py-0.5 rounded-full">0 SP</span>
         </div>
-        <div id="listSP" class="max-h-96 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
+        <div id="listSP" class="max-h-96 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1 pr-1"></div>
       </div>
 
       <button type="button" id="btnSaveToDatabase" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition text-xs">
@@ -80,6 +80,7 @@
       </button>
     </div>
 
+    <!-- Senarai DSKP Sedia Ada -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Bank DSKP Tersedia (Sedia Dipadam)</h3>
       <div id="existingDskpList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -168,8 +169,7 @@
         if (parts.length === 2) {
           extractedSK.push({ code: code, desc: desc });
         } else if (parts.length === 3) {
-          // PROSES MENGASINGKAN PECAHAN (i), (ii), (iii)...
-          // Regex Lookahead mencari (i), (ii) tanpa menyedut karakter sebelumnya
+          // PROSES MENGASINGKAN PECAHAN
           const splitParts = desc.split(/(?=\((?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))/i);
           const mainDesc = splitParts[0].trim();
           const subsArray = splitParts.slice(1).map(s => s.trim()).filter(s => s.length > 0);
@@ -198,35 +198,67 @@
       // Render SK
       document.getElementById("listSK").innerHTML = extractedSK.map((item, idx) => `
         <div class="py-2 flex items-start gap-2">
-          <span class="font-extrabold text-indigo-600 shrink-0 w-12 text-xs pt-1">${item.code}</span>
-          <textarea rows="2" onchange="extractedSK[${idx}].desc = this.value" class="flex-1 text-xs p-2 rounded-lg border border-slate-200 dark:bg-slate-700/60 focus:ring-1 focus:ring-indigo-500">${item.desc}</textarea>
-          <button type="button" onclick="removeExtractedItem('SK', ${idx})" class="text-rose-400 p-1">✕</button>
+          <span class="font-extrabold text-indigo-600 dark:text-indigo-400 shrink-0 w-12 text-xs pt-1">${item.code}</span>
+          <textarea rows="2" onchange="extractedSK[${idx}].desc = this.value" class="flex-1 text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 focus:ring-1 focus:ring-indigo-500">${item.desc}</textarea>
+          <button type="button" onclick="removeExtractedItem('SK', ${idx})" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1 rounded shrink-0">✕</button>
         </div>
       `).join("");
 
-      // Render SP (Dengan Textarea Pecahan)
-      document.getElementById("listSP").innerHTML = extractedSP.map((item, idx) => `
-        <div class="py-2 flex items-start gap-2">
-          <span class="font-extrabold text-emerald-600 shrink-0 w-14 text-xs pt-1">${item.code}</span>
-          <div class="flex-1 space-y-1">
-            <textarea rows="2" onchange="extractedSP[${idx}].desc = this.value" class="w-full text-xs p-2 rounded-lg border border-slate-200 dark:bg-slate-700/60 focus:ring-1 focus:ring-emerald-500">${item.desc}</textarea>
-            ${item.subs.length > 0 ? `
-              <textarea rows="${item.subs.length}" onchange="extractedSP[${idx}].subs = this.value.split('\\n').filter(Boolean)" class="w-full text-[11px] p-2 rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 focus:ring-1 focus:ring-emerald-500" placeholder="Pecahan (i), (ii) setiap baris">${item.subs.join('\n')}</textarea>
-            ` : ''}
+      // Render SP
+      document.getElementById("listSP").innerHTML = extractedSP.map((item, idx) => {
+        if(!item.subs) item.subs = [];
+        
+        let subsHtml = item.subs.map((sub, sIdx) => `
+          <div class="flex items-start gap-1">
+            <textarea rows="1" onchange="extractedSP[${idx}].subs[${sIdx}] = this.value" class="flex-1 text-[11px] p-1.5 rounded border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 focus:ring-1 focus:ring-emerald-500" placeholder="Cth: (i) kata nama am">${sub}</textarea>
+            <button type="button" onclick="removeSub(${idx}, ${sIdx})" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1 text-[10px] rounded" title="Padam pecahan ini">✕</button>
           </div>
-          <button type="button" onclick="removeExtractedItem('SP', ${idx})" class="text-rose-400 p-1">✕</button>
-        </div>
-      `).join("");
+        `).join('');
+
+        return `
+          <div class="py-3 flex items-start gap-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
+            <span class="font-extrabold text-emerald-600 dark:text-emerald-400 shrink-0 w-14 text-xs pt-1">${item.code}</span>
+            <div class="flex-1 space-y-1">
+              <textarea rows="2" onchange="extractedSP[${idx}].desc = this.value" class="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 focus:ring-1 focus:ring-emerald-500">${item.desc}</textarea>
+              
+              <!-- Bahagian Pecahan SP -->
+              <div class="space-y-1.5 mt-2 pl-3 border-l-2 border-emerald-200 dark:border-emerald-800">
+                ${subsHtml}
+                <button type="button" onclick="addSub(${idx})" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-800 dark:hover:bg-emerald-700 text-emerald-700 dark:text-emerald-200 px-2.5 py-1.5 rounded-lg font-bold transition mt-1">
+                  + Tambah Pecahan (i), (ii)
+                </button>
+              </div>
+
+            </div>
+            <button type="button" onclick="removeExtractedItem('SP', ${idx})" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1 rounded shrink-0">✕</button>
+          </div>
+        `;
+      }).join("");
 
       preview.classList.remove("hidden");
     }
 
+    // Fungsi Padam SP / SK Keseluruhan
     window.removeExtractedItem = function(type, idx) {
       if (type === 'SK') extractedSK.splice(idx, 1);
       else extractedSP.splice(idx, 1);
       renderExtractedItems();
-    }
+    };
 
+    // Fungsi Tambah Pecahan
+    window.addSub = function(spIdx) {
+      if (!extractedSP[spIdx].subs) extractedSP[spIdx].subs = [];
+      extractedSP[spIdx].subs.push(""); // Tambah kotak kosong
+      renderExtractedItems();
+    };
+
+    // Fungsi Padam Pecahan
+    window.removeSub = function(spIdx, subIdx) {
+      extractedSP[spIdx].subs.splice(subIdx, 1);
+      renderExtractedItems();
+    };
+
+    // SIMPAN KE SUPABASE
     document.getElementById("btnSaveToDatabase").addEventListener("click", async () => {
       const subjectName = document.getElementById("inputSubjectName").value.trim();
       const gradeLevel = document.getElementById("inputGradeLevel").value.trim();
@@ -250,9 +282,11 @@
           })),
           ...extractedSP.map(i => {
             const skCode = i.code.split('.').slice(0,2).join('.');
+            // Pastikan kita filter text kosong sebelum simpan
+            const cleanSubs = (i.subs || []).map(s => s.trim()).filter(s => s.length > 0);
             return {
               dskp_id: dskpId, sk_code: skCode, sk_desc: skDescMap[skCode] || "Standard Kandungan",
-              sp_code: i.code, sp_desc: i.desc, sp_subs: i.subs // SINI KITA SIMPAN PECAHAN (ARRAY)
+              sp_code: i.code, sp_desc: i.desc, sp_subs: cleanSubs
             };
           })
         ];
