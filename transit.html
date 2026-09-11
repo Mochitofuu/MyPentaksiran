@@ -13,50 +13,83 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-24">
 
-  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
       <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">← Kembali ke Kelas</a>
-      <span class="text-xs font-bold text-slate-700 dark:text-white">Pentaksiran PBD</span>
+      <span class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Pentaksiran PBD</span>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
-    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
-      <div>
-        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">1. Pilih Subjek DSKP</label>
-        <select id="selectSubject" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-white">
-          <option value="">-- Sila Pilih Subjek --</option>
-        </select>
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-5">
+    
+    <!-- BAHAGIAN 1: PEMILIHAN BERPERINGKAT (DARI BUKU TEKS) -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+      <div class="border-b border-slate-100 dark:border-slate-700 pb-2">
+        <h2 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Pemilihan Topik (Buku Teks)</h2>
       </div>
 
-      <div id="spDropdownWrapper">
-        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
-        <select id="selectSP" disabled class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800">
-          <option value="">-- Pilih Subjek Dahulu --</option>
-        </select>
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Subjek -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">1. Subjek DSKP</label>
+          <select id="selectSubject" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-white">
+            <option value="">-- Sila Pilih Subjek --</option>
+          </select>
+        </div>
 
-      <!-- KOTAK INFO SP & PECAHAN (CHECKBOXES) -->
-      <div id="spContainer" class="hidden space-y-2">
-        <div class="p-3 bg-indigo-50 dark:bg-slate-700/60 border border-indigo-100 dark:border-slate-600 rounded-xl">
-          <p id="spDescription" class="text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed"></p>
-          
-          <!-- RUANG UNTUK PECAHAN (CHECKBOX) -->
-          <div id="subdivisionsContainer" class="hidden mt-3 pt-3 border-t border-indigo-200/50 dark:border-slate-500">
-            <p class="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase mb-2">Pecahan SP yang dinilai pada sesi ini (Tandakan ☑️):</p>
-            <div id="subdivisionsList" class="space-y-1.5 flex flex-col"></div>
-          </div>
+        <!-- Tema -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">2. Tema</label>
+          <select id="selectTheme" disabled class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800 disabled:opacity-50">
+            <option value="">-- Pilih Subjek Dahulu --</option>
+          </select>
+        </div>
+
+        <!-- Unit -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">3. Unit</label>
+          <select id="selectUnit" disabled class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800 disabled:opacity-50">
+            <option value="">-- Pilih Tema Dahulu --</option>
+          </select>
+        </div>
+
+        <!-- Tajuk & SP -->
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">4. Tajuk Harian</label>
+          <select id="selectTopic" disabled class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800 disabled:opacity-50">
+            <option value="">-- Pilih Unit Dahulu --</option>
+          </select>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+    <!-- BAHAGIAN 2: INFO SP & PECAHAN YANG DITARIK AUTOMATIK -->
+    <div id="spContainer" class="hidden bg-indigo-50 dark:bg-slate-700/60 p-4 border border-indigo-100 dark:border-slate-600 rounded-2xl shadow-sm space-y-3">
+      <div class="flex items-start gap-3">
+        <span class="text-3xl">🎯</span>
+        <div>
+          <p id="spTitleBadge" class="text-[10px] font-bold px-2 py-0.5 bg-indigo-200 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded uppercase tracking-wider inline-block mb-1">
+            Standard Pembelajaran (SP)
+          </p>
+          <p id="spDescription" class="text-xs text-indigo-900 dark:text-indigo-100 leading-relaxed font-medium"></p>
+        </div>
+      </div>
+      
+      <!-- RUANG UNTUK PECAHAN (CHECKBOX) -->
+      <div id="subdivisionsContainer" class="hidden mt-3 pt-3 border-t border-indigo-200/60 dark:border-slate-500/50">
+        <p class="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase mb-2">Pecahan SP yang dinilai pada sesi ini (Tandakan ☑️):</p>
+        <div id="subdivisionsList" class="space-y-1.5 flex flex-col"></div>
+      </div>
+    </div>
+
+    <!-- BAHAGIAN 3: SENARAI MURID & BUTANG TP -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
         <h2 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Senarai Murid & Markah TP</h2>
-        <span id="saveStatus" class="text-[11px] text-emerald-600 font-semibold hidden">Tersimpan ✓</span>
+        <span id="saveStatus" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold hidden bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded">Tersimpan ✓</span>
       </div>
       <div id="studentAssessmentList" class="divide-y divide-slate-100 dark:divide-slate-700">
-        <p class="text-xs text-slate-400 py-6 text-center">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
+        <p class="text-xs text-slate-400 py-6 text-center">Sila lengkapkan pilihan topik di atas terlebih dahulu.</p>
       </div>
     </div>
   </main>
@@ -72,8 +105,15 @@
 
     let currentUser = null;
     let students = [];
-    let spList = [];
-    let currentSP = null;
+    let currentSubjectId = null;
+    
+    // Arrays untuk simpan data pilihan
+    let themesList = [];
+    let unitsList = [];
+    let topicsList = [];
+    
+    // SP Yang sedang aktif ditaksir
+    let currentSP = null; 
     let currentScores = {};
 
     if (!classId) window.location.href = "dashboard.html";
@@ -84,45 +124,134 @@
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
       
-      const { data } = await client.from("students").select("*").eq("class_id", classId).order("full_name", { ascending: true });
-      students = data || [];
+      // Load senarai murid
+      const { data: stdData } = await client.from("students").select("*").eq("class_id", classId).order("full_name", { ascending: true });
+      students = stdData || [];
       
+      // Load senarai subjek DSKP
       const { data: subjs } = await client.from("dskp_subjects").select("id, subject_name, grade_level");
       const sel = document.getElementById("selectSubject");
       sel.innerHTML = '<option value="">-- Sila Pilih Subjek --</option>' + (subjs || []).map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join('');
     }
 
+    // --- ALIRAN 1: BILA SUBJEK DIPILIH ---
     document.getElementById("selectSubject").addEventListener("change", async (e) => {
-      const dskpId = e.target.value;
-      document.getElementById("spContainer").classList.add("hidden");
-      const selSP = document.getElementById("selectSP");
-      if (!dskpId) { selSP.disabled = true; return; }
+      currentSubjectId = e.target.value;
+      resetDropdown("selectTheme", "Sila Pilih Tema");
+      resetDropdown("selectUnit", "Pilih Tema Dahulu");
+      resetDropdown("selectTopic", "Pilih Unit Dahulu");
+      hideSP();
 
-      selSP.innerHTML = `<option value="">Memuatkan senarai SP...</option>`;
-      const { data } = await client.from("dskp_items").select("*").eq("dskp_id", dskpId);
-      spList = data.filter(i => !i.sp_desc.includes("[SK]"));
-      spList.sort((a, b) => a.sp_code.localeCompare(b.sp_code, undefined, { numeric: true }));
+      if (!currentSubjectId) return;
+
+      const selTheme = document.getElementById("selectTheme");
+      selTheme.innerHTML = '<option value="">Memuatkan tema...</option>';
+      selTheme.disabled = true;
+
+      const { data } = await client.from("textbook_themes").select("*").eq("dskp_id", currentSubjectId).order("created_at", { ascending: true });
+      themesList = data || [];
       
-      selSP.disabled = false;
-      selSP.innerHTML = '<option value="">-- Sila Pilih Kod SP --</option>' + spList.map(item => `<option value="${item.id}">SP ${item.sp_code} - ${item.sp_desc.slice(0, 40)}...</option>`).join('');
+      if (themesList.length > 0) {
+        selTheme.innerHTML = '<option value="">-- Sila Pilih Tema --</option>' + themesList.map(t => `<option value="${t.id}">${t.theme_name}</option>`).join('');
+        selTheme.disabled = false;
+        selTheme.classList.remove("bg-slate-50", "dark:bg-slate-800");
+        selTheme.classList.add("bg-white");
+      } else {
+        selTheme.innerHTML = '<option value="">Tiada Tema Dijumpai (Sila set di Admin)</option>';
+      }
     });
 
-    document.getElementById("selectSP").addEventListener("change", async (e) => {
-      const spId = e.target.value;
-      if (!spId) return document.getElementById("spContainer").classList.add("hidden");
+    // --- ALIRAN 2: BILA TEMA DIPILIH ---
+    document.getElementById("selectTheme").addEventListener("change", async (e) => {
+      const themeId = e.target.value;
+      resetDropdown("selectUnit", "Sila Pilih Unit");
+      resetDropdown("selectTopic", "Pilih Unit Dahulu");
+      hideSP();
 
-      currentSP = spList.find(i => i.id === spId);
+      if (!themeId) return;
+
+      const selUnit = document.getElementById("selectUnit");
+      selUnit.innerHTML = '<option value="">Memuatkan unit...</option>';
+      selUnit.disabled = true;
+
+      const { data } = await client.from("textbook_units").select("*").eq("theme_id", themeId).order("created_at", { ascending: true });
+      unitsList = data || [];
+
+      if (unitsList.length > 0) {
+        selUnit.innerHTML = '<option value="">-- Sila Pilih Unit --</option>' + unitsList.map(u => `<option value="${u.id}">${u.unit_name}</option>`).join('');
+        selUnit.disabled = false;
+        selUnit.classList.remove("bg-slate-50", "dark:bg-slate-800");
+        selUnit.classList.add("bg-white");
+      } else {
+        selUnit.innerHTML = '<option value="">Tiada Unit Dijumpai</option>';
+      }
+    });
+
+    // --- ALIRAN 3: BILA UNIT DIPILIH ---
+    document.getElementById("selectUnit").addEventListener("change", async (e) => {
+      const unitId = e.target.value;
+      resetDropdown("selectTopic", "Sila Pilih Tajuk Harian");
+      hideSP();
+
+      if (!unitId) return;
+
+      const selTopic = document.getElementById("selectTopic");
+      selTopic.innerHTML = '<option value="">Memuatkan tajuk...</option>';
+      selTopic.disabled = true;
+
+      const { data } = await client.from("textbook_topics").select("*").eq("unit_id", unitId).order("created_at", { ascending: true });
+      topicsList = data || [];
+
+      if (topicsList.length > 0) {
+        selTopic.innerHTML = '<option value="">-- Sila Pilih Tajuk & SP --</option>' + topicsList.map(t => `<option value="${t.id}">${t.topic_name} (SP: ${t.sp_code})</option>`).join('');
+        selTopic.disabled = false;
+        selTopic.classList.remove("bg-slate-50", "dark:bg-slate-800");
+        selTopic.classList.add("bg-white");
+      } else {
+        selTopic.innerHTML = '<option value="">Tiada Tajuk Dijumpai</option>';
+      }
+    });
+
+    // --- ALIRAN 4: BILA TAJUK DIPILIH (TARIK MAKLUMAT SP SEBENAR DARI DSKP) ---
+    document.getElementById("selectTopic").addEventListener("change", async (e) => {
+      const topicId = e.target.value;
+      hideSP();
+      if (!topicId) return;
+
+      // Cari tajuk yang dipilih untuk dapatkan kod SP
+      const selectedTopic = topicsList.find(t => t.id === topicId);
+      if (!selectedTopic) return;
+
+      // Tarik huraian penuh SP dan pecahannya dari jadual dskp_items asal
+      const { data: spData, error } = await client
+        .from("dskp_items")
+        .select("*")
+        .eq("dskp_id", currentSubjectId)
+        .eq("sp_code", selectedTopic.sp_code)
+        .limit(1)
+        .maybeSingle();
+
+      if (error || !spData) {
+        alert("Ralat: Tidak menjumpai huraian untuk SP " + selectedTopic.sp_code + " dalam Bank DSKP.");
+        return;
+      }
+
+      currentSP = spData;
+      
+      // Paparkan UI Huraian SP
       document.getElementById("spContainer").classList.remove("hidden");
-      document.getElementById("spDescription").innerHTML = `<strong>SP ${currentSP.sp_code}:</strong> ${currentSP.sp_desc}`;
+      document.getElementById("spTitleBadge").textContent = `SP ${currentSP.sp_code}`;
+      document.getElementById("spDescription").textContent = currentSP.sp_desc;
       
       // Paparkan Checkbox Pecahan (jika ada sp_subs)
       const subContainer = document.getElementById("subdivisionsContainer");
       const subList = document.getElementById("subdivisionsList");
+      
       if (currentSP.sp_subs && currentSP.sp_subs.length > 0) {
         subList.innerHTML = currentSP.sp_subs.map((sub, i) => `
-          <label class="flex items-start gap-2 cursor-pointer p-1.5 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded transition">
-            <input type="checkbox" value="${sub.replace(/"/g, '&quot;')}" class="mt-0.5 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 checkbox-pecahan">
-            <span class="text-[11px] text-indigo-900 dark:text-indigo-200">${sub}</span>
+          <label class="flex items-start gap-2 cursor-pointer p-2 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-lg transition border border-transparent hover:border-indigo-100 dark:hover:border-slate-600">
+            <input type="checkbox" value="${sub.replace(/"/g, '&quot;')}" class="mt-0.5 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 checkbox-pecahan" onchange="triggerAutoSaveSubdivisions()">
+            <span class="text-[11px] text-indigo-900 dark:text-indigo-200 font-medium">${sub}</span>
           </label>
         `).join("");
         subContainer.classList.remove("hidden");
@@ -130,18 +259,35 @@
         subContainer.classList.add("hidden");
       }
 
-      // Ambil markah sedia ada & pecahan yang pernah ditanda
-      const { data: records } = await client.from("pbd_records").select("*").eq("sp_id", spId).eq("user_id", currentUser.id);
+      // Ambil markah PBD sedia ada untuk SP ini (jika cikgu pernah nilai sebelum ini)
+      const { data: records } = await client.from("pbd_records").select("*").eq("sp_id", currentSP.id).eq("user_id", currentUser.id);
       currentScores = {};
       if (records) {
         records.forEach(r => { currentScores[r.student_id] = { id: r.id, score: r.tp_score, subs: r.achieved_subs || [] }; });
       }
+      
       renderAssessmentList();
     });
 
+    // Helper functions
+    function resetDropdown(id, defaultText) {
+      const el = document.getElementById(id);
+      el.innerHTML = `<option value="">-- ${defaultText} --</option>`;
+      el.disabled = true;
+      el.classList.add("bg-slate-50", "dark:bg-slate-800");
+      el.classList.remove("bg-white");
+    }
+
+    function hideSP() {
+      document.getElementById("spContainer").classList.add("hidden");
+      document.getElementById("studentAssessmentList").innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Sila lengkapkan pilihan topik di atas terlebih dahulu.</p>`;
+      currentSP = null;
+    }
+
+    // Render Senarai Nama Murid dan Butang Penilaian
     function renderAssessmentList() {
       const container = document.getElementById("studentAssessmentList");
-      if (students.length === 0) return container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tiada murid.</p>`;
+      if (students.length === 0) return container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tiada murid dalam kelas ini.</p>`;
 
       container.innerHTML = students.map((s, idx) => {
         const item = currentScores[s.id] || {};
@@ -149,41 +295,49 @@
         const subs = item.subs || [];
 
         const tpButtons = [1, 2, 3, 4, 5, 6].map(tp => `
-          <button onclick="handleTPClick('${s.id}', ${tp})" class="w-7 h-7 text-xs rounded-lg transition ${score === tp ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}">${tp}</button>
+          <button onclick="handleTPClick('${s.id}', ${tp})" class="w-7 h-7 sm:w-8 sm:h-8 text-[11px] sm:text-xs rounded-lg transition shadow-sm ${score === tp ? 'bg-indigo-600 text-white font-bold ring-2 ring-indigo-300 ring-offset-1' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}">${tp}</button>
         `).join("");
         
         const isAbsent = score === 0;
-        const absentBtn = `<button onclick="handleTPClick('${s.id}', 0)" class="px-2 h-7 text-xs rounded-lg font-semibold ${isAbsent ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-500'}">TH</button>`;
+        const absentBtn = `<button onclick="handleTPClick('${s.id}', 0)" class="px-2 h-7 sm:h-8 text-[11px] sm:text-xs rounded-lg font-semibold shadow-sm ${isAbsent ? 'bg-rose-600 text-white ring-2 ring-rose-300 ring-offset-1' : 'bg-rose-50 text-rose-500 hover:bg-rose-100'}">TH</button>`;
 
         let statTxt = `<span class="text-slate-400">Belum Ditaksir</span>`;
-        if (score === 0) statTxt = `<span class="font-bold text-rose-500">Tidak Hadir</span>`;
-        else if (score > 0) statTxt = `<span class="font-bold text-indigo-600">TP ${score}</span>`;
+        if (score === 0) statTxt = `<span class="font-bold text-rose-500">TIDAK HADIR</span>`;
+        else if (score > 0) statTxt = `<span class="font-bold text-indigo-600">Tahap Penguasaan (TP) ${score}</span>`;
 
-        let subsBadge = subs.length > 0 ? `<div class="text-[9px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded mt-0.5 max-w-[200px] truncate" title="${subs.join(', ')}">Pecahan: ${subs.join(', ')}</div>` : '';
+        let subsBadge = subs.length > 0 ? `<div class="text-[9px] text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded-md mt-1 line-clamp-1 max-w-[250px]" title="${subs.join(', ')}">Pecahan dinilai: ${subs.length} ditanda</div>` : '';
 
         return `
-          <div class="py-3 flex flex-col sm:flex-row justify-between gap-2">
+          <div class="py-3 sm:py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
-              <p class="text-xs font-semibold text-slate-800 dark:text-white">${idx + 1}. ${s.full_name}</p>
+              <p class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${s.full_name}</p>
               <div class="text-[10px] mt-0.5">${statTxt}</div>
               ${subsBadge}
             </div>
-            <div class="flex items-center gap-1.5 self-end sm:self-auto">${tpButtons}${absentBtn}</div>
+            <div class="flex items-center justify-start gap-1 sm:gap-1.5 self-start sm:self-auto">${tpButtons}<div class="w-px h-6 bg-slate-200 mx-1"></div>${absentBtn}</div>
           </div>
         `;
       }).join("");
     }
 
+    // Apabila butang TP ditekan
     window.handleTPClick = async function(studentId, score) {
       if (!currentSP) return;
       
-      // Ambil senarai pecahan yang ditanda guru di atas
+      // Kumpul senarai pecahan (i), (ii) yang ditanda guru di atas
       let selectedSubs = [];
       document.querySelectorAll('.checkbox-pecahan:checked').forEach(cb => selectedSubs.push(cb.value));
+
+      // Jika tiada yang ditanda tetapi ada pilihan pecahan, amaran halus
+      if (currentSP.sp_subs && currentSP.sp_subs.length > 0 && selectedSubs.length === 0 && score > 0) {
+        if(!confirm("Anda tidak menanda sebarang pecahan SP di atas. Teruskan memberi TP?")) return;
+      }
 
       const now = new Date().toISOString();
       currentScores[studentId] = { score: score, subs: selectedSubs };
       renderAssessmentList();
+      
+      showSaveStatus(); // Tunjuk indikator sedang menyimpan
 
       try {
         const { data: ext } = await client.from("pbd_records").select("id").eq("student_id", studentId).eq("sp_id", currentSP.id).eq("user_id", currentUser.id).maybeSingle();
@@ -193,9 +347,21 @@
           await client.from("pbd_records").insert([{ student_id: studentId, sp_id: currentSP.id, tp_score: score, achieved_subs: selectedSubs, user_id: currentUser.id, created_at: now }]);
         }
       } catch (err) {
-        alert("Ralat: " + err.message);
+        alert("Ralat menyimpa rekod: " + err.message);
       }
     };
+
+    // Apabila cikgu menukar (tick/untick) kotak pecahan
+    window.triggerAutoSaveSubdivisions = function() {
+      // Fungsi ni optional. Jika cikgu nak tick automatik simpan ke semua pelajar yang dah ada TP.
+      // Buat masa ni, pecahan akan diserahkan waktu butang TP ditekan.
+    }
+
+    function showSaveStatus() {
+      const el = document.getElementById("saveStatus");
+      el.classList.remove("hidden");
+      setTimeout(() => { el.classList.add("hidden"); }, 2000);
+    }
 
     init();
   </script>
