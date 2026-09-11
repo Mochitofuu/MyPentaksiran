@@ -147,7 +147,7 @@
       </div>
     </div>
 
-    <!-- SEKSYEN BARU: RUMUSAN STANDARD KANDUNGAN (SK) -->
+    <!-- SEKSYEN: RUMUSAN STANDARD KANDUNGAN (SK) -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3 print:p-0 print:border-none print:shadow-none print:space-y-1">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider print:text-[8pt] print:font-black print:text-slate-900 print:mb-1">
         Rumusan Standard Kandungan (SK)
@@ -370,7 +370,8 @@
         if (scored.length > 0) {
           let totalTP = 0;
           scored.forEach(r => totalTP += r.tp_score);
-          avgText = "TP " + (totalTP / scored.length).toFixed(1);
+          // DIKEMASKINI: DIBUNDARKAN KEPADA NOMBOR BULAT (TIADA PERPULUHAN)
+          avgText = "TP " + Math.round(totalTP / scored.length);
         } else {
           avgText = "TH";
         }
@@ -413,7 +414,6 @@
         }
 
         // --- RUMUSAN STANDARD KANDUNGAN (SK) ---
-        // Kumpul markah mengikut SK (ekstrak 2 digit awal kod SP, cth: "1.1.1" -> "1.1")
         let skGroups = {};
         records.forEach(r => {
           const sp = spMap[r.sp_id];
@@ -436,7 +436,8 @@
             let avgTP = "-";
             if (scores.length > 0) {
               const sum = scores.reduce((a, b) => a + b, 0);
-              avgTP = "TP " + Math.round(sum / scores.length); // Dibundarkan kepada TP terdekat
+              // SK juga dibundarkan ke nombor bulat terdekat
+              avgTP = "TP " + Math.round(sum / scores.length); 
             }
             return `
               <div class="py-2.5 flex items-center justify-between">
