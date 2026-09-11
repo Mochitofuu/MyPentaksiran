@@ -28,7 +28,7 @@
     <div class="bg-indigo-600 dark:bg-indigo-700 p-5 rounded-2xl text-white shadow-sm space-y-2">
       <h1 class="text-sm font-bold flex items-center gap-1.5">📄 Pengurusan Bank DSKP KPM</h1>
       <p class="text-xs text-indigo-100 leading-relaxed">
-        Sistem kini membenarkan anda mengawal pecahan (i), (ii) secara manual. Jika ada pecahan yang tertinggal, klik <strong>+ Tambah Pecahan</strong> sebelum menyimpannya.
+        Enjin pengimbas pintar kini menyimpan huraian paling panjang bagi setiap SP & SK untuk mengelakkan sebarang kod tercicir!
       </p>
     </div>
 
@@ -63,7 +63,7 @@
           <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Standard Kandungan (SK)</h3>
           <span id="badgeCountSK" class="text-[10px] bg-indigo-100 text-indigo-700 dark:text-indigo-300 dark:bg-indigo-900/60 font-bold px-2 py-0.5 rounded-full">0 SK</span>
         </div>
-        <div id="listSK" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
+        <div id="listSK" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1 pr-1"></div>
       </div>
 
       <!-- Kad SP -->
@@ -111,7 +111,7 @@
       if (!file) return;
 
       document.getElementById("fileNameDisplay").textContent = `Fail: ${file.name}`;
-      document.getElementById("parsingStatusText").textContent = "Sedang mengimbas teks dari PDF...";
+      document.getElementById("parsingStatusText").textContent = "Sedang mengimbas teks dari PDF, sila tunggu...";
       
       if (!document.getElementById("inputSubjectName").value) {
         document.getElementById("inputSubjectName").value = file.name.replace(/\.[^/.]+$/, "").replace(/[_]/g, " ");
@@ -133,6 +133,7 @@
           document.getElementById("parsingStatusText").textContent = "Analisis selesai ✓";
         } catch (err) {
           alert("Ralat membaca fail: " + err.message);
+          document.getElementById("parsingStatusText").textContent = "Ralat membaca fail.";
         }
       };
       reader.readAsArrayBuffer(file);
@@ -143,7 +144,9 @@
       extractedSP = [];
       
       let cleanText = text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ');
-      const codeRegex = /\b([1-9]\.[1-9](?:\.\d{1,2})?)\b/g;
+      
+      // Deteksi kod bernombor. cth: 1.1, 1.1.1
+      const codeRegex = /\b(\d{1,2}\.\d{1,2}(?:\.\d{1,2})?)\b/g;
       let match;
       const matches = [];
       
@@ -151,24 +154,37 @@
         matches.push({ code: match[1], index: match.index, end: match.index + match[0].length });
       }
 
-      const latestCodes = new Map();
-      const stopWords = /(Tahap Penguasaan|Catatan|Standard Prestasi|KSSR|Tahun \d|Murid boleh|STANDARD PEMBELAJARAN|STANDARD KANDUNGAN)/i;
+      // bestCodes untuk menyimpan huraian PALING PANJANG bagi setiap kod
+      const bestCodes = new Map();
+      const stopWords = /(Tahap Penguasaan|Catatan|Standard Prestasi|KSSR|Tahun \d|STANDARD PEMBELAJARAN|STANDARD KANDUNGAN|Elemen Merentas Kurikulum)/i;
 
       for (let i = 0; i < matches.length; i++) {
         const current = matches[i];
         const next = matches[i + 1];
         
         let desc = next ? cleanText.substring(current.end, next.index) : cleanText.substring(current.end, current.end + 400);
-        desc = desc.replace(/^[-\s:;]+/, '').trim().split(stopWords)[0].trim();
+        
+        // Buang perkataan 'Murid boleh' tanpa memotong ayat
+        desc = desc.replace(/Murid\s*boleh\s*:?/gi, '');
+        desc = desc.replace(/^[-\s:;.)]+/, '').trim();
+        
+        // Potong hanya apabila terjumpa sempadan jadual lain
+        desc = desc.split(stopWords)[0].trim();
 
-        if (desc.length > 3) latestCodes.set(current.code, desc);
+        if (desc.length > 3) {
+          const existingDesc = bestCodes.get(current.code) || "";
+          // LOGIK BARU: Hanya simpan jika huraian baru lebih panjang daripada huraian sedia ada
+          if (desc.length > existingDesc.length) {
+            bestCodes.set(current.code, desc);
+          }
+        }
       }
 
-      latestCodes.forEach((desc, code) => {
+      bestCodes.forEach((desc, code) => {
         const parts = code.split('.');
         if (parts.length === 2) {
           extractedSK.push({ code: code, desc: desc });
-        } else if (parts.length === 3) {
+        } else if (parts.length >= 3) {
           // PROSES MENGASINGKAN PECAHAN
           const splitParts = desc.split(/(?=\((?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))/i);
           const mainDesc = splitParts[0].trim();
@@ -187,7 +203,7 @@
     function renderExtractedItems() {
       const preview = document.getElementById("previewContainer");
       if (extractedSK.length === 0 && extractedSP.length === 0) {
-        alert("Tiada kod SK atau SP dikesan.");
+        alert("Tiada kod SK atau SP dikesan. Pastikan PDF berformat teks.");
         preview.classList.add("hidden");
         return;
       }
@@ -210,7 +226,7 @@
         
         let subsHtml = item.subs.map((sub, sIdx) => `
           <div class="flex items-start gap-1">
-            <textarea rows="1" onchange="extractedSP[${idx}].subs[${sIdx}] = this.value" class="flex-1 text-[11px] p-1.5 rounded border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 focus:ring-1 focus:ring-emerald-500" placeholder="Cth: (i) kata nama am">${sub}</textarea>
+            <textarea rows="1" onchange="extractedSP[${idx}].subs[${sIdx}] = this.value" class="flex-1 text-[11px] p-1.5 rounded border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 focus:ring-1 focus:ring-emerald-500">${sub}</textarea>
             <button type="button" onclick="removeSub(${idx}, ${sIdx})" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1 text-[10px] rounded" title="Padam pecahan ini">✕</button>
           </div>
         `).join('');
@@ -221,7 +237,6 @@
             <div class="flex-1 space-y-1">
               <textarea rows="2" onchange="extractedSP[${idx}].desc = this.value" class="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700/60 focus:ring-1 focus:ring-emerald-500">${item.desc}</textarea>
               
-              <!-- Bahagian Pecahan SP -->
               <div class="space-y-1.5 mt-2 pl-3 border-l-2 border-emerald-200 dark:border-emerald-800">
                 ${subsHtml}
                 <button type="button" onclick="addSub(${idx})" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-800 dark:hover:bg-emerald-700 text-emerald-700 dark:text-emerald-200 px-2.5 py-1.5 rounded-lg font-bold transition mt-1">
@@ -238,27 +253,23 @@
       preview.classList.remove("hidden");
     }
 
-    // Fungsi Padam SP / SK Keseluruhan
     window.removeExtractedItem = function(type, idx) {
       if (type === 'SK') extractedSK.splice(idx, 1);
       else extractedSP.splice(idx, 1);
       renderExtractedItems();
     };
 
-    // Fungsi Tambah Pecahan
     window.addSub = function(spIdx) {
       if (!extractedSP[spIdx].subs) extractedSP[spIdx].subs = [];
-      extractedSP[spIdx].subs.push(""); // Tambah kotak kosong
+      extractedSP[spIdx].subs.push("(i) "); 
       renderExtractedItems();
     };
 
-    // Fungsi Padam Pecahan
     window.removeSub = function(spIdx, subIdx) {
       extractedSP[spIdx].subs.splice(subIdx, 1);
       renderExtractedItems();
     };
 
-    // SIMPAN KE SUPABASE
     document.getElementById("btnSaveToDatabase").addEventListener("click", async () => {
       const subjectName = document.getElementById("inputSubjectName").value.trim();
       const gradeLevel = document.getElementById("inputGradeLevel").value.trim();
@@ -282,7 +293,6 @@
           })),
           ...extractedSP.map(i => {
             const skCode = i.code.split('.').slice(0,2).join('.');
-            // Pastikan kita filter text kosong sebelum simpan
             const cleanSubs = (i.subs || []).map(s => s.trim()).filter(s => s.length > 0);
             return {
               dskp_id: dskpId, sk_code: skCode, sk_desc: skDescMap[skCode] || "Standard Kandungan",
