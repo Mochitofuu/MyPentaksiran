@@ -15,7 +15,7 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20 transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20">
 
   <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -26,32 +26,25 @@
 
   <main class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
     <div class="bg-indigo-600 dark:bg-indigo-700 p-5 rounded-2xl text-white shadow-sm space-y-2">
-      <h1 class="text-sm font-bold flex items-center gap-1.5">
-        <span>📄</span> Pengurusan Bank DSKP KPM
-      </h1>
+      <h1 class="text-sm font-bold flex items-center gap-1.5">📄 Pengurusan Bank DSKP KPM</h1>
       <p class="text-xs text-indigo-100 leading-relaxed">
-        Sistem pengimbas baharu kini membaca keseluruhan perenggan PDF, menyisih teks pengenalan awal, dan mengekstrak semua Standard Kandungan (SK) & Standard Pembelajaran (SP) dengan bersih dan tepat!
+        Sistem kini mengesan dan mengasingkan pecahan (i), (ii), (iii) secara automatik untuk memudahkan guru menanda *tick* sewaktu PBD!
       </p>
     </div>
 
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
       <h2 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Muat Naik Fail Baharu</h2>
-
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nama Mata Pelajaran</label>
-          <input type="text" id="inputSubjectName" placeholder="Cth: Bahasa Melayu Tahun 1" 
-            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
+          <input type="text" id="inputSubjectName" placeholder="Cth: Bahasa Melayu Tahun 1" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
         </div>
         <div>
           <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Tahap / Tahun</label>
-          <input type="text" id="inputGradeLevel" placeholder="Cth: Tahun 1 / SK" 
-            class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
+          <input type="text" id="inputGradeLevel" placeholder="Cth: Tahun 1 / SK" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500">
         </div>
       </div>
-
       <div>
-        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih Fail PDF DSKP</label>
         <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-500 transition bg-slate-50 dark:bg-slate-700/40" onclick="document.getElementById('pdfFileInput').click()">
           <span class="text-3xl block mb-1">📁</span>
           <p id="fileNameDisplay" class="text-xs font-semibold text-slate-700 dark:text-slate-200">Tekan untuk pilih fail PDF DSKP</p>
@@ -61,17 +54,14 @@
       </div>
     </div>
 
-    <!-- HASIL EKSTRAK DIASINGKAN -->
+    <!-- HASIL EKSTRAK -->
     <div id="previewContainer" class="hidden space-y-4">
       
       <!-- Kad SK -->
       <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 shadow-sm space-y-3">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Senarai Standard Kandungan (SK)</h3>
-          </div>
-          <span id="badgeCountSK" class="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">0 SK</span>
+          <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Standard Kandungan (SK)</h3>
+          <span id="badgeCountSK" class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">0 SK</span>
         </div>
         <div id="listSK" class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
       </div>
@@ -79,21 +69,17 @@
       <!-- Kad SP -->
       <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 shadow-sm space-y-3">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Senarai Standard Pembelajaran (SP)</h3>
-          </div>
-          <span id="badgeCountSP" class="text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full">0 SP</span>
+          <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">Standard Pembelajaran (SP)</h3>
+          <span id="badgeCountSP" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0 SP</span>
         </div>
-        <div id="listSP" class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
+        <div id="listSP" class="max-h-96 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 text-xs space-y-1"></div>
       </div>
 
-      <button type="button" id="btnSaveToDatabase" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2">
+      <button type="button" id="btnSaveToDatabase" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition text-xs">
         💾 Simpan Semua ke Bank DSKP
       </button>
     </div>
 
-    <!-- Senarai DSKP Tersedia -->
     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <h3 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Bank DSKP Tersedia (Sedia Dipadam)</h3>
       <div id="existingDskpList" class="divide-y divide-slate-100 dark:divide-slate-700 text-xs">
@@ -105,7 +91,6 @@
   <script>
     const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ub2phaGlicWJoeGhweXhrcWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDU5NjAsImV4cCI6MjEwNDQyMTk2MH0.UhKRSYCcAizVnKf9dSsIcF1bgOeD8-5KRRSngBvsocI";
-
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -125,34 +110,28 @@
       if (!file) return;
 
       document.getElementById("fileNameDisplay").textContent = `Fail: ${file.name}`;
-      const statusText = document.getElementById("parsingStatusText");
-      statusText.textContent = "Sedang mengimbas teks dari PDF, sila tunggu sebentar...";
+      document.getElementById("parsingStatusText").textContent = "Sedang mengimbas teks dari PDF...";
       
-      const subjInput = document.getElementById("inputSubjectName");
-      if (!subjInput.value) {
-        subjInput.value = file.name.replace(/\.[^/.]+$/, "").replace(/[_]/g, " ");
+      if (!document.getElementById("inputSubjectName").value) {
+        document.getElementById("inputSubjectName").value = file.name.replace(/\.[^/.]+$/, "").replace(/[_]/g, " ");
       }
 
       const reader = new FileReader();
       reader.onload = async function() {
         try {
           const typedarray = new Uint8Array(this.result);
-          const loadingTask = pdfjsLib.getDocument(typedarray);
-          const pdf = await loadingTask.promise;
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
           let fullText = "";
 
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
-            const pageText = textContent.items.map(item => item.str).join(" ");
-            fullText += pageText + " ";
+            fullText += textContent.items.map(item => item.str).join(" ") + " ";
           }
-
           parseDskpText(fullText);
-          statusText.textContent = "Analisis dan imbasan selesai ✓";
+          document.getElementById("parsingStatusText").textContent = "Analisis selesai ✓";
         } catch (err) {
-          alert("Gagal membaca fail PDF: " + err.message);
-          statusText.textContent = "Ralat membaca fail.";
+          alert("Ralat membaca fail: " + err.message);
         }
       };
       reader.readAsArrayBuffer(file);
@@ -163,17 +142,12 @@
       extractedSP = [];
       
       let cleanText = text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ');
-
       const codeRegex = /\b([1-9]\.[1-9](?:\.\d{1,2})?)\b/g;
       let match;
       const matches = [];
       
       while ((match = codeRegex.exec(cleanText)) !== null) {
-        matches.push({
-          code: match[1],
-          index: match.index,
-          end: match.index + match[0].length
-        });
+        matches.push({ code: match[1], index: match.index, end: match.index + match[0].length });
       }
 
       const latestCodes = new Map();
@@ -183,19 +157,10 @@
         const current = matches[i];
         const next = matches[i + 1];
         
-        let desc = "";
-        if (next) {
-          desc = cleanText.substring(current.end, next.index);
-        } else {
-          desc = cleanText.substring(current.end, current.end + 400); 
-        }
-        
-        desc = desc.replace(/^[-\s:;]+/, '').trim();
-        desc = desc.split(stopWords)[0].trim();
+        let desc = next ? cleanText.substring(current.end, next.index) : cleanText.substring(current.end, current.end + 400);
+        desc = desc.replace(/^[-\s:;]+/, '').trim().split(stopWords)[0].trim();
 
-        if (desc.length > 3) {
-          latestCodes.set(current.code, desc);
-        }
+        if (desc.length > 3) latestCodes.set(current.code, desc);
       }
 
       latestCodes.forEach((desc, code) => {
@@ -203,7 +168,13 @@
         if (parts.length === 2) {
           extractedSK.push({ code: code, desc: desc });
         } else if (parts.length === 3) {
-          extractedSP.push({ code: code, desc: desc });
+          // PROSES MENGASINGKAN PECAHAN (i), (ii), (iii)...
+          // Regex Lookahead mencari (i), (ii) tanpa menyedut karakter sebelumnya
+          const splitParts = desc.split(/(?=\((?:i|ii|iii|iv|v|vi|vii|viii|ix|x)\))/i);
+          const mainDesc = splitParts[0].trim();
+          const subsArray = splitParts.slice(1).map(s => s.trim()).filter(s => s.length > 0);
+          
+          extractedSP.push({ code: code, desc: mainDesc, subs: subsArray });
         }
       });
 
@@ -215,11 +186,8 @@
 
     function renderExtractedItems() {
       const preview = document.getElementById("previewContainer");
-      const listSK = document.getElementById("listSK");
-      const listSP = document.getElementById("listSP");
-
       if (extractedSK.length === 0 && extractedSP.length === 0) {
-        alert("Tiada kod SK atau SP dikesan daripada PDF ini. Pastikan ia format rasmi KPM.");
+        alert("Tiada kod SK atau SP dikesan.");
         preview.classList.add("hidden");
         return;
       }
@@ -227,19 +195,26 @@
       document.getElementById("badgeCountSK").textContent = `${extractedSK.length} SK`;
       document.getElementById("badgeCountSP").textContent = `${extractedSP.length} SP`;
 
-      listSK.innerHTML = extractedSK.map((item, idx) => `
-        <div class="py-2 flex items-start gap-2" id="sk_item_${idx}">
-          <span class="font-extrabold text-indigo-600 dark:text-indigo-400 shrink-0 w-12 text-xs pt-1">${item.code}</span>
-          <textarea rows="2" onchange="extractedSK[${idx}].desc = this.value" class="flex-1 text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:bg-slate-700/60 focus:ring-1 focus:ring-indigo-500">${item.desc}</textarea>
-          <button type="button" onclick="removeExtractedItem('SK', ${idx})" class="text-rose-400 hover:text-rose-600 p-1 shrink-0" title="Padam item ini">✕</button>
+      // Render SK
+      document.getElementById("listSK").innerHTML = extractedSK.map((item, idx) => `
+        <div class="py-2 flex items-start gap-2">
+          <span class="font-extrabold text-indigo-600 shrink-0 w-12 text-xs pt-1">${item.code}</span>
+          <textarea rows="2" onchange="extractedSK[${idx}].desc = this.value" class="flex-1 text-xs p-2 rounded-lg border border-slate-200 dark:bg-slate-700/60 focus:ring-1 focus:ring-indigo-500">${item.desc}</textarea>
+          <button type="button" onclick="removeExtractedItem('SK', ${idx})" class="text-rose-400 p-1">✕</button>
         </div>
       `).join("");
 
-      listSP.innerHTML = extractedSP.map((item, idx) => `
-        <div class="py-2 flex items-start gap-2" id="sp_item_${idx}">
-          <span class="font-extrabold text-emerald-600 dark:text-emerald-400 shrink-0 w-14 text-xs pt-1">${item.code}</span>
-          <textarea rows="2" onchange="extractedSP[${idx}].desc = this.value" class="flex-1 text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-700 dark:bg-slate-700/60 focus:ring-1 focus:ring-emerald-500">${item.desc}</textarea>
-          <button type="button" onclick="removeExtractedItem('SP', ${idx})" class="text-rose-400 hover:text-rose-600 p-1 shrink-0" title="Padam item ini">✕</button>
+      // Render SP (Dengan Textarea Pecahan)
+      document.getElementById("listSP").innerHTML = extractedSP.map((item, idx) => `
+        <div class="py-2 flex items-start gap-2">
+          <span class="font-extrabold text-emerald-600 shrink-0 w-14 text-xs pt-1">${item.code}</span>
+          <div class="flex-1 space-y-1">
+            <textarea rows="2" onchange="extractedSP[${idx}].desc = this.value" class="w-full text-xs p-2 rounded-lg border border-slate-200 dark:bg-slate-700/60 focus:ring-1 focus:ring-emerald-500">${item.desc}</textarea>
+            ${item.subs.length > 0 ? `
+              <textarea rows="${item.subs.length}" onchange="extractedSP[${idx}].subs = this.value.split('\\n').filter(Boolean)" class="w-full text-[11px] p-2 rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 focus:ring-1 focus:ring-emerald-500" placeholder="Pecahan (i), (ii) setiap baris">${item.subs.join('\n')}</textarea>
+            ` : ''}
+          </div>
+          <button type="button" onclick="removeExtractedItem('SP', ${idx})" class="text-rose-400 p-1">✕</button>
         </div>
       `).join("");
 
@@ -252,53 +227,32 @@
       renderExtractedItems();
     }
 
-    // SIMPAN KE SUPABASE (PENAMBAHBAIKAN SK_DESC)
     document.getElementById("btnSaveToDatabase").addEventListener("click", async () => {
       const subjectName = document.getElementById("inputSubjectName").value.trim();
       const gradeLevel = document.getElementById("inputGradeLevel").value.trim();
 
-      if (!subjectName || !gradeLevel) return alert("Sila lengkapkan Nama Mata Pelajaran dan Tahap/Tahun di atas.");
-      if (extractedSP.length === 0 && extractedSK.length === 0) return alert("Tiada data untuk disimpan.");
-
+      if (!subjectName || !gradeLevel) return alert("Sila lengkapkan maklumat mata pelajaran.");
       const btn = document.getElementById("btnSaveToDatabase");
-      btn.disabled = true;
       btn.textContent = "Menyimpan ke pangkalan data...";
+      btn.disabled = true;
 
       try {
-        const { data: subData, error: subErr } = await client
-          .from("dskp_subjects")
-          .insert([{ subject_name: subjectName, grade_level: gradeLevel, created_by: currentUser.id }])
-          .select()
-          .single();
-
+        const { data: subData, error: subErr } = await client.from("dskp_subjects").insert([{ subject_name: subjectName, grade_level: gradeLevel, created_by: currentUser.id }]).select().single();
         if (subErr) throw subErr;
         const dskpId = subData.id;
 
-        // Pemetaan: Simpan huraian SK untuk digunakan semula oleh SP
         const skDescMap = {};
-        extractedSK.forEach(sk => {
-          skDescMap[sk.code] = sk.desc;
-        });
+        extractedSK.forEach(sk => { skDescMap[sk.code] = sk.desc; });
 
-        // Susun data dengan tepat: hantar sk_code dan sk_desc untuk kesemuanya
         const allItems = [
           ...extractedSK.map(i => ({
-            dskp_id: dskpId,
-            sk_code: i.code,
-            sk_desc: i.desc, // SK desc dimasukkan
-            sp_code: i.code,
-            sp_desc: `[SK] ${i.desc}`
+            dskp_id: dskpId, sk_code: i.code, sk_desc: i.desc, sp_code: i.code, sp_desc: `[SK] ${i.desc}`
           })),
           ...extractedSP.map(i => {
-            const parts = i.code.split('.');
-            const skCode = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : i.code;
-            const skDesc = skDescMap[skCode] || "Standard Kandungan"; // Ikat SK desc yang sepadan
+            const skCode = i.code.split('.').slice(0,2).join('.');
             return {
-              dskp_id: dskpId,
-              sk_code: skCode,
-              sk_desc: skDesc, // SK desc dimasukkan untuk jadual SP
-              sp_code: i.code,
-              sp_desc: i.desc
+              dskp_id: dskpId, sk_code: skCode, sk_desc: skDescMap[skCode] || "Standard Kandungan",
+              sp_code: i.code, sp_desc: i.desc, sp_subs: i.subs // SINI KITA SIMPAN PECAHAN (ARRAY)
             };
           })
         ];
@@ -306,57 +260,37 @@
         const { error: itemErr } = await client.from("dskp_items").insert(allItems);
         if (itemErr) throw itemErr;
 
-        alert(`Berjaya! Sebanyak ${extractedSK.length} SK dan ${extractedSP.length} SP telah disimpan ke dalam sistem.`);
+        alert("Berjaya! SK, SP dan pecahan-pecahannya telah disimpan.");
         document.getElementById("previewContainer").classList.add("hidden");
         document.getElementById("pdfFileInput").value = "";
         document.getElementById("fileNameDisplay").textContent = "Tekan untuk pilih fail PDF DSKP";
         loadExistingDskp();
       } catch (err) {
-        alert("Ralat semasa menyimpan: " + err.message);
+        alert("Ralat menyimpan: " + err.message);
       } finally {
-        btn.disabled = false;
         btn.textContent = "💾 Simpan Semua ke Bank DSKP";
+        btn.disabled = false;
       }
     });
 
     async function loadExistingDskp() {
+      const { data } = await client.from("dskp_subjects").select("*").order("created_at", { ascending: false });
       const container = document.getElementById("existingDskpList");
-      const { data, error } = await client.from("dskp_subjects").select("*").order("created_at", { ascending: false });
-
-      if (error || !data || data.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 py-3 text-center">Belum ada bank DSKP.</p>`;
-        return;
-      }
-
+      if (!data || data.length === 0) return container.innerHTML = `<p class="text-slate-400 py-3 text-center">Belum ada bank DSKP.</p>`;
+      
       container.innerHTML = data.map(s => `
         <div id="dskp_row_${s.id}" class="py-3 flex items-center justify-between gap-2">
-          <div>
-            <p class="font-bold text-slate-800 dark:text-white">${s.subject_name}</p>
-            <p class="text-[10px] text-slate-400">Tahap: ${s.grade_level}</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 font-bold px-2.5 py-1 rounded-lg">
-              Aktif
-            </span>
-            <button onclick="deleteDskpSubject('${s.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1" title="Padam DSKP ini">
-              🗑️
-            </button>
-          </div>
+          <div><p class="font-bold text-slate-800 dark:text-white">${s.subject_name}</p><p class="text-[10px] text-slate-400">Tahap: ${s.grade_level}</p></div>
+          <button onclick="deleteDskpSubject('${s.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1">🗑️</button>
         </div>
       `).join("");
     }
 
     window.deleteDskpSubject = async function(id) {
-      if (!confirm("Padam bank DSKP ini berserta semua kod SK dan SP di dalamnya?")) return;
-      try {
-        await client.from("dskp_items").delete().eq("dskp_id", id);
-        const { error } = await client.from("dskp_subjects").delete().eq("id", id);
-        if (error) throw error;
-
-        document.getElementById(`dskp_row_${id}`)?.remove();
-      } catch (err) {
-        alert("Gagal memadam DSKP: " + err.message);
-      }
+      if (!confirm("Padam bank DSKP ini?")) return;
+      await client.from("dskp_items").delete().eq("dskp_id", id);
+      await client.from("dskp_subjects").delete().eq("id", id);
+      document.getElementById(`dskp_row_${id}`)?.remove();
     };
 
     init();
