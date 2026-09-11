@@ -7,88 +7,66 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
   <script>
-    if (localStorage.getItem("app_theme") === "dark") {
-      document.documentElement.classList.add("dark");
-    }
+    if (localStorage.getItem("app_theme") === "dark") document.documentElement.classList.add("dark");
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-24 transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-24">
 
-  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 transition-colors">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-        ← Kembali ke Kelas
-      </a>
-      <span id="txtHeaderTitle" class="text-xs font-bold text-slate-700 dark:text-white">Pentaksiran PBD</span>
+      <a id="backBtn" href="dashboard.html" class="inline-flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400">← Kembali ke Kelas</a>
+      <span class="text-xs font-bold text-slate-700 dark:text-white">Pentaksiran PBD</span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto px-4 pt-4 space-y-4">
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div>
-        <label id="lblSelectSub" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">1. Pilih Subjek DSKP</label>
+        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">1. Pilih Subjek DSKP</label>
         <select id="selectSubject" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-white">
           <option value="">-- Sila Pilih Subjek --</option>
         </select>
       </div>
 
-      <div>
-        <label id="lblSelectSP" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
+      <div id="spDropdownWrapper">
+        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">2. Pilih Standard Pembelajaran (SP)</label>
         <select id="selectSP" disabled class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800">
           <option value="">-- Pilih Subjek Dahulu --</option>
         </select>
       </div>
 
+      <!-- KOTAK INFO SP & PECAHAN (CHECKBOXES) -->
       <div id="spContainer" class="hidden space-y-2">
-        <div id="spDescription" class="p-3 bg-indigo-50/70 dark:bg-slate-700/60 border border-indigo-100 dark:border-slate-600 rounded-xl text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed"></div>
-        <div class="flex justify-between items-center text-[10px] text-slate-400">
-          <span>*Tekan sekali lagi nombor aktif untuk padam/reset markah.</span>
-          <button id="btnViewRubrics" class="text-xs bg-indigo-100 dark:bg-slate-700 hover:bg-indigo-200 text-indigo-700 dark:text-indigo-300 font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
-            ℹ️ Rubrik & Penerangan TP
-          </button>
+        <div class="p-3 bg-indigo-50 dark:bg-slate-700/60 border border-indigo-100 dark:border-slate-600 rounded-xl">
+          <p id="spDescription" class="text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed"></p>
+          
+          <!-- RUANG UNTUK PECAHAN (CHECKBOX) -->
+          <div id="subdivisionsContainer" class="hidden mt-3 pt-3 border-t border-indigo-200/50 dark:border-slate-500">
+            <p class="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase mb-2">Pecahan SP yang dinilai pada sesi ini (Tandakan ☑️):</p>
+            <div id="subdivisionsList" class="space-y-1.5 flex flex-col"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h2 id="txtListHead" class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Senarai Pentaksiran Murid</h2>
-        <span id="saveStatus" class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hidden">Tersimpan ✓</span>
+        <h2 class="text-xs font-bold text-slate-700 dark:text-white uppercase tracking-wider">Senarai Murid & Markah TP</h2>
+        <span id="saveStatus" class="text-[11px] text-emerald-600 font-semibold hidden">Tersimpan ✓</span>
       </div>
-
       <div id="studentAssessmentList" class="divide-y divide-slate-100 dark:divide-slate-700">
-        <p class="text-xs text-slate-400 py-6 text-center" id="txtEmptyPrompt">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
+        <p class="text-xs text-slate-400 py-6 text-center">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
       </div>
     </div>
   </main>
 
-  <!-- MODAL RUBRIK TP -->
-  <div id="modalRubric" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl p-5 shadow-xl border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
-        <div>
-          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Standard Prestasi (TP 1 - TP 6)</h3>
-          <p id="rubricSpTitle" class="text-[11px] text-slate-500 dark:text-slate-400">Penerangan</p>
-        </div>
-        <button onclick="document.getElementById('modalRubric').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold">✕</button>
-      </div>
-      <div class="overflow-y-auto py-3 space-y-3 text-xs flex-1" id="rubricFormList"></div>
-      <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2">
-        <button onclick="document.getElementById('modalRubric').classList.add('hidden')" class="text-xs px-3 py-1.5 text-slate-600 dark:text-slate-300">Tutup</button>
-        <button id="btnSaveRubric" class="text-xs px-4 py-1.5 bg-indigo-600 text-white font-medium rounded-lg">Simpan Perubahan</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const SUPABASE_URL = "https://onojahibqbhxhpyxkqca.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ub2phaGlicWJoeGhweXhrcWNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDU5NjAsImV4cCI6MjEwNDQyMTk2MH0.UhKRSYCcAizVnKf9dSsIcF1bgOeD8-5KRRSngBvsocI";
-
     const { createClient } = window.supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const currentLang = localStorage.getItem("app_lang") || "ms";
     const urlParams = new URLSearchParams(window.location.search);
     const classId = urlParams.get("class_id") || urlParams.get("id");
 
@@ -98,184 +76,99 @@
     let currentSP = null;
     let currentScores = {};
 
-    const defaultRubrics = {
-      "1": "Tahu asas kemahiran.",
-      "2": "Tahu dan faham kemahiran.",
-      "3": "Boleh mengaplikasikan kemahiran.",
-      "4": "Mengaplikasikan kemahiran dengan beradab/tepat.",
-      "5": "Mengaplikasikan kemahiran pada situasi baharu dengan terpuji.",
-      "6": "Kreatif, inovatif dan menjadi teladan (mithali)."
-    };
-
     if (!classId) window.location.href = "dashboard.html";
     document.getElementById("backBtn").href = `class.html?id=${classId}`;
-
-    function formatDate(dateString) {
-      if (!dateString) return "";
-      const d = new Date(dateString);
-      return d.toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" });
-    }
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
       currentUser = session.user;
-
-      await loadStudents();
-      await loadSubjects();
-    }
-
-    async function loadStudents() {
+      
       const { data } = await client.from("students").select("*").eq("class_id", classId).order("full_name", { ascending: true });
       students = data || [];
+      
+      const { data: subjs } = await client.from("dskp_subjects").select("id, subject_name, grade_level");
+      const sel = document.getElementById("selectSubject");
+      sel.innerHTML = '<option value="">-- Sila Pilih Subjek --</option>' + (subjs || []).map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join('');
     }
 
-    async function loadSubjects() {
-      const selectSubject = document.getElementById("selectSubject");
-      try {
-        const { data, error } = await client.from("dskp_subjects").select("id, subject_name, grade_level");
-        if (error) throw error;
-
-        let html = '<option value="">-- Sila Pilih Subjek --</option>';
-        data.forEach(s => {
-          html += `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`;
-        });
-        selectSubject.innerHTML = html;
-      } catch (err) {
-        selectSubject.innerHTML = `<option value="">Ralat: ${err.message}</option>`;
-      }
-    }
-
-    const selectSubject = document.getElementById("selectSubject");
-    const selectSP = document.getElementById("selectSP");
-    const spContainer = document.getElementById("spContainer");
-    const spDesc = document.getElementById("spDescription");
-
-    selectSubject.addEventListener("change", async (e) => {
+    document.getElementById("selectSubject").addEventListener("change", async (e) => {
       const dskpId = e.target.value;
-      spContainer.classList.add("hidden");
+      document.getElementById("spContainer").classList.add("hidden");
+      const selSP = document.getElementById("selectSP");
+      if (!dskpId) { selSP.disabled = true; return; }
 
-      if (!dskpId) {
-        selectSP.disabled = true;
-        selectSP.classList.add("bg-slate-50", "dark:bg-slate-800");
-        selectSP.innerHTML = `<option value="">-- Pilih Subjek Dahulu --</option>`;
-        renderEmptyPrompt();
-        return;
-      }
-
-      selectSP.disabled = true;
-      selectSP.innerHTML = `<option value="">Memuatkan senarai SP...</option>`;
-
+      selSP.innerHTML = `<option value="">Memuatkan senarai SP...</option>`;
       const { data } = await client.from("dskp_items").select("*").eq("dskp_id", dskpId);
-      if (!data || data.length === 0) {
-        selectSP.disabled = true;
-        selectSP.innerHTML = `<option value="">Tiada SP bagi subjek ini</option>`;
-        return;
-      }
-
-      data.sort((a, b) => (a.sp_code || '').localeCompare(b.sp_code || ''));
-      spList = data;
-      selectSP.disabled = false;
-      selectSP.classList.remove("bg-slate-50", "dark:bg-slate-800");
-
-      let spHtml = '<option value="">-- Sila Pilih Kod SP --</option>';
-      data.forEach(item => {
-        spHtml += `<option value="${item.id}">SP ${item.sp_code} - ${item.sp_desc.slice(0, 45)}...</option>`;
-      });
-      selectSP.innerHTML = spHtml;
+      spList = data.filter(i => !i.sp_desc.includes("[SK]"));
+      spList.sort((a, b) => a.sp_code.localeCompare(b.sp_code, undefined, { numeric: true }));
+      
+      selSP.disabled = false;
+      selSP.innerHTML = '<option value="">-- Sila Pilih Kod SP --</option>' + spList.map(item => `<option value="${item.id}">SP ${item.sp_code} - ${item.sp_desc.slice(0, 40)}...</option>`).join('');
     });
 
-    selectSP.addEventListener("change", async (e) => {
+    document.getElementById("selectSP").addEventListener("change", async (e) => {
       const spId = e.target.value;
-      if (!spId) {
-        spContainer.classList.add("hidden");
-        renderEmptyPrompt();
-        return;
-      }
+      if (!spId) return document.getElementById("spContainer").classList.add("hidden");
 
       currentSP = spList.find(i => i.id === spId);
-      if (currentSP) {
-        spContainer.classList.remove("hidden");
-        spDesc.innerHTML = `<strong>SP ${currentSP.sp_code}:</strong> ${currentSP.sp_desc}`;
+      document.getElementById("spContainer").classList.remove("hidden");
+      document.getElementById("spDescription").innerHTML = `<strong>SP ${currentSP.sp_code}:</strong> ${currentSP.sp_desc}`;
+      
+      // Paparkan Checkbox Pecahan (jika ada sp_subs)
+      const subContainer = document.getElementById("subdivisionsContainer");
+      const subList = document.getElementById("subdivisionsList");
+      if (currentSP.sp_subs && currentSP.sp_subs.length > 0) {
+        subList.innerHTML = currentSP.sp_subs.map((sub, i) => `
+          <label class="flex items-start gap-2 cursor-pointer p-1.5 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded transition">
+            <input type="checkbox" value="${sub.replace(/"/g, '&quot;')}" class="mt-0.5 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 checkbox-pecahan">
+            <span class="text-[11px] text-indigo-900 dark:text-indigo-200">${sub}</span>
+          </label>
+        `).join("");
+        subContainer.classList.remove("hidden");
+      } else {
+        subContainer.classList.add("hidden");
       }
 
-      const { data: records } = await client
-        .from("pbd_records")
-        .select("id, student_id, tp_score, created_at")
-        .eq("sp_id", spId)
-        .eq("user_id", currentUser.id);
-
+      // Ambil markah sedia ada & pecahan yang pernah ditanda
+      const { data: records } = await client.from("pbd_records").select("*").eq("sp_id", spId).eq("user_id", currentUser.id);
       currentScores = {};
       if (records) {
-        records.forEach(r => {
-          currentScores[r.student_id] = { recordId: r.id, score: r.tp_score, date: r.created_at };
-        });
+        records.forEach(r => { currentScores[r.student_id] = { id: r.id, score: r.tp_score, subs: r.achieved_subs || [] }; });
       }
-
       renderAssessmentList();
     });
 
-    function renderEmptyPrompt() {
-      document.getElementById("studentAssessmentList").innerHTML = `
-        <p class="text-xs text-slate-400 py-6 text-center">Sila pilih subjek dan SP di atas terlebih dahulu.</p>
-      `;
-    }
-
     function renderAssessmentList() {
       const container = document.getElementById("studentAssessmentList");
-      if (students.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tiada murid dalam kelas.</p>`;
-        return;
-      }
-
-      const rubrics = currentSP?.tp_rubrics || defaultRubrics;
+      if (students.length === 0) return container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Tiada murid.</p>`;
 
       container.innerHTML = students.map((s, idx) => {
         const item = currentScores[s.id] || {};
-        const activeTP = item.score !== undefined ? item.score : null;
-        const recordDate = item.date ? formatDate(item.date) : "";
+        const score = item.score;
+        const subs = item.subs || [];
 
-        const tpButtons = [1, 2, 3, 4, 5, 6].map(tp => {
-          const isSelected = activeTP === tp;
-          const bgClass = isSelected 
-            ? "bg-indigo-600 text-white font-bold shadow-sm" 
-            : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600";
+        const tpButtons = [1, 2, 3, 4, 5, 6].map(tp => `
+          <button onclick="handleTPClick('${s.id}', ${tp})" class="w-7 h-7 text-xs rounded-lg transition ${score === tp ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}">${tp}</button>
+        `).join("");
+        
+        const isAbsent = score === 0;
+        const absentBtn = `<button onclick="handleTPClick('${s.id}', 0)" class="px-2 h-7 text-xs rounded-lg font-semibold ${isAbsent ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-500'}">TH</button>`;
 
-          return `
-            <button onclick="handleTPClick('${s.id}', ${tp})" class="w-7 h-7 text-xs rounded-lg transition ${bgClass}">
-              ${tp}
-            </button>
-          `;
-        }).join("");
+        let statTxt = `<span class="text-slate-400">Belum Ditaksir</span>`;
+        if (score === 0) statTxt = `<span class="font-bold text-rose-500">Tidak Hadir</span>`;
+        else if (score > 0) statTxt = `<span class="font-bold text-indigo-600">TP ${score}</span>`;
 
-        const isAbsent = activeTP === 0;
-        const absentBtn = `
-          <button onclick="handleTPClick('${s.id}', 0)" 
-            class="px-2 h-7 text-xs rounded-lg transition font-semibold ${isAbsent ? 'bg-rose-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-500'}">
-            TH
-          </button>
-        `;
-
-        let statusText = `<span class="text-slate-400">Belum Ditaksir</span>`;
-        if (activeTP === 0) {
-          statusText = `<span class="font-bold text-rose-500">Tidak Hadir (TH)</span>`;
-        } else if (activeTP > 0) {
-          statusText = `<span class="font-bold text-indigo-600 dark:text-indigo-400">TP ${activeTP}:</span> ${rubrics[activeTP] || ''}`;
-        }
+        let subsBadge = subs.length > 0 ? `<div class="text-[9px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded mt-0.5 max-w-[200px] truncate" title="${subs.join(', ')}">Pecahan: ${subs.join(', ')}</div>` : '';
 
         return `
-          <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="py-3 flex flex-col sm:flex-row justify-between gap-2">
             <div>
               <p class="text-xs font-semibold text-slate-800 dark:text-white">${idx + 1}. ${s.full_name}</p>
-              <div class="flex items-center gap-2 mt-0.5">
-                <p class="text-[10px] text-slate-500 dark:text-slate-400">${statusText}</p>
-                ${recordDate ? `<span class="text-[9px] bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-400">📅 ${recordDate}</span>` : ''}
-              </div>
+              <div class="text-[10px] mt-0.5">${statTxt}</div>
+              ${subsBadge}
             </div>
-            <div class="flex items-center gap-1.5 self-end sm:self-auto">
-              ${tpButtons}
-              ${absentBtn}
-            </div>
+            <div class="flex items-center gap-1.5 self-end sm:self-auto">${tpButtons}${absentBtn}</div>
           </div>
         `;
       }).join("");
@@ -283,86 +176,26 @@
 
     window.handleTPClick = async function(studentId, score) {
       if (!currentSP) return;
-      const current = currentScores[studentId];
-      if (current && current.score === score) {
-        await deleteTP(studentId);
-      } else {
-        await recordTP(studentId, score);
+      
+      // Ambil senarai pecahan yang ditanda guru di atas
+      let selectedSubs = [];
+      document.querySelectorAll('.checkbox-pecahan:checked').forEach(cb => selectedSubs.push(cb.value));
+
+      const now = new Date().toISOString();
+      currentScores[studentId] = { score: score, subs: selectedSubs };
+      renderAssessmentList();
+
+      try {
+        const { data: ext } = await client.from("pbd_records").select("id").eq("student_id", studentId).eq("sp_id", currentSP.id).eq("user_id", currentUser.id).maybeSingle();
+        if (ext) {
+          await client.from("pbd_records").update({ tp_score: score, achieved_subs: selectedSubs, created_at: now }).eq("id", ext.id);
+        } else {
+          await client.from("pbd_records").insert([{ student_id: studentId, sp_id: currentSP.id, tp_score: score, achieved_subs: selectedSubs, user_id: currentUser.id, created_at: now }]);
+        }
+      } catch (err) {
+        alert("Ralat: " + err.message);
       }
     };
-
-    async function deleteTP(studentId) {
-      delete currentScores[studentId];
-      renderAssessmentList();
-
-      const status = document.getElementById("saveStatus");
-      status.textContent = "Dipadam...";
-      status.classList.remove("hidden", "text-rose-600");
-      status.classList.add("text-slate-400");
-
-      try {
-        await client.from("pbd_records").delete().eq("student_id", studentId).eq("sp_id", currentSP.id).eq("user_id", currentUser.id);
-        status.textContent = "Rekod Dipadam ✓";
-        status.classList.remove("text-slate-400");
-        status.classList.add("text-emerald-600");
-        setTimeout(() => status.classList.add("hidden"), 1500);
-      } catch (err) {
-        status.textContent = "Ralat: " + err.message;
-        status.classList.add("text-rose-600");
-      }
-    }
-
-    async function recordTP(studentId, score) {
-      const nowISO = new Date().toISOString();
-      currentScores[studentId] = { score: score, date: nowISO };
-      renderAssessmentList();
-
-      const status = document.getElementById("saveStatus");
-      status.textContent = "Menyimpan...";
-      status.classList.remove("hidden", "text-rose-600");
-      status.classList.add("text-slate-400");
-
-      try {
-        const { data: existing } = await client.from("pbd_records").select("id").eq("student_id", studentId).eq("sp_id", currentSP.id).eq("user_id", currentUser.id).maybeSingle();
-        if (existing) {
-          await client.from("pbd_records").update({ tp_score: score, created_at: nowISO }).eq("id", existing.id);
-        } else {
-          await client.from("pbd_records").insert([{ student_id: studentId, sp_id: currentSP.id, tp_score: score, user_id: currentUser.id, created_at: nowISO }]);
-        }
-        status.textContent = "Tersimpan ✓";
-        status.classList.remove("text-slate-400");
-        status.classList.add("text-emerald-600");
-        setTimeout(() => status.classList.add("hidden"), 1500);
-      } catch (err) {
-        status.textContent = "Error: " + err.message;
-        status.classList.add("text-rose-600");
-      }
-    }
-
-    document.getElementById("btnViewRubrics").addEventListener("click", () => {
-      if (!currentSP) return;
-      document.getElementById("rubricSpTitle").textContent = `SP ${currentSP.sp_code}: ${currentSP.sp_desc}`;
-      const rubrics = currentSP.tp_rubrics || defaultRubrics;
-      document.getElementById("rubricFormList").innerHTML = [1, 2, 3, 4, 5, 6].map(tp => `
-        <div class="space-y-1">
-          <label class="block font-bold text-slate-700 dark:text-slate-200 text-[11px]">TP ${tp}</label>
-          <textarea id="rubric_tp_${tp}" rows="2" class="w-full text-xs p-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">${rubrics[tp] || defaultRubrics[tp] || ''}</textarea>
-        </div>
-      `).join("");
-      document.getElementById("modalRubric").classList.remove("hidden");
-    });
-
-    document.getElementById("btnSaveRubric").addEventListener("click", async () => {
-      if (!currentSP) return;
-      const updated = {};
-      for (let i = 1; i <= 6; i++) {
-        updated[i] = document.getElementById(`rubric_tp_${i}`).value.trim();
-      }
-      await client.from("dskp_items").update({ tp_rubrics: updated }).eq("id", currentSP.id);
-      currentSP.tp_rubrics = updated;
-      renderAssessmentList();
-      document.getElementById("modalRubric").classList.add("hidden");
-    });
 
     init();
   </script>
