@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tetapan Buku Teks - Admin MyPentaksiran</title>
+  <title>Master Pemetaan Buku Teks - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
   <script>
@@ -13,66 +13,83 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-slate-100 pb-20 transition-colors duration-200">
 
-  <header class="bg-indigo-700 dark:bg-indigo-900 border-b border-indigo-800 sticky top-0 z-10 shadow-md">
+  <!-- Header Eksklusif Admin -->
+  <header class="bg-rose-700 dark:bg-rose-900 border-b border-rose-800 sticky top-0 z-10 shadow-md">
     <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="dashboard.html" class="text-xs font-semibold text-indigo-100 hover:text-white">← Papan Pemuka Admin</a>
-      <span class="text-xs font-bold text-white uppercase tracking-wider">Pemetaan Buku Teks (Admin)</span>
+      <a href="admin.html" class="text-xs font-semibold text-rose-100 hover:text-white">← Kembali ke Master Admin</a>
+      <span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1">
+        ⚡ Pemetaan Buku Teks (VIP)
+      </span>
     </div>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 pt-6 space-y-6">
+  <main class="max-w-3xl mx-auto px-4 pt-6 space-y-6" id="adminContent" style="display: none;">
     
-    <!-- LANGKAH 1: PILIH SUBJEK -->
-    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-      <h2 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">Langkah 1: Pilih Subjek & Tahun</h2>
-      <select id="selectSubject" class="w-full text-xs px-3 py-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-2 focus:ring-indigo-500 font-semibold bg-slate-50">
-        <option value="">-- Memuatkan senarai subjek... --</option>
-      </select>
+    <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 p-4 rounded-xl">
+      <p class="text-xs text-rose-800 dark:text-rose-200 font-medium">
+        Kawasan kawalan Master Admin. Susunan yang dihantar di sini akan muncul pada pilihan PBD semua pengguna (guru).
+      </p>
     </div>
 
-    <!-- LANGKAH 2: MASUKKAN TEMA (Tersembunyi sehingga Langkah 1 selesai) -->
-    <div id="step2Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h2 class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Langkah 2: Tetapan Tema</h2>
-        <span id="themeCountBadge" class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 rounded-full">0 Tema</span>
-      </div>
-      
-      <!-- Senarai Tema Sedia Ada -->
-      <div id="themeList" class="space-y-2 max-h-48 overflow-y-auto"></div>
-
-      <!-- Borang Tambah Tema -->
-      <div class="flex gap-2 pt-2">
-        <input type="text" id="inputThemeName" placeholder="Contoh: Tema 1 - Keluarga Cergas" class="flex-1 text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-1 focus:ring-emerald-500">
-        <button id="btnSaveTheme" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow-sm whitespace-nowrap">
-          + Tambah Tema
+    <!-- LANGKAH 1: PILIH SUBJEK -->
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" id="step1Container">
+      <h2 class="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-3">Langkah 1: Pilih Subjek DSKP</h2>
+      <div class="space-y-3">
+        <select id="selectSubject" class="w-full text-xs px-3 py-3 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-2 focus:ring-rose-500 font-semibold bg-slate-50">
+          <option value="">-- Memuatkan senarai subjek... --</option>
+        </select>
+        <button id="btnSubmitStep1" class="w-full bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+          Sahkan Subjek & Teruskan ➔
         </button>
       </div>
     </div>
 
-    <!-- LANGKAH 3: MASUKKAN TAJUK & SK (Tersembunyi sehingga Tema dipilih) -->
-    <div id="step3Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+    <!-- LANGKAH 2: MASUKKAN TEMA -->
+    <div id="step2Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 transition-all">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <h2 class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Langkah 2: Masukkan Tema</h2>
+        <span id="themeCountBadge" class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 rounded-full">0 Tema</span>
+      </div>
+      
+      <!-- Paparan Tema Sedia Ada -->
+      <div id="themeList" class="space-y-2 max-h-40 overflow-y-auto"></div>
+
+      <!-- Input Tema Baru -->
+      <div class="bg-emerald-50 dark:bg-slate-700/50 p-3 rounded-xl border border-emerald-100 dark:border-slate-600 space-y-3 mt-2">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Cipta Tema Baru</label>
+          <input type="text" id="inputThemeName" placeholder="Contoh: Tema 1 - Kekeluargaan" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-emerald-500">
+        </div>
+        <button id="btnSubmitStep2" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+          Simpan Tema & Teruskan ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- LANGKAH 3: MASUKKAN TAJUK & PADAN SK -->
+    <div id="step3Container" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 transition-all">
       <div class="border-b border-slate-100 dark:border-slate-700 pb-2">
-        <h2 class="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-wider">Langkah 3: Tajuk & Standard Kandungan (SK)</h2>
-        <p id="activeThemeLabel" class="text-[11px] text-slate-500 font-medium mt-0.5">Tema Terpilih: -</p>
+        <h2 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Langkah 3: Masukkan Tajuk & Padankan SK</h2>
+        <p id="activeThemeLabel" class="text-[11px] text-slate-500 font-medium mt-0.5">Bagi Tema: -</p>
       </div>
 
-      <!-- Senarai Tajuk Sedia Ada -->
-      <div id="topicList" class="space-y-2 max-h-60 overflow-y-auto"></div>
+      <!-- Paparan Tajuk Sedia Ada -->
+      <div id="topicList" class="space-y-2 max-h-48 overflow-y-auto"></div>
 
-      <!-- Borang Tambah Tajuk & SK -->
-      <div class="bg-amber-50 dark:bg-slate-700/50 p-3 rounded-xl border border-amber-100 dark:border-slate-600 space-y-3 mt-2">
+      <!-- Input Tajuk Baru -->
+      <div class="bg-indigo-50 dark:bg-slate-700/50 p-3 rounded-xl border border-indigo-100 dark:border-slate-600 space-y-3 mt-2">
         <div>
-          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Nama Tajuk Buku Teks</label>
-          <input type="text" id="inputTopicName" placeholder="Contoh: Unit 1 - Mari Bersenam" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700">
+          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Nama Tajuk / Unit</label>
+          <input type="text" id="inputTopicName" placeholder="Contoh: Unit 1 - Keluarga Cergas" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 focus:ring-1 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Pilih Standard Kandungan (SK) Berkenaan</label>
-          <select id="selectSKForTopic" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 bg-white">
-            <option value="">-- Memuatkan SK... --</option>
+          <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-300 mb-1 uppercase">Pilih Standard Kandungan (SK) Untuk Tajuk Ini</label>
+          <select id="selectSKForTopic" class="w-full text-xs px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 bg-white focus:ring-1 focus:ring-indigo-500">
+            <option value="">-- Memuatkan senarai SK... --</option>
           </select>
         </div>
-        <button id="btnSaveTopic" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow-sm mt-1">
-          Simpan Tajuk & Padankan SK
+        <button id="btnSubmitStep3" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition shadow-sm">
+          Simpan Tajuk (Selesai) ✓
         </button>
       </div>
     </div>
@@ -87,15 +104,26 @@
 
     let currentSubjectId = null;
     let currentThemeId = null;
+    let currentThemeName = "";
     let availableSKs = [];
 
     async function init() {
       const { data: { session } } = await client.auth.getSession();
       if (!session) return window.location.href = "index.html";
+      
+      // SEKURITI: Pastikan ini Admin Master
+      const { data: profile } = await client.from("profiles").select("is_admin").eq("id", session.user.id).maybeSingle();
+      if (!profile || profile.is_admin !== true) {
+        alert("Akses Ditolak: Halaman Master Admin sahaja.");
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      document.getElementById("adminContent").style.display = "block";
       loadSubjects();
     }
 
-    // 1. Muatkan senarai Subjek DSKP sedia ada
+    // --- LANGKAH 1 ---
     async function loadSubjects() {
       const select = document.getElementById("selectSubject");
       const { data } = await client.from("dskp_subjects").select("*").order("created_at", { ascending: false });
@@ -104,27 +132,25 @@
         select.innerHTML = '<option value="">Tiada Subjek DSKP dijumpai.</option>';
         return;
       }
-      
-      select.innerHTML = '<option value="">-- Sila Pilih Subjek & Tahun --</option>' + 
+      select.innerHTML = '<option value="">-- Sila Pilih Subjek --</option>' + 
         data.map(s => `<option value="${s.id}">${s.subject_name} (${s.grade_level})</option>`).join('');
     }
 
-    // Apabila Subjek dipilih, buka Langkah 2 dan ekstrak SK dari subjek tersebut
-    document.getElementById("selectSubject").addEventListener("change", async (e) => {
-      currentSubjectId = e.target.value;
+    document.getElementById("btnSubmitStep1").addEventListener("click", async () => {
+      const subj = document.getElementById("selectSubject").value;
+      if (!subj) return alert("Pilih subjek terlebih dahulu.");
+      
+      currentSubjectId = subj;
+      document.getElementById("step2Container").classList.remove("hidden");
       document.getElementById("step3Container").classList.add("hidden");
       
-      if (!currentSubjectId) {
-        document.getElementById("step2Container").classList.add("hidden");
-        return;
-      }
-
-      document.getElementById("step2Container").classList.remove("hidden");
       await fetchSKForSubject(currentSubjectId);
       await loadThemes();
+      
+      // Auto-scroll ke Langkah 2
+      document.getElementById("step2Container").scrollIntoView({ behavior: 'smooth' });
     });
 
-    // Dapatkan senarai unik SK dari dskp_items untuk dropdown Langkah 3
     async function fetchSKForSubject(dskpId) {
       const { data } = await client.from("dskp_items").select("sk_code, sk_desc").eq("dskp_id", dskpId);
       availableSKs = [];
@@ -138,89 +164,119 @@
           }
         });
       }
-      // Susun SK
       availableSKs.sort((a, b) => a.sk_code.localeCompare(b.sk_code, undefined, { numeric: true }));
       
       const skSelect = document.getElementById("selectSKForTopic");
       skSelect.innerHTML = '<option value="">-- Pilih SK --</option>' + 
-        availableSKs.map(sk => `<option value="${sk.sk_code}">SK ${sk.sk_code} - ${sk.sk_desc}</option>`).join('');
+        availableSKs.map(sk => `<option value="${sk.sk_code}">SK ${sk.sk_code} - ${sk.sk_desc.substring(0, 60)}...</option>`).join('');
     }
 
-    // 2. Muat dan Tambah Tema
+    // --- LANGKAH 2 ---
     async function loadThemes() {
       const { data } = await client.from("textbook_themes").select("*").eq("dskp_id", currentSubjectId).order("created_at", { ascending: true });
       const list = document.getElementById("themeList");
       document.getElementById("themeCountBadge").textContent = `${data ? data.length : 0} Tema`;
 
       if (!data || data.length === 0) {
-        list.innerHTML = '<p class="text-[11px] text-slate-400 italic">Belum ada tema didaftarkan.</p>';
+        list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-2">Belum ada tema. Sila tambah di bawah.</p>';
         return;
       }
 
       list.innerHTML = data.map((t, idx) => `
-        <div onclick="selectTheme('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')" class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer hover:border-emerald-500 transition group">
+        <div onclick="proceedToStep3('${t.id}', '${t.theme_name.replace(/'/g, "\\'")}')" class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer hover:border-emerald-500 transition group">
           <span class="text-xs font-semibold text-slate-800 dark:text-white group-hover:text-emerald-600">${idx + 1}. ${t.theme_name}</span>
-          <span class="text-[10px] text-emerald-500 font-bold opacity-0 group-hover:opacity-100">Buka Tajuk ➔</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">Pilih ➔</span>
         </div>
       `).join("");
     }
 
-    document.getElementById("btnSaveTheme").addEventListener("click", async () => {
+    document.getElementById("btnSubmitStep2").addEventListener("click", async () => {
       const name = document.getElementById("inputThemeName").value.trim();
       if (!name) return alert("Sila masukkan nama tema.");
       
-      const btn = document.getElementById("btnSaveTheme");
-      btn.textContent = "...";
+      const btn = document.getElementById("btnSubmitStep2");
+      btn.textContent = "Menyimpan...";
+      btn.disabled = true;
       
-      await client.from("textbook_themes").insert([{ dskp_id: currentSubjectId, theme_name: name }]);
-      document.getElementById("inputThemeName").value = "";
-      btn.textContent = "+ Tambah Tema";
-      loadThemes();
+      try {
+        const { data, error } = await client.from("textbook_themes").insert([{ dskp_id: currentSubjectId, theme_name: name }]).select().single();
+        if (error) throw error;
+        
+        document.getElementById("inputThemeName").value = "";
+        await loadThemes();
+        
+        // Terus buka langkah 3 untuk tema yang baru dicipta
+        proceedToStep3(data.id, data.theme_name);
+      } catch (err) {
+        alert("Ralat: " + err.message);
+      } finally {
+        btn.textContent = "Simpan Tema & Teruskan ➔";
+        btn.disabled = false;
+      }
     });
 
-    // 3. Muat dan Tambah Tajuk
-    window.selectTheme = function(themeId, themeName) {
+    window.proceedToStep3 = function(themeId, themeName) {
       currentThemeId = themeId;
+      currentThemeName = themeName;
       document.getElementById("step3Container").classList.remove("hidden");
-      document.getElementById("activeThemeLabel").innerHTML = `Tema Terpilih: <strong>${themeName}</strong>`;
+      document.getElementById("activeThemeLabel").innerHTML = `Bagi Tema: <strong class="text-indigo-600 dark:text-indigo-400">${themeName}</strong>`;
       loadTopics();
+      document.getElementById("step3Container").scrollIntoView({ behavior: 'smooth' });
     };
 
+    // --- LANGKAH 3 ---
     async function loadTopics() {
       const { data } = await client.from("textbook_topics").select("*").eq("theme_id", currentThemeId).order("created_at", { ascending: true });
       const list = document.getElementById("topicList");
 
       if (!data || data.length === 0) {
-        list.innerHTML = '<p class="text-[11px] text-slate-400 italic">Belum ada tajuk di bawah tema ini.</p>';
+        list.innerHTML = '<p class="text-[11px] text-slate-400 italic py-2">Belum ada tajuk. Sila tambah di bawah.</p>';
         return;
       }
 
       list.innerHTML = data.map((t, idx) => `
-        <div class="p-2.5 bg-white dark:bg-slate-800 rounded-lg border-l-4 border-amber-500 shadow-sm mb-2">
-          <p class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${t.topic_name}</p>
-          <p class="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5">Dipadankan dengan SK ${t.sk_code}</p>
+        <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border-l-4 border-indigo-500 shadow-sm mb-2 flex justify-between items-start">
+          <div>
+            <p class="text-xs font-bold text-slate-800 dark:text-white">${idx + 1}. ${t.topic_name}</p>
+            <p class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5">Dipadankan: SK ${t.sk_code}</p>
+          </div>
+          <button onclick="deleteTopic('${t.id}')" class="text-[10px] text-rose-500 hover:text-rose-700">✕ Padam</button>
         </div>
       `).join("");
     }
 
-    document.getElementById("btnSaveTopic").addEventListener("click", async () => {
+    document.getElementById("btnSubmitStep3").addEventListener("click", async () => {
       const name = document.getElementById("inputTopicName").value.trim();
       const skCode = document.getElementById("selectSKForTopic").value;
       
-      if (!name || !skCode) return alert("Sila lengkapkan nama tajuk dan pilih SK.");
+      if (!name || !skCode) return alert("Sila lengkapkan nama tajuk dan pilih padanan SK.");
       
-      const btn = document.getElementById("btnSaveTopic");
+      const btn = document.getElementById("btnSubmitStep3");
       btn.textContent = "Menyimpan...";
+      btn.disabled = true;
       
-      await client.from("textbook_topics").insert([{ theme_id: currentThemeId, topic_name: name, sk_code: skCode }]);
-      document.getElementById("inputTopicName").value = "";
-      document.getElementById("selectSKForTopic").value = "";
-      btn.textContent = "Simpan Tajuk & Padankan SK";
-      loadTopics();
+      try {
+        const { error } = await client.from("textbook_topics").insert([{ theme_id: currentThemeId, topic_name: name, sk_code: skCode }]);
+        if (error) throw error;
+        
+        document.getElementById("inputTopicName").value = "";
+        document.getElementById("selectSKForTopic").value = "";
+        await loadTopics();
+      } catch (err) {
+        alert("Ralat: " + err.message);
+      } finally {
+        btn.textContent = "Simpan Tajuk (Selesai) ✓";
+        btn.disabled = false;
+      }
     });
+
+    window.deleteTopic = async function(id) {
+      if(!confirm("Padam tajuk ini?")) return;
+      await client.from("textbook_topics").delete().eq("id", id);
+      loadTopics();
+    };
 
     init();
   </script>
 </body>
 </html>
-a
